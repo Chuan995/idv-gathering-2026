@@ -20,7 +20,7 @@
         }
         body {
             background-color: var(--bg-color);
-            background-image: url('https://www.transparenttextures.com/patterns/black-linen.png'); /* 材質紋理 */
+            background-image: url('https://www.transparenttextures.com/patterns/black-linen.png'); 
             color: #d1d1d1;
             font-family: 'Noto Sans TC', sans-serif;
             -webkit-tap-highlight-color: transparent;
@@ -86,6 +86,16 @@
             background: rgba(197, 160, 89, 0.1);
             transform: skewX(-20deg);
         }
+        /* 偵錯紅框樣式 */
+        .debug-box {
+            background: rgba(138, 10, 10, 0.2);
+            border: 1px solid var(--text-red);
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 11px;
+            color: #ff6b6b;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body class="min-h-screen pb-24">
@@ -96,7 +106,7 @@
 
     <main id="app-content" class="p-4 space-y-5">
         <div class="loader"></div>
-        <p class="text-center text-xs text-gray-500">正在連接莊園資料庫...</p>
+        <p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>
     </main>
 
     <nav class="fixed bottom-0 w-full bg-[#141414] border-t border-[#333] flex justify-around py-3 z-50 pb-safe">
@@ -108,9 +118,9 @@
             <i class="fas fa-book-open text-xl mb-1"></i>
             <span class="text-[10px]">莊園日誌</span>
         </button>
-        <button onclick="renderPersonalLedger()" class="nav-item flex flex-col items-center w-1/3">
+        <button onclick="renderMemoryFragment()" class="nav-item flex flex-col items-center w-1/3">
             <i class="fas fa-calculator text-xl mb-1"></i>
-            <span class="text-[10px]">個人密碼機</span>
+            <span class="text-[10px]">記憶碎片</span>
         </button>
     </nav>
 
@@ -126,7 +136,7 @@
         // 2. 公帳日誌連結 (Money/Journal) - GID: 1624206298
         const URL_JOURNAL = BASE_URL + "&gid=1624206298";
         
-        // 3. 資訊連結 (Info) - GID: 374415852 (雖然不用，但先留著備用)
+        // 3. 資訊連結 (Info) - GID: 374415852 (記憶碎片)
         const URL_INFO = BASE_URL + "&gid=374415852";
 
         // 台北大同區即時天氣 (2025/12/06 查詢結果)
@@ -171,20 +181,19 @@
         }
 
         // 通用 CSV 讀取功能
-        function fetchCSV(url, callback) {
-            contentDiv.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在連接莊園資料庫...</p>`;
+        function fetchCSV(url, callback, debugAreaId) {
+            contentDiv.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>`;
             Papa.parse(url, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    // 檢查欄位名稱是否為空
                     const filteredData = results.data.filter(row => Object.values(row).some(val => val !== ''));
-                    callback(filteredData);
+                    callback(filteredData, debugAreaId);
                 },
                 error: function(err) {
                     console.error("CSV Error:", err);
-                    contentDiv.innerHTML = `<div class="text-red-500 text-center">讀取資料失敗<br><span class="text-xs">${err.message || '請檢查 Google Sheets 是否已「發布到網路」'}</span></div>`;
+                    contentDiv.innerHTML = `<div class="text-red-500 text-center">破譯失敗 (CSV 錯誤)<br><span class="text-xs">${err.message || '請檢查 Google Sheets 是否已「發布到網路」'}</span></div>`;
                 }
             });
         }
@@ -211,12 +220,23 @@
                     </div>
                 `;
 
+                // --- 偵錯碼 START (推演任務) ---
+                if (data && data.length > 0) {
+                    const detectedHeaders = Object.keys(data[0]);
+                    contentDiv.innerHTML += `<div class="debug-box">
+                        **🚨 推演任務偵測到欄位名稱 (請提供此行文字)**：<br>
+                        <span class="text-white">${detectedHeaders.join(', ')}</span>
+                    </div>`;
+                }
+                // --- 偵錯碼 END ---
+
                 if (!data || data.length === 0) {
                     contentDiv.innerHTML += `<div class="text-center text-gray-500">❌ 任務失敗：沒有行程資料<br>請檢查 Excel 內容及欄位名稱</div>`;
                     return;
                 }
 
                 data.forEach(row => {
+                    // 這裡的名稱目前仍是假設，等你提供偵測到的名稱後我會修改
                     const time = row['時間'] || row['Time'] || '??:??';
                     const location = row['地點'] || row['Location'] || '未知地點';
                     const type = row['類別'] || row['Type'] || '行程';
@@ -228,7 +248,7 @@
                     if(type.includes('集合')) icon = 'fa-flag-checkered';
                     if(type.includes('交通') || type.includes('車')) icon = 'fa-subway';
 
-                    // AI 導遊：重點標籤 (必吃、必買等)
+                    // AI 導遊：重點標籤
                     note = note.replace(/必吃美食|必點菜單/g, '<span class="text-yellow-400 font-bold italic">$&</span>');
                     note = note.replace(/必買伴手禮|重要預約資訊/g, '<span class="text-[#8a0a0a] font-bold italic border-b border-[#8a0a0a]">$&</span>');
 
@@ -277,6 +297,17 @@
                      </div>
                 `;
                 
+                // --- 偵錯碼 START (莊園日誌) ---
+                if (data && data.length > 0) {
+                    const detectedHeaders = Object.keys(data[0]);
+                    contentDiv.innerHTML += `<div class="debug-box">
+                        **🚨 莊園日誌偵測到欄位名稱 (請提供此行文字)**：<br>
+                        <span class="text-white">${detectedHeaders.join(', ')}</span>
+                    </div>`;
+                }
+                // --- 偵錯碼 END ---
+
+
                 let totalDebt = 0;
                 let dataHtml = '';
 
@@ -284,6 +315,7 @@
                     dataHtml = `<div class="text-center text-gray-500 mt-8">📖 日誌空白：目前沒有公帳紀錄。</div>`;
                 } else {
                     data.forEach(row => {
+                        // 這裡的名稱目前仍是假設，等你提供偵測到的名稱後我會修改
                         const name = row['姓名'] || row['name'] || '偵探';
                         const item = row['代墊項目'] || row['item'] || '未知消費';
                         const amount = parseInt(row['應付金額'] || row['amount'] || 0);
@@ -315,10 +347,10 @@
             });
         }
 
-        // --- 3. 渲染個人記帳 (密碼機 - Local Storage) ---
-        function renderPersonalLedger() {
+        // --- 3. 渲染個人記帳 (記憶碎片 - Local Storage) ---
+        function renderMemoryFragment() { // 函式名稱已更改
             setActiveNav(2);
-            contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">個人密碼機：私帳記錄</h2>`;
+            contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人私帳記錄</h2>`; // 標題已更改
             
             const ledger = loadLedger();
 
@@ -365,6 +397,8 @@
             renderChart(ledger);
         }
 
+        // ... (Chart and Ledger functions remain unchanged, but their calls are updated) ...
+        
         // 繪製圓餅圖
         function renderChart(ledger) {
             const chartData = {};
@@ -381,7 +415,6 @@
 
             const ctx = document.getElementById('expenseChart').getContext('2d');
             
-            // 銷毀舊的 Chart 實例
             if (window.myChart) {
                 window.myChart.destroy();
             }
@@ -457,11 +490,9 @@
 
             saveLedger(ledger);
             
-            // 清空輸入
             document.getElementById('expense-item').value = '';
             document.getElementById('expense-amount').value = '';
 
-            // 重新渲染
             renderLedgerList(ledger);
             renderChart(ledger);
             alert('✅ 密碼輸入成功！');
@@ -475,7 +506,6 @@
             ledger.splice(index, 1);
             saveLedger(ledger);
             
-            // 重新渲染
             renderLedgerList(ledger);
             renderChart(ledger);
         }
