@@ -129,6 +129,16 @@
         // 3. 資訊連結 (Info) - GID: 374415852 (記憶碎片)
         const URL_INFO = BASE_URL + "&gid=374415852";
 
+        // --- 戰隊資訊設定 ---
+        const TEAM_MEMBERS = ['女神', '大神', 'ㄎㄎ', '紅茶', '鳥鳥', '寧寧', '阿洛', '小姐姐', '青雨', '辣醬'];
+        const TEAM_ANNOUNCEMENTS = [
+            '🐦攜帶現金',
+            '🐦雨具、保暖衣物、穿襪子',
+            '🐦別穿裙子',
+            '🐦有任何變動需盡早提出'
+        ];
+        const TEAM_IMAGE_URL = 'https://i.imgur.com/vHqQZgY.png'; // 預設的團體圖案
+
         // 台北大同區即時天氣 (固定資訊)
         const TAIPEI_WEATHER = {
             location: '台北市大同區',
@@ -194,6 +204,44 @@
             fetchCSV(URL_SCHEDULE, (data) => {
                 contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
                 
+                // --- 戰隊/公告/成員區塊 ---
+                const teamBox = `
+                    <div class="identity-card p-4 mb-5 border-l-4 border-[#8a0a0a]">
+                        <div class="flex items-start mb-3 border-b border-[#333] pb-2">
+                            <img src="${TEAM_IMAGE_URL}" class="w-10 h-10 object-cover rounded-full border border-gray-600 mr-3 opacity-80" alt="Team Logo">
+                            <div>
+                                <h3 class="text-xs text-gray-500 gothic-font">戰隊名稱</h3>
+                                <h2 class="text-xl font-bold text-[#ff6b6b] leading-tight">學術殿堂戰隊</h2>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-[#5d4d2b] pb-1">戰隊公告</h4>
+                                <ul class="text-xs text-gray-400 space-y-1 pl-2">
+                                    ${TEAM_ANNOUNCEMENTS.map(ann => `<li class="flex items-start"><i class="fas fa-bell text-yellow-500 mr-2 mt-0.5 text-xs"></i>${ann}</li>`).join('')}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-[#5d4d2b] pb-1">戰隊成員 (${TEAM_MEMBERS.length}/10)</h4>
+                                <div class="space-y-1">
+                                    ${TEAM_MEMBERS.map(member => `
+                                        <div class="flex justify-between items-center text-xs">
+                                            <div class="flex items-center">
+                                                <span class="w-2 h-2 rounded-full bg-green-500 mr-2 border border-green-300 shadow-sm"></span>
+                                                <span class="text-white">${member}</span>
+                                            </div>
+                                            <span class="text-gray-400 border border-gray-600 px-1 rounded-sm text-[8px] tracking-widest cursor-pointer hover:bg-gray-700">邀</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                contentDiv.innerHTML += teamBox;
+                
                 // 天氣區塊
                 contentDiv.innerHTML += `
                     <div class="identity-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t-2 border-l-2 border-[#5d4d2b]">
@@ -216,14 +264,13 @@
                 }
 
                 data.forEach(row => {
-                    // *** 欄位名稱已修正為您 Excel 中偵測到的名稱 ***
                     const date = row['日期'] || '';
                     const weekday = row['星期'] || '';
                     const time = row['時間'] || '??:??';
                     const location = row['地點'] || '未知地點';
                     const type = row['類別'] || '行程';
-                    const link = row['GOOGLE MAP連結'] || ''; // 注意大寫
-                    let note = row['備註'] || ''; // 修正為 '備註'
+                    const link = row['GOOGLE MAP連結'] || '';
+                    let note = row['備註'] || '';
                     
                     let icon = 'fa-map-marker-alt';
                     if(type.includes('餐廳') || type.includes('食')) icon = 'fa-utensils';
@@ -233,6 +280,9 @@
                     // AI 導遊：重點標籤
                     note = note.replace(/必吃美食|必點菜單/g, '<span class="text-yellow-400 font-bold italic">$&</span>');
                     note = note.replace(/必買伴手禮|重要預約資訊/g, '<span class="text-[#8a0a0a] font-bold italic border-b border-[#8a0a0a]">$&</span>');
+                    
+                    // 修正括號錯誤：只有當 weekday 欄位有內容時才顯示括號
+                    const weekdayDisplay = weekday ? `(${weekday})` : '';
 
                     contentDiv.innerHTML += `
                         <div class="identity-card p-4 rounded-md mb-4 relative group">
@@ -242,7 +292,7 @@
                             <div class="flex justify-between items-start relative z-10">
                                 <div class="w-3/4">
                                     <span class="text-[#c5a059] font-bold text-lg font-mono flex items-center">
-                                        <i class="far fa-clock mr-2 text-xs"></i>${date} (${weekday}) ${time}
+                                        <i class="far fa-clock mr-2 text-xs"></i>${date} ${weekdayDisplay} ${time}
                                     </span>
                                     <h3 class="text-xl font-bold mt-1 text-white leading-tight">${location}</h3>
                                     <div class="text-xs text-gray-400 mt-2 uppercase tracking-widest border-b border-gray-700 inline-block pb-1">${type}</div>
@@ -273,11 +323,14 @@
                     dataHtml = `<div class="text-center text-gray-500 mt-8">📖 日誌空白：目前沒有公帳紀錄。</div>`;
                 } else {
                     data.forEach(row => {
-                        // *** 欄位名稱已修正為您 Excel 中偵測到的名稱 ***
                         const name = row['姓名'] || '偵探';
                         const item = row['代墊項目'] || '未知消費';
-                        const amount = parseInt(row['應付金額'] || 0); // 應付金額
-                        const rawPaid = (row['是否已付款'] || '').toString().toLowerCase(); // 是否已付款
+                        
+                        // *** BUG FIX: 清理金額欄位中的非數字字元 (例如: 逗號或貨幣符號) ***
+                        const rawAmount = (row['應付金額'] || '0').toString().replace(/[^0-9]/g, '');
+                        const amount = parseInt(rawAmount) || 0; 
+                        
+                        const rawPaid = (row['是否已付款'] || '').toString().toLowerCase();
                         const isPaid = rawPaid.includes('true') || rawPaid.includes('是') || rawPaid.includes('ok');
 
                         if (!isPaid) {
@@ -367,7 +420,7 @@
             renderChart(ledger);
         }
 
-        // 繪製圓餅圖
+        // 繪製圓餅圖 (不變)
         function renderChart(ledger) {
             const chartData = {};
             let total = 0;
@@ -413,7 +466,7 @@
             });
         }
 
-        // 渲染記帳列表
+        // 渲染記帳列表 (不變)
         function renderLedgerList(ledger) {
             const listDiv = document.getElementById('ledger-list');
             if (ledger.length === 0) {
@@ -437,7 +490,7 @@
             `).join('');
         }
 
-        // 新增記帳項目
+        // 新增記帳項目 (不變)
         function addExpense() {
             const category = document.getElementById('expense-category').value;
             const item = document.getElementById('expense-item').value.trim();
@@ -466,7 +519,7 @@
             alert('✅ 密碼輸入成功！');
         }
         
-        // 刪除記帳項目
+        // 刪除記帳項目 (不變)
         function deleteExpense(index) {
             if (!confirm('確認刪除此筆記錄？')) return;
             
