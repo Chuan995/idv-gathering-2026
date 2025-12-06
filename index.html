@@ -86,16 +86,6 @@
             background: rgba(197, 160, 89, 0.1);
             transform: skewX(-20deg);
         }
-        /* 偵錯紅框樣式 */
-        .debug-box {
-            background: rgba(138, 10, 10, 0.2);
-            border: 1px solid var(--text-red);
-            padding: 10px;
-            margin-bottom: 15px;
-            font-size: 11px;
-            color: #ff6b6b;
-            word-break: break-all;
-        }
     </style>
 </head>
 <body class="min-h-screen pb-24">
@@ -139,7 +129,7 @@
         // 3. 資訊連結 (Info) - GID: 374415852 (記憶碎片)
         const URL_INFO = BASE_URL + "&gid=374415852";
 
-        // 台北大同區即時天氣 (2025/12/06 查詢結果)
+        // 台北大同區即時天氣 (固定資訊)
         const TAIPEI_WEATHER = {
             location: '台北市大同區',
             temp: '20°C',
@@ -181,7 +171,7 @@
         }
 
         // 通用 CSV 讀取功能
-        function fetchCSV(url, callback, debugAreaId) {
+        function fetchCSV(url, callback) {
             contentDiv.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>`;
             Papa.parse(url, {
                 download: true,
@@ -189,7 +179,7 @@
                 skipEmptyLines: true,
                 complete: function(results) {
                     const filteredData = results.data.filter(row => Object.values(row).some(val => val !== ''));
-                    callback(filteredData, debugAreaId);
+                    callback(filteredData);
                 },
                 error: function(err) {
                     console.error("CSV Error:", err);
@@ -219,30 +209,22 @@
                         </div>
                     </div>
                 `;
-
-                // --- 偵錯碼 START (推演任務) ---
-                if (data && data.length > 0) {
-                    const detectedHeaders = Object.keys(data[0]);
-                    contentDiv.innerHTML += `<div class="debug-box">
-                        **🚨 推演任務偵測到欄位名稱 (請提供此行文字)**：<br>
-                        <span class="text-white">${detectedHeaders.join(', ')}</span>
-                    </div>`;
-                }
-                // --- 偵錯碼 END ---
-
+                
                 if (!data || data.length === 0) {
                     contentDiv.innerHTML += `<div class="text-center text-gray-500">❌ 任務失敗：沒有行程資料<br>請檢查 Excel 內容及欄位名稱</div>`;
                     return;
                 }
 
                 data.forEach(row => {
-                    // 這裡的名稱目前仍是假設，等你提供偵測到的名稱後我會修改
-                    const time = row['時間'] || row['Time'] || '??:??';
-                    const location = row['地點'] || row['Location'] || '未知地點';
-                    const type = row['類別'] || row['Type'] || '行程';
-                    const link = row['GoogleMap連結'] || row['Link'] || '';
-                    let note = row['備註/攻略'] || row['Notes'] || '';
-
+                    // *** 欄位名稱已修正為您 Excel 中偵測到的名稱 ***
+                    const date = row['日期'] || '';
+                    const weekday = row['星期'] || '';
+                    const time = row['時間'] || '??:??';
+                    const location = row['地點'] || '未知地點';
+                    const type = row['類別'] || '行程';
+                    const link = row['GOOGLE MAP連結'] || ''; // 注意大寫
+                    let note = row['備註'] || ''; // 修正為 '備註'
+                    
                     let icon = 'fa-map-marker-alt';
                     if(type.includes('餐廳') || type.includes('食')) icon = 'fa-utensils';
                     if(type.includes('集合')) icon = 'fa-flag-checkered';
@@ -260,7 +242,7 @@
                             <div class="flex justify-between items-start relative z-10">
                                 <div class="w-3/4">
                                     <span class="text-[#c5a059] font-bold text-lg font-mono flex items-center">
-                                        <i class="far fa-clock mr-2 text-xs"></i>${time}
+                                        <i class="far fa-clock mr-2 text-xs"></i>${date} (${weekday}) ${time}
                                     </span>
                                     <h3 class="text-xl font-bold mt-1 text-white leading-tight">${location}</h3>
                                     <div class="text-xs text-gray-400 mt-2 uppercase tracking-widest border-b border-gray-700 inline-block pb-1">${type}</div>
@@ -284,45 +266,23 @@
             fetchCSV(URL_JOURNAL, (data) => {
                 contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：公款清算</h2>`;
                 
-                // 商城風格 Header (展示區塊)
-                contentDiv.innerHTML += `
-                     <div class="shop-header p-4 mb-6 text-center rounded-lg shadow-xl">
-                        <div class="absolute top-0 left-0 w-24 h-full bg-cover bg-center opacity-5" style="background-image: url('https://i.imgur.com/gK6bF9h.png');"></div>
-                        <p class="text-gray-400 text-sm mb-1 gothic-font">懸賞目標：待收款項</p>
-                        <div class="flex justify-center items-center">
-                            <i class="fas fa-gem text-3xl text-red-500 mr-2"></i>
-                            <p class="text-4xl text-[#c5a059] gothic-font font-bold" id="total-debt">$0</p>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">（此為公帳總墊付，不含個人私帳）</p>
-                     </div>
-                `;
-                
-                // --- 偵錯碼 START (莊園日誌) ---
-                if (data && data.length > 0) {
-                    const detectedHeaders = Object.keys(data[0]);
-                    contentDiv.innerHTML += `<div class="debug-box">
-                        **🚨 莊園日誌偵測到欄位名稱 (請提供此行文字)**：<br>
-                        <span class="text-white">${detectedHeaders.join(', ')}</span>
-                    </div>`;
-                }
-                // --- 偵錯碼 END ---
-
-
                 let totalDebt = 0;
                 let dataHtml = '';
-
+                
                 if (!data || data.length === 0) {
                     dataHtml = `<div class="text-center text-gray-500 mt-8">📖 日誌空白：目前沒有公帳紀錄。</div>`;
                 } else {
                     data.forEach(row => {
-                        // 這裡的名稱目前仍是假設，等你提供偵測到的名稱後我會修改
-                        const name = row['姓名'] || row['name'] || '偵探';
-                        const item = row['代墊項目'] || row['item'] || '未知消費';
-                        const amount = parseInt(row['應付金額'] || row['amount'] || 0);
-                        const rawPaid = (row['是否已付款'] || row['paid'] || '').toString().toLowerCase();
+                        // *** 欄位名稱已修正為您 Excel 中偵測到的名稱 ***
+                        const name = row['姓名'] || '偵探';
+                        const item = row['代墊項目'] || '未知消費';
+                        const amount = parseInt(row['應付金額'] || 0); // 應付金額
+                        const rawPaid = (row['是否已付款'] || '').toString().toLowerCase(); // 是否已付款
                         const isPaid = rawPaid.includes('true') || rawPaid.includes('是') || rawPaid.includes('ok');
 
-                        totalDebt += amount;
+                        if (!isPaid) {
+                            totalDebt += amount;
+                        }
 
                         const statusColor = isPaid ? 'text-green-500' : 'text-[#8a0a0a]';
                         const statusText = isPaid ? '已結清' : '尚未支付';
@@ -342,15 +302,25 @@
                     });
                 }
                 
-                contentDiv.innerHTML += `<div class="mt-8">` + dataHtml + `</div>`;
-                document.getElementById('total-debt').innerText = `$${totalDebt.toLocaleString()}`;
+                // 商城風格 Header (展示區塊) - 放在資料計算完成之後，才能顯示正確的 totalDebt
+                contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：公款清算</h2>` + `
+                     <div class="shop-header p-4 mb-6 text-center rounded-lg shadow-xl">
+                        <div class="absolute top-0 left-0 w-24 h-full bg-cover bg-center opacity-5" style="background-image: url('https://i.imgur.com/gK6bF9h.png');"></div>
+                        <p class="text-gray-400 text-sm mb-1 gothic-font">懸賞目標：待收款項</p>
+                        <div class="flex justify-center items-center">
+                            <i class="fas fa-gem text-3xl text-red-500 mr-2"></i>
+                            <p class="text-4xl text-[#c5a059] gothic-font font-bold">$${totalDebt.toLocaleString()}</p>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">（此為公帳總待收金額）</p>
+                     </div>
+                ` + `<div class="mt-8">` + dataHtml + `</div>`;
             });
         }
 
         // --- 3. 渲染個人記帳 (記憶碎片 - Local Storage) ---
-        function renderMemoryFragment() { // 函式名稱已更改
+        function renderMemoryFragment() {
             setActiveNav(2);
-            contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人私帳記錄</h2>`; // 標題已更改
+            contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人私帳記錄</h2>`;
             
             const ledger = loadLedger();
 
@@ -397,8 +367,6 @@
             renderChart(ledger);
         }
 
-        // ... (Chart and Ledger functions remain unchanged, but their calls are updated) ...
-        
         // 繪製圓餅圖
         function renderChart(ledger) {
             const chartData = {};
