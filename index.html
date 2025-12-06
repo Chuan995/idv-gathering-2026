@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 莊園聚會 | Identity V Trip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #0f1014;
+            --card-bg: rgba(26, 26, 26, 0.95);
+            --text-gold: #c5a059;
+            --text-red: #8a0a0a;
+            --border-color: #5d4d2b;
+        }
+        body {
+            background-color: var(--bg-color);
+            background-image: url('https://www.transparenttextures.com/patterns/black-linen.png');
+            color: #d1d1d1;
+            font-family: 'Noto Sans TC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        h1, h2, .gothic-font {
+            font-family: 'Cinzel', serif;
+            color: var(--text-gold);
+            text-shadow: 1px 1px 2px black;
+        }
+        /* 卡片特效 */
+        .identity-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+        /* 破舊紙張邊角效果 (簡單模擬) */
+        .identity-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--text-gold), transparent);
+            opacity: 0.5;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 導航按鈕 */
+        .nav-item.active {
+            color: var(--text-gold);
+            border-bottom: 2px solid var(--text-red);
+        }
+        .nav-item {
+            color: #666;
+            transition: all 0.3s;
+        }
+        .btn-cipher {
+            background: linear-gradient(180deg, #3d3d3d, #1a1a1a);
+            border: 1px solid var(--text-gold);
+            color: var(--text-gold);
+        }
+        /* 載入中動畫 */
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid var(--text-gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen pb-24">
+
+    <header class="p-4 text-center border-b border-[#333] sticky top-0 bg-[#0f1014] z-50 shadow-lg backdrop-blur-sm bg-opacity-90">
+        <h1 class="text-xl font-bold tracking-widest">IDENTITY V <span class="text-xs block text-gray-500 font-sans tracking-normal mt-1">2026.02.28 莊園聚會</span></h1>
+    </header>
+
+    <main id="app-content" class="p-4 space-y-5">
+        <div class="loader"></div>
+        <p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-[#141414] border-t border-[#333] flex justify-around py-3 z-50 pb-safe">
+        <button onclick="renderSchedule()" class="nav-item active flex flex-col items-center w-1/3">
+            <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+            <span class="text-[10px]">推演任務</span>
+        </button>
+        <button onclick="renderMoney()" class="nav-item flex flex-col items-center w-1/3">
+            <i class="fas fa-coins text-xl mb-1"></i>
+            <span class="text-[10px]">莊園日誌</span>
+        </button>
+        <button onclick="renderInfo()" class="nav-item flex flex-col items-center w-1/3">
+            <i class="fas fa-archive text-xl mb-1"></i>
+            <span class="text-[10px]">記憶碎片</span>
+        </button>
+    </nav>
+
+    <script>
+        // ==========================================
+        // 設定區：請在這裡貼上你的 Google Sheet 連結
+        // ==========================================
+        
+        // 1. 行程表連結 (Schedule) - 這是你剛剛給我的連結
+        const URL_SCHEDULE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?output=csv";
+        
+        // 2. 帳房連結 (Money) - 這是你剛剛給我的連結
+        const URL_MONEY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?gid=1624206298&single=true&output=csv"; 
+        
+        // 3. 資訊連結 (Info) - 這是你剛剛給我的連結
+        const URL_INFO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?gid=374415852&single=true&output=csv";
+
+        // ==========================================
+        
+        const contentDiv = document.getElementById('app-content');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // 假資料 (當沒有連結時使用)
+        const mockMoney = [
+            { name: '範例-A偵探', item: '示範項目', amount: 500, paid: 'FALSE' },
+            { name: '範例-B傭兵', item: '示範項目', amount: 650, paid: 'TRUE' }
+        ];
+        const mockInfo = [
+            { category: '提示', name: '請設定連結', detail: '請去 Google Sheet 發布其他分頁', notes: '目前顯示假資料' }
+        ];
+
+        // 切換導航狀態
+        function setActiveNav(index) {
+            navItems.forEach(item => item.classList.remove('active'));
+            navItems[index].classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // 通用 CSV 讀取功能
+        function fetchCSV(url, callback) {
+            if(!url) { callback(null); return; }
+            Papa.parse(url, {
+                download: true,
+                header: true, // 假設第一行是標題
+                complete: function(results) {
+                    callback(results.data);
+                },
+                error: function(err) {
+                    console.error("CSV Error:", err);
+                    contentDiv.innerHTML = `<div class="text-red-500 text-center">讀取資料失敗<br><span class="text-xs">${err}</span></div>`;
+                }
+            });
+        }
+
+        // --- 1. 渲染行程 (Schedule) ---
+        function renderSchedule() {
+            setActiveNav(0);
+            contentDiv.innerHTML = `<div class="loader"></div>`;
+
+            fetchCSV(URL_SCHEDULE, (data) => {
+                contentDiv.innerHTML = `<h2 class="text-lg gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">今日推演目標</h2>`;
+                
+                // 天氣區塊 (裝飾用)
+                contentDiv.innerHTML += `
+                    <div class="identity-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a]">
+                        <div class="flex items-center">
+                            <i class="fas fa-cloud-moon text-2xl mr-3 text-gray-400"></i>
+                            <div>
+                                <div class="text-sm text-gray-400">聚會當日</div>
+                                <div class="text-xl font-bold text-[#c5a059]">2/28 <span class="text-xs text-gray-500">晴時多雲</span></div>
+                            </div>
+                        </div>
+                        <div class="text-right text-xs text-gray-500">預計氣溫<br>18°C - 24°C</div>
+                    </div>
+                `;
+
+                if (!data || data.length === 0) {
+                    contentDiv.innerHTML += `<div class="text-center text-gray-500">目前沒有行程資料<br>請檢查 Excel 連結</div>`;
+                    return;
+                }
+
+                // 讀取資料 (這裡假設你的 Excel 欄位順序)
+                // 為了保險，我這裡用「欄位名稱」來抓，如果不對，請告訴我
+                // 假設欄位: 日期, 時間, 地點, 類別, 連結, 備註
+                
+                data.forEach(row => {
+                    // 略過空行
+                    if(!row['時間'] && !row['地點']) return;
+
+                    // 取得資料 (對應你的 CSV 欄位名稱，如果你的 Excel 標題不是這些，要改這裡)
+                    const time = row['時間'] || row['Time'] || '??:??';
+                    const location = row['地點'] || row['Location'] || '未知地點';
+                    const type = row['類別'] || row['Type'] || '行程';
+                    const link = row['GoogleMap連結'] || row['Link'] || '';
+                    const note = row['備註/攻略'] || row['Notes'] || '';
+
+                    // 根據類別換圖示
+                    let icon = 'fa-map-marker-alt';
+                    if(type.includes('餐廳') || type.includes('食')) icon = 'fa-utensils';
+                    if(type.includes('集合')) icon = 'fa-flag-checkered';
+                    if(type.includes('交通') || type.includes('車')) icon = 'fa-subway';
+
+                    contentDiv.innerHTML += `
+                        <div class="identity-card p-4 rounded-md mb-4 relative group">
+                            <div class="absolute top-0 right-0 p-2 opacity-10">
+                                <i class="fas ${icon} text-6xl text-white"></i>
+                            </div>
+                            <div class="flex justify-between items-start relative z-10">
+                                <div class="w-3/4">
+                                    <span class="text-[#c5a059] font-bold text-lg font-mono flex items-center">
+                                        <i class="far fa-clock mr-2 text-xs"></i>${time}
+                                    </span>
+                                    <h3 class="text-xl font-bold mt-1 text-white leading-tight">${location}</h3>
+                                    <div class="text-xs text-gray-400 mt-2 uppercase tracking-widest border-b border-gray-700 inline-block pb-1">${type}</div>
+                                </div>
+                                ${link ? `<a href="${link}" target="_blank" class="btn-cipher w-10 h-10 flex items-center justify-center rounded-full shadow-lg active:scale-90 transition-transform"><i class="fas fa-location-arrow"></i></a>` : ''}
+                            </div>
+                            ${note ? `
+                            <div class="mt-3 pt-3 border-t border-[#333] text-sm text-gray-300 flex items-start">
+                                 <i class="fas fa-info-circle text-[#5d4d2b] mr-2 mt-1"></i>
+                                 <span>${note}</span>
+                            </div>` : ''}
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // --- 2. 渲染帳房 (Money) ---
+        function renderMoney() {
+            setActiveNav(1);
+            contentDiv.innerHTML = `<div class="loader"></div>`;
+            
+            // 如果有連結就抓連結，沒有就用假資料
+            const dataSource = URL_MONEY ? null : mockMoney;
+            
+            const processData = (data) => {
+                contentDiv.innerHTML = `<h2 class="text-lg gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園欠款清單</h2>`;
+                
+                // 這裡可以加入總金額計算邏輯
+                let total = 0;
+                data.forEach(d => total += parseInt(d.amount || d['應付金額'] || 0));
+
+                contentDiv.innerHTML += `
+                     <div class="identity-card p-4 mb-6 text-center bg-[#1a0505]">
+                        <p class="text-gray-400 text-sm mb-2">本次聚會總支出 (代墊)</p>
+                        <p class="text-3xl text-[#c5a059] gothic-font font-bold">$${total}</p>
+                        <p class="text-xs text-[#8a0a0a] mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>請儘速還款以利莊園運作</p>
+                     </div>
+                `;
+
+                data.forEach(row => {
+                    if(!row['name'] && !row['姓名']) return;
+                    
+                    const name = row['姓名'] || row['name'];
+                    const item = row['代墊項目'] || row['item'];
+                    const amount = row['應付金額'] || row['amount'];
+                    // 判斷是否付款 (檢查 Excel 裡是不是寫 'TRUE', '是', 'ok')
+                    const rawPaid = (row['是否已付款'] || row['paid'] || '').toString().toLowerCase();
+                    const isPaid = rawPaid.includes('true') || rawPaid.includes('是') || rawPaid.includes('ok');
+
+                    const statusColor = isPaid ? 'text-green-600' : 'text-[#8a0a0a]';
+                    const statusText = isPaid ? '已結清' : '尚未支付';
+                    const borderClass = isPaid ? 'border-gray-800' : 'border-[#8a0a0a]';
+                    const bgClass = isPaid ? 'opacity-50' : '';
+
+                    contentDiv.innerHTML += `
+                        <div class="identity-card p-3 mb-3 rounded flex justify-between items-center ${!isPaid ? 'border-l-4 border-l-[#8a0a0a]' : ''} ${bgClass}">
+                            <div>
+                                <div class="font-bold text-lg text-gray-200">${name}</div>
+                                <div class="text-xs text-gray-400">${item}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-mono ${statusColor}">$${amount}</div>
+                                <div class="text-xs ${statusColor} border border-current px-2 py-0.5 rounded scale-90 origin-right inline-block">${statusText}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            };
+
+            if(URL_MONEY) {
+                fetchCSV(URL_MONEY, processData);
+            } else {
+                processData(mockMoney);
+            }
+        }
+
+        // --- 3. 渲染資訊 (Info) ---
+        function renderInfo() {
+            setActiveNav(2);
+            contentDiv.innerHTML = `<h2 class="text-lg gothic-font mb-4 border-l-4 border-gray-500 pl-3">檔案室</h2>`;
+            
+            const dataSource = URL_INFO ? null : mockInfo;
+            
+            const processData = (data) => {
+                data.forEach(row => {
+                    if(!row['name'] && !row['名稱']) return;
+                    
+                    const category = row['類別'] || row['category'];
+                    const name = row['名稱'] || row['name'];
+                    const detail = row['時間/地址'] || row['detail'];
+                    const note = row['備註'] || row['notes'];
+
+                    contentDiv.innerHTML += `
+                        <div class="identity-card p-4 mb-4">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-[#333] border border-[#5d4d2b] text-[#c5a059] text-xs px-2 py-1 rounded mr-2">${category}</span>
+                                <h3 class="font-bold text-white text-lg">${name}</h3>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2 pl-1 border-l-2 border-[#333]"><i class="fas fa-map-pin mr-2 text-[#5d4d2b]"></i>${detail}</p>
+                            <p class="text-gray-500 text-xs italic pl-1">${note}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            if(URL_INFO) {
+                fetchCSV(URL_INFO, processData);
+            } else {
+                processData(mockInfo);
+            }
+        }
+
+        // 初始化
+        renderSchedule();
+
+    </script>
+</body>
+</html>
