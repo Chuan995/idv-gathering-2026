@@ -96,8 +96,15 @@
             padding: 0 4px;
             line-height: 1.2;
         }
-        /* 段位圖示基礎樣式 */
-        .rank-icon {
+        /* 段位圖示容器 - 用於載入圖片 */
+        .rank-icon-img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            margin-right: 2px;
+        }
+        /* 段位圓圈 fallback 樣式 */
+        .rank-icon-fallback {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -112,6 +119,7 @@
             text-shadow: 0 0 1px black;
             overflow: hidden;
             position: relative;
+            background-color: #666; /* 確保有預設顏色 */
         }
         .rank-roman {
             font-family: 'Cinzel', serif;
@@ -154,17 +162,14 @@
         // ==========================================
         const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?single=true&output=csv";
         
-        // 1. 行程表連結 (Schedule) - GID: 1831823101
         const URL_SCHEDULE = BASE_URL + "&gid=1831823101";
-
-        // 2. 公帳日誌連結 (Money/Journal) - GID: 1624206298
         const URL_JOURNAL = BASE_URL + "&gid=1624206298";
-        
-        // 3. 資訊連結 (Info) - GID: 374415852 (記憶碎片)
         const URL_INFO = BASE_URL + "&gid=374415852";
 
         // --- 戰隊資訊設定 ---
-        const TEAM_IMAGE_URL = 'https://i.imgur.com/vHqQZgY.png';
+        // ✅ App Icon 已替換
+        const TEAM_IMAGE_URL = 'https://i.imgur.com/K1Lg0jT.png'; 
+        
         const TEAM_ANNOUNCEMENTS = [
             '🐦 攜帶現金',
             '🐦 雨具、保暖衣物、穿襪子',
@@ -172,7 +177,23 @@
             '🐦 有任何變動需盡早提出'
         ];
         
-        // 段位數據 (包含求生者和監管者)
+        // ✅ 段位 Icon 圖片連結：已使用 BiliGame Wiki 直連圖
+        const RANK_ICON_URLS = {
+            // 求生者 (Survivor)
+            'S1': 'https://img.biligame.com/dwrg/a/a3/e1/0c62c3e10c735d4681648a32d1877473062c3e1.png', // 蜜蜂
+            'S2': 'https://img.biligame.com/dwrg/a/ad/e5/0f6b8f365d95b5468538600d3d528c68600d3d5.png', // 小狗
+            'S3': 'https://img.biligame.com/dwrg/a/ab/71/08c37d6e6a3ab431e78df7964b4c73026e6a3ab.png', // 鹿
+            'S4': 'https://img.biligame.com/dwrg/a/ad/37/074b1022d109d436ec08816f1a8c99f36ec0881.png', // 大象
+            'S5': 'https://img.biligame.com/dwrg/a/af/57/02251a700d81023c72719a421b5853150d81023.png', // 老鷹
+            
+            // 監管者 (Hunter)
+            'H1': 'https://img.biligame.com/dwrg/a/aa/1a/0f3c559828e6b189ff4c264a7c06c1170f3c559.png', // 蜘蛛
+            'H2': 'https://img.biligame.com/dwrg/a/a2/29/032f6b216ce7083042079017688090886b216ce.png', // 蛇
+            'H3': 'https://img.biligame.com/dwrg/a/a7/53/0762145b0a3949f57f6d90a597a72d73145b0a3.png', // 鱷魚
+            'H4': 'https://img.biligame.com/dwrg/a/af/58/01306385f00e9391cf8e9063229b43d36385f00.png'  // 劍齒虎
+        };
+        
+        // 段位數據 (保持不變)
         const TEAM_RANKS = {
             '女神': { survivor: '4-3', hunter: '1-2' },
             '大神': { survivor: '4-3', hunter: '2-1' },
@@ -185,9 +206,9 @@
             '青雨': { survivor: '2-1', hunter: '2-1' },
             '辣醬': { survivor: '3-5', hunter: '2-1' }
         };
-        const TEAM_MEMBERS = Object.keys(TEAM_RANKS); // 從段位數據中獲取成員列表
+        const TEAM_MEMBERS = Object.keys(TEAM_RANKS); 
 
-        // 台北大同區即時天氣 (2025/12/07 12:30 更新數據)
+        // 台北大同區即時天氣 (保持不變)
         const TAIPEI_WEATHER = {
             location: '台北市大同區',
             temp: '22°C',
@@ -202,33 +223,28 @@
         const navItems = document.querySelectorAll('.nav-item');
         const expenseCategories = ['餐飲費', '交通費', '住宿費', '娛樂費', '伴手禮', '雜項'];
         
-        // --- 工具函式 ---
+        // --- 工具函式：新的圖片段位顯示邏輯 ---
         function getRankDisplay(member, type) {
             const rankStr = TEAM_RANKS[member] ? TEAM_RANKS[member][type] : '1-1';
             const [tier, sub] = rankStr.split('-').map(Number);
             
-            let icon = '';
-            let color = '';
-            let symbol = '';
-
-            if (type === 'survivor') {
-                if (tier === 1) { symbol = 'B'; color = '#c5a059'; } // 蜜蜂 (Bronze/Brown)
-                else if (tier === 2) { symbol = 'D'; color = '#aaaaaa'; } // 小狗 (Dog/Gray)
-                else if (tier === 3) { symbol = 'L'; color = '#99ccff'; } // 鹿 (Light Blue)
-                else if (tier === 4) { symbol = 'E'; color = '#4caf50'; } // 大象 (Elephant/Green)
-                else if (tier === 5) { symbol = 'G'; color = '#ffeb3b'; } // 老鷹 (Gold/Yellow)
-            } else if (type === 'hunter') {
-                if (tier === 1) { symbol = 'S'; color = '#ff9999'; } // 蜘蛛 (Spider/Light Red)
-                else if (tier === 2) { symbol = 'S'; color = '#81c784'; } // 蛇 (Snake/Light Green)
-                else if (tier === 3) { symbol = 'C'; color = '#00bcd4'; } // 鱷魚 (Crocodile/Cyan)
-                else if (tier === 4) { symbol = 'T'; color = '#ff6e40'; } // 劍齒虎 (Tiger/Orange)
-            }
-            
+            let rankKey = (type === 'survivor' ? 'S' : 'H') + tier;
+            const imageUrl = RANK_ICON_URLS[rankKey];
             const roman = ['I', 'II', 'III', 'IV', 'V'][sub - 1] || 'I';
+
+            let iconHtml;
+
+            if (imageUrl && imageUrl.startsWith('http')) {
+                // 使用圖片連結
+                iconHtml = `<img src="${imageUrl}" class="rank-icon-img" alt="${type}-${tier}" onerror="this.outerHTML='<span class=\'rank-icon-fallback\'>?</span>'">`;
+            } else {
+                // 圖片連結無效或未提供，使用 CSS fallback 圓圈
+                iconHtml = `<span class="rank-icon-fallback">?</span>`; // 簡化 fallback 樣式
+            }
 
             return `
                 <div class="flex items-center mx-1">
-                    <span class="rank-icon" style="background-color: ${color};">${symbol}</span>
+                    ${iconHtml}
                     <span class="rank-roman">${roman}</span>
                 </div>
             `;
@@ -237,7 +253,7 @@
         function isMapLinkValid(link) {
              return link && (link.startsWith('http://') || link.startsWith('https://'));
         }
-
+        
         // --- 記帳數據、切換導航、CSV 讀取等函式 (保持不變) ---
         function loadLedger() { /* ... */ }
         function saveLedger(data) { /* ... */ }
@@ -339,14 +355,14 @@
                     const type = row['類別'] || '行程';
                     const link = row['GOOGLE MAP連結'] || '';
                     let note = row['備註'] || ''; 
-                    const validLink = isMapLinkValid(link); // 檢查連結是否有效
+                    const validLink = isMapLinkValid(link);
                     
                     let icon = 'fa-map-marker-alt';
                     if(type.includes('餐廳') || type.includes('食')) icon = 'fa-utensils';
                     if(type.includes('集合')) icon = 'fa-flag-checkered';
                     if(type.includes('交通') || type.includes('車')) icon = 'fa-subway';
 
-                    // AI 導遊：重點標籤 (第 8 點修正)
+                    // AI 導遊：重點標籤
                     let aiRecommendation = '';
                     if (note.includes('必吃美食')) {
                         aiRecommendation += '<li><i class="fas fa-magic text-yellow-400 mr-2"></i>AI 推薦：此處有必吃美食，請勿錯過！</li>';
@@ -361,7 +377,7 @@
                     
                     const linkButton = validLink 
                         ? `<a href="${link}" target="_blank" class="btn-cipher w-10 h-10 flex items-center justify-center rounded-full shadow-lg active:scale-90 transition-transform"><i class="fas fa-location-arrow"></i></a>` 
-                        : `<button class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-600 text-red-400 cursor-default" title="地圖連結無效 (404)"><i class="fas fa-unlink"></i></button>`;
+                        : `<button class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-600 text-red-400 cursor-default" title="地圖連結無效 (404)">⚠️</button>`;
 
 
                     contentDiv.innerHTML += `
@@ -389,234 +405,3 @@
                             </div>` : ''}
                         </div>
                     `;
-                });
-            });
-        }
-
-        // --- 2. 渲染公帳 (莊園日誌 - 商城風格) ---
-        function renderJournal() {
-            setActiveNav(1);
-            fetchCSV(URL_JOURNAL, (data) => {
-                contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：公款清算</h2>`;
-                
-                let totalDebt = 0;
-                let dataHtml = '';
-                
-                if (!data || data.length === 0) {
-                    dataHtml = `<div class="text-center text-gray-500 mt-8">📖 日誌空白：目前沒有公帳紀錄。</div>`;
-                } else {
-                    data.forEach(row => {
-                        const name = row['姓名'] || '偵探';
-                        const item = row['代墊項目'] || '未知消費';
-                        
-                        // BUG FIX: 清理金額欄位中的非數字字元 (例如: 逗號或貨幣符號)
-                        const rawAmount = (row['應付金額'] || '0').toString().replace(/[^0-9]/g, '');
-                        const amount = parseInt(rawAmount) || 0; 
-                        
-                        const rawPaid = (row['是否已付款'] || '').toString().toLowerCase();
-                        const isPaid = rawPaid.includes('true') || rawPaid.includes('是') || rawPaid.includes('ok');
-
-                        if (!isPaid) {
-                            totalDebt += amount;
-                        }
-
-                        const statusColor = isPaid ? 'text-green-500' : 'text-[#8a0a0a]';
-                        const statusText = isPaid ? '已結清' : '尚未支付';
-
-                        dataHtml += `
-                            <div class="identity-card p-3 mb-3 rounded flex justify-between items-center ${!isPaid ? 'border-l-4 border-l-[#8a0a0a]' : ''} ${isPaid ? 'opacity-70' : ''}">
-                                <div>
-                                    <div class="font-bold text-lg text-gray-200">${name}</div>
-                                    <div class="text-xs text-gray-400">${item}</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-lg font-mono ${statusColor}">$${amount.toLocaleString()}</div>
-                                    <div class="text-xs ${statusColor} border border-current px-2 py-0.5 rounded scale-90 origin-right inline-block">${statusText}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                
-                // 商城風格 Header (展示區塊)
-                contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：公款清算</h2>` + `
-                     <div class="shop-header p-4 mb-6 text-center rounded-lg shadow-xl">
-                        <div class="absolute top-0 left-0 w-24 h-full bg-cover bg-center opacity-5" style="background-image: url('https://i.imgur.com/gK6bF9h.png');"></div>
-                        <p class="text-gray-400 text-sm mb-1 gothic-font">懸賞目標：待收款項</p>
-                        <div class="flex justify-center items-center">
-                            <i class="fas fa-gem text-3xl text-red-500 mr-2"></i>
-                            <p class="text-4xl text-[#c5a059] gothic-font font-bold">$${totalDebt.toLocaleString()}</p>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">（此為公帳總待收金額）</p>
-                     </div>
-                ` + `<div class="mt-8">` + dataHtml + `</div>`;
-            });
-        }
-
-        // --- 3. 渲染個人記帳 (記憶碎片 - Local Storage) ---
-        function renderMemoryFragment() {
-            setActiveNav(2);
-            contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人私帳記錄</h2>`;
-            
-            const ledger = loadLedger();
-
-            // 圓餅圖容器
-            contentDiv.innerHTML += `
-                <div class="identity-card p-4 mb-6">
-                    <h3 class="text-lg font-bold text-[#c5a059] mb-3">個人花費分析</h3>
-                    <div class="w-full h-48 mx-auto relative">
-                        <canvas id="expenseChart" class="mx-auto"></canvas>
-                    </div>
-                    <div class="text-center mt-3 text-sm">總花費: <span class="text-[#c5a059] font-bold" id="personalTotal">$0</span></div>
-                </div>
-            `;
-            
-            // 記帳輸入表格
-            let categoryOptions = expenseCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-            contentDiv.innerHTML += `
-                <div class="identity-card p-4 mb-6 bg-[#1a0505] border-2 border-dashed border-[#8a0a0a]">
-                    <h3 class="text-lg font-bold text-[#ff6b6b] mb-3"><i class="fas fa-plus-circle mr-2"></i>新增個人支出 (密碼輸入)</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">費用類別</label>
-                            <select id="expense-category" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded">${categoryOptions}</select>
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">品項內容 (自行輸入)</label>
-                            <input type="text" id="expense-item" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded" placeholder="例如：一杯奶茶或紀念品">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">金額 (數字)</label>
-                            <input type="number" id="expense-amount" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded" placeholder="例如：120">
-                        </div>
-                        <button onclick="addExpense()" class="w-full btn-cipher py-2 rounded mt-2 uppercase tracking-widest text-sm active:scale-95 transition-transform">
-                            <i class="fas fa-lock mr-2"></i>確認輸入 (新增)
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            // 歷史紀錄
-            contentDiv.innerHTML += `<h3 class="text-lg font-bold text-gray-400 mb-3 mt-8">📜 歷史紀錄</h3><div id="ledger-list" class="space-y-2"></div>`;
-
-            renderLedgerList(ledger);
-            renderChart(ledger);
-        }
-
-        // 繪製圓餅圖 (不變)
-        function renderChart(ledger) {
-            const chartData = {};
-            let total = 0;
-            ledger.forEach(item => {
-                chartData[item.category] = (chartData[item.category] || 0) + item.amount;
-                total += item.amount;
-            });
-            document.getElementById('personalTotal').innerText = `$${total.toLocaleString()}`;
-
-            const labels = Object.keys(chartData);
-            const data = Object.values(chartData);
-            const colors = labels.map((_, i) => `hsl(${(i * 50) % 360}, 70%, 50%)`);
-
-            const ctx = document.getElementById('expenseChart').getContext('2d');
-            
-            if (window.myChart) {
-                window.myChart.destroy();
-            }
-
-            window.myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors,
-                        borderColor: '#0f1014',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#d1d1d1',
-                                font: { family: 'Noto Sans TC' }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // 渲染記帳列表 (不變)
-        function renderLedgerList(ledger) {
-            const listDiv = document.getElementById('ledger-list');
-            if (ledger.length === 0) {
-                listDiv.innerHTML = `<p class="text-center text-gray-600 italic">... 無歷史紀錄 ...</p>`;
-                return;
-            }
-            
-            listDiv.innerHTML = ledger.map((item, index) => `
-                <div class="identity-card p-3 flex justify-between items-center text-sm">
-                    <div class="w-2/3">
-                        <span class="text-[#c5a059] font-bold mr-2">${item.category}</span>
-                        <span class="text-gray-300">${item.item}</span>
-                    </div>
-                    <div class="text-right flex items-center">
-                        <span class="text-lg font-mono text-white">$${item.amount.toLocaleString()}</span>
-                        <button onclick="deleteExpense(${index})" class="text-red-600 ml-3 p-1 rounded hover:bg-red-900/50 transition-colors">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 新增記帳項目 (不變)
-        function addExpense() {
-            const category = document.getElementById('expense-category').value;
-            const item = document.getElementById('expense-item').value.trim();
-            const amount = parseInt(document.getElementById('expense-amount').value);
-
-            if (!item || isNaN(amount) || amount <= 0) {
-                alert('請填寫有效的品項內容和金額！');
-                return;
-            }
-
-            const ledger = loadLedger();
-            ledger.unshift({
-                category: category,
-                item: item,
-                amount: amount,
-                timestamp: Date.now()
-            });
-
-            saveLedger(ledger);
-            
-            document.getElementById('expense-item').value = '';
-            document.getElementById('expense-amount').value = '';
-
-            renderLedgerList(ledger);
-            renderChart(ledger);
-            alert('✅ 密碼輸入成功！');
-        }
-        
-        // 刪除記帳項目 (不變)
-        function deleteExpense(index) {
-            if (!confirm('確認刪除此筆記錄？')) return;
-            
-            const ledger = loadLedger();
-            ledger.splice(index, 1);
-            saveLedger(ledger);
-            
-            renderLedgerList(ledger);
-            renderChart(ledger);
-        }
-
-        // 初始化
-        renderSchedule();
-
-    </script>
-</body>
-</html>
