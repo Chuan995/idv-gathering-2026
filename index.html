@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -19,7 +20,7 @@
         }
         body {
             background-color: var(--bg-color);
-            background-image: url('https://www.transparenttextures.com/patterns/black-linen.png');
+            background-image: url('https://www.transparenttextures.com/patterns/black-linen.png'); /* 材質紋理 */
             color: #d1d1d1;
             font-family: 'Noto Sans TC', sans-serif;
             -webkit-tap-highlight-color: transparent;
@@ -29,7 +30,6 @@
             color: var(--text-gold);
             text-shadow: 1px 1px 2px black;
         }
-        /* 卡片特效 */
         .identity-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -38,7 +38,6 @@
             overflow: hidden;
             animation: fadeIn 0.5s ease-out;
         }
-        /* 破舊紙張邊角效果 (簡單模擬) */
         .identity-card::before {
             content: '';
             position: absolute;
@@ -50,7 +49,6 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* 導航按鈕 */
         .nav-item.active {
             color: var(--text-gold);
             border-bottom: 2px solid var(--text-red);
@@ -64,7 +62,6 @@
             border: 1px solid var(--text-gold);
             color: var(--text-gold);
         }
-        /* 載入中動畫 */
         .loader {
             border: 4px solid #333;
             border-top: 4px solid var(--text-gold);
@@ -75,6 +72,20 @@
             margin: 20px auto;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* 第五人格專屬 Shop 樣式 */
+        .shop-header {
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border: 2px solid var(--text-gold);
+            position: relative;
+            overflow: hidden;
+        }
+        .shop-header::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; width: 50px; height: 100%;
+            background: rgba(197, 160, 89, 0.1);
+            transform: skewX(-20deg);
+        }
     </style>
 </head>
 <body class="min-h-screen pb-24">
@@ -85,7 +96,7 @@
 
     <main id="app-content" class="p-4 space-y-5">
         <div class="loader"></div>
-        <p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>
+        <p class="text-center text-xs text-gray-500">正在連接莊園資料庫...</p>
     </main>
 
     <nav class="fixed bottom-0 w-full bg-[#141414] border-t border-[#333] flex justify-around py-3 z-50 pb-safe">
@@ -93,43 +104,64 @@
             <i class="fas fa-map-marked-alt text-xl mb-1"></i>
             <span class="text-[10px]">推演任務</span>
         </button>
-        <button onclick="renderMoney()" class="nav-item flex flex-col items-center w-1/3">
-            <i class="fas fa-coins text-xl mb-1"></i>
+        <button onclick="renderJournal()" class="nav-item flex flex-col items-center w-1/3">
+            <i class="fas fa-book-open text-xl mb-1"></i>
             <span class="text-[10px]">莊園日誌</span>
         </button>
-        <button onclick="renderInfo()" class="nav-item flex flex-col items-center w-1/3">
-            <i class="fas fa-archive text-xl mb-1"></i>
-            <span class="text-[10px]">記憶碎片</span>
+        <button onclick="renderPersonalLedger()" class="nav-item flex flex-col items-center w-1/3">
+            <i class="fas fa-calculator text-xl mb-1"></i>
+            <span class="text-[10px]">個人密碼機</span>
         </button>
     </nav>
 
     <script>
         // ==========================================
-        // 設定區：請在這裡貼上你的 Google Sheet 連結
+        // 設定區：你的 Google Sheet CSV 連結
         // ==========================================
+        const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?single=true&output=csv";
         
-        // 1. 行程表連結 (Schedule) - 這是你剛剛給我的連結
-        const URL_SCHEDULE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?output=csv";
-        
-        // 2. 帳房連結 (Money) - 這是你剛剛給我的連結
-        const URL_MONEY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?gid=1624206298&single=true&output=csv"; 
-        
-        // 3. 資訊連結 (Info) - 這是你剛剛給我的連結
-        const URL_INFO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?gid=374415852&single=true&output=csv";
+        // 1. 行程表連結 (Schedule) - GID: 1831823101
+        const URL_SCHEDULE = BASE_URL + "&gid=1831823101";
 
-        // ==========================================
+        // 2. 公帳日誌連結 (Money/Journal) - GID: 1624206298
+        const URL_JOURNAL = BASE_URL + "&gid=1624206298";
         
+        // 3. 資訊連結 (Info) - GID: 374415852 (雖然不用，但先留著備用)
+        const URL_INFO = BASE_URL + "&gid=374415852";
+
+        // 台北大同區即時天氣 (2025/12/06 查詢結果)
+        const TAIPEI_WEATHER = {
+            location: '台北市大同區',
+            temp: '20°C',
+            feels: '24°C',
+            humidity: '78%',
+            rainChance: '0%',
+            condition: '多雲',
+            icon: 'fa-cloud-moon'
+        };
+
         const contentDiv = document.getElementById('app-content');
         const navItems = document.querySelectorAll('.nav-item');
+        const expenseCategories = ['餐飲費', '交通費', '住宿費', '娛樂費', '伴手禮', '雜項'];
+        
+        // --- 個人記帳數據管理 (Local Storage) ---
+        function loadLedger() {
+            try {
+                const data = localStorage.getItem('personalLedger');
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error("Error loading ledger:", e);
+                return [];
+            }
+        }
 
-        // 假資料 (當沒有連結時使用)
-        const mockMoney = [
-            { name: '範例-A偵探', item: '示範項目', amount: 500, paid: 'FALSE' },
-            { name: '範例-B傭兵', item: '示範項目', amount: 650, paid: 'TRUE' }
-        ];
-        const mockInfo = [
-            { category: '提示', name: '請設定連結', detail: '請去 Google Sheet 發布其他分頁', notes: '目前顯示假資料' }
-        ];
+        function saveLedger(data) {
+            try {
+                localStorage.setItem('personalLedger', JSON.stringify(data));
+            } catch (e) {
+                console.error("Error saving ledger:", e);
+            }
+        }
 
         // 切換導航狀態
         function setActiveNav(index) {
@@ -140,67 +172,65 @@
 
         // 通用 CSV 讀取功能
         function fetchCSV(url, callback) {
-            if(!url) { callback(null); return; }
+            contentDiv.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在連接莊園資料庫...</p>`;
             Papa.parse(url, {
                 download: true,
-                header: true, // 假設第一行是標題
+                header: true,
+                skipEmptyLines: true,
                 complete: function(results) {
-                    callback(results.data);
+                    // 檢查欄位名稱是否為空
+                    const filteredData = results.data.filter(row => Object.values(row).some(val => val !== ''));
+                    callback(filteredData);
                 },
                 error: function(err) {
                     console.error("CSV Error:", err);
-                    contentDiv.innerHTML = `<div class="text-red-500 text-center">讀取資料失敗<br><span class="text-xs">${err}</span></div>`;
+                    contentDiv.innerHTML = `<div class="text-red-500 text-center">讀取資料失敗<br><span class="text-xs">${err.message || '請檢查 Google Sheets 是否已「發布到網路」'}</span></div>`;
                 }
             });
         }
 
-        // --- 1. 渲染行程 (Schedule) ---
+        // --- 1. 渲染行程 (推演任務) ---
         function renderSchedule() {
             setActiveNav(0);
-            contentDiv.innerHTML = `<div class="loader"></div>`;
-
             fetchCSV(URL_SCHEDULE, (data) => {
-                contentDiv.innerHTML = `<h2 class="text-lg gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">今日推演目標</h2>`;
+                contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
                 
-                // 天氣區塊 (裝飾用)
+                // 天氣區塊
                 contentDiv.innerHTML += `
-                    <div class="identity-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a]">
+                    <div class="identity-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t-2 border-l-2 border-[#5d4d2b]">
                         <div class="flex items-center">
-                            <i class="fas fa-cloud-moon text-2xl mr-3 text-gray-400"></i>
+                            <i class="fas ${TAIPEI_WEATHER.icon} text-3xl mr-3 text-gray-400"></i>
                             <div>
-                                <div class="text-sm text-gray-400">聚會當日</div>
-                                <div class="text-xl font-bold text-[#c5a059]">2/28 <span class="text-xs text-gray-500">晴時多雲</span></div>
+                                <div class="text-sm text-gray-400">${TAIPEI_WEATHER.location}</div>
+                                <div class="text-xl font-bold text-[#c5a059]">${TAIPEI_WEATHER.temp} <span class="text-xs text-gray-500">${TAIPEI_WEATHER.condition}</span></div>
                             </div>
                         </div>
-                        <div class="text-right text-xs text-gray-500">預計氣溫<br>18°C - 24°C</div>
+                        <div class="text-right text-xs text-gray-500">
+                            濕度: ${TAIPEI_WEATHER.humidity}<br>體感: ${TAIPEI_WEATHER.feels}
+                        </div>
                     </div>
                 `;
 
                 if (!data || data.length === 0) {
-                    contentDiv.innerHTML += `<div class="text-center text-gray-500">目前沒有行程資料<br>請檢查 Excel 連結</div>`;
+                    contentDiv.innerHTML += `<div class="text-center text-gray-500">❌ 任務失敗：沒有行程資料<br>請檢查 Excel 內容及欄位名稱</div>`;
                     return;
                 }
 
-                // 讀取資料 (這裡假設你的 Excel 欄位順序)
-                // 為了保險，我這裡用「欄位名稱」來抓，如果不對，請告訴我
-                // 假設欄位: 日期, 時間, 地點, 類別, 連結, 備註
-                
                 data.forEach(row => {
-                    // 略過空行
-                    if(!row['時間'] && !row['地點']) return;
-
-                    // 取得資料 (對應你的 CSV 欄位名稱，如果你的 Excel 標題不是這些，要改這裡)
                     const time = row['時間'] || row['Time'] || '??:??';
                     const location = row['地點'] || row['Location'] || '未知地點';
                     const type = row['類別'] || row['Type'] || '行程';
                     const link = row['GoogleMap連結'] || row['Link'] || '';
-                    const note = row['備註/攻略'] || row['Notes'] || '';
+                    let note = row['備註/攻略'] || row['Notes'] || '';
 
-                    // 根據類別換圖示
                     let icon = 'fa-map-marker-alt';
                     if(type.includes('餐廳') || type.includes('食')) icon = 'fa-utensils';
                     if(type.includes('集合')) icon = 'fa-flag-checkered';
                     if(type.includes('交通') || type.includes('車')) icon = 'fa-subway';
+
+                    // AI 導遊：重點標籤 (必吃、必買等)
+                    note = note.replace(/必吃美食|必點菜單/g, '<span class="text-yellow-400 font-bold italic">$&</span>');
+                    note = note.replace(/必買伴手禮|重要預約資訊/g, '<span class="text-[#8a0a0a] font-bold italic border-b border-[#8a0a0a]">$&</span>');
 
                     contentDiv.innerHTML += `
                         <div class="identity-card p-4 rounded-md mb-4 relative group">
@@ -220,7 +250,7 @@
                             ${note ? `
                             <div class="mt-3 pt-3 border-t border-[#333] text-sm text-gray-300 flex items-start">
                                  <i class="fas fa-info-circle text-[#5d4d2b] mr-2 mt-1"></i>
-                                 <span>${note}</span>
+                                 <span class="leading-relaxed">${note}</span>
                             </div>` : ''}
                         </div>
                     `;
@@ -228,100 +258,226 @@
             });
         }
 
-        // --- 2. 渲染帳房 (Money) ---
-        function renderMoney() {
+        // --- 2. 渲染公帳 (莊園日誌 - 商城風格) ---
+        function renderJournal() {
             setActiveNav(1);
-            contentDiv.innerHTML = `<div class="loader"></div>`;
-            
-            // 如果有連結就抓連結，沒有就用假資料
-            const dataSource = URL_MONEY ? null : mockMoney;
-            
-            const processData = (data) => {
-                contentDiv.innerHTML = `<h2 class="text-lg gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園欠款清單</h2>`;
+            fetchCSV(URL_JOURNAL, (data) => {
+                contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：公款清算</h2>`;
                 
-                // 這裡可以加入總金額計算邏輯
-                let total = 0;
-                data.forEach(d => total += parseInt(d.amount || d['應付金額'] || 0));
-
+                // 商城風格 Header (展示區塊)
                 contentDiv.innerHTML += `
-                     <div class="identity-card p-4 mb-6 text-center bg-[#1a0505]">
-                        <p class="text-gray-400 text-sm mb-2">本次聚會總支出 (代墊)</p>
-                        <p class="text-3xl text-[#c5a059] gothic-font font-bold">$${total}</p>
-                        <p class="text-xs text-[#8a0a0a] mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>請儘速還款以利莊園運作</p>
+                     <div class="shop-header p-4 mb-6 text-center rounded-lg shadow-xl">
+                        <div class="absolute top-0 left-0 w-24 h-full bg-cover bg-center opacity-5" style="background-image: url('https://i.imgur.com/gK6bF9h.png');"></div>
+                        <p class="text-gray-400 text-sm mb-1 gothic-font">懸賞目標：待收款項</p>
+                        <div class="flex justify-center items-center">
+                            <i class="fas fa-gem text-3xl text-red-500 mr-2"></i>
+                            <p class="text-4xl text-[#c5a059] gothic-font font-bold" id="total-debt">$0</p>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">（此為公帳總墊付，不含個人私帳）</p>
                      </div>
                 `;
+                
+                let totalDebt = 0;
+                let dataHtml = '';
 
-                data.forEach(row => {
-                    if(!row['name'] && !row['姓名']) return;
-                    
-                    const name = row['姓名'] || row['name'];
-                    const item = row['代墊項目'] || row['item'];
-                    const amount = row['應付金額'] || row['amount'];
-                    // 判斷是否付款 (檢查 Excel 裡是不是寫 'TRUE', '是', 'ok')
-                    const rawPaid = (row['是否已付款'] || row['paid'] || '').toString().toLowerCase();
-                    const isPaid = rawPaid.includes('true') || rawPaid.includes('是') || rawPaid.includes('ok');
+                if (!data || data.length === 0) {
+                    dataHtml = `<div class="text-center text-gray-500 mt-8">📖 日誌空白：目前沒有公帳紀錄。</div>`;
+                } else {
+                    data.forEach(row => {
+                        const name = row['姓名'] || row['name'] || '偵探';
+                        const item = row['代墊項目'] || row['item'] || '未知消費';
+                        const amount = parseInt(row['應付金額'] || row['amount'] || 0);
+                        const rawPaid = (row['是否已付款'] || row['paid'] || '').toString().toLowerCase();
+                        const isPaid = rawPaid.includes('true') || rawPaid.includes('是') || rawPaid.includes('ok');
 
-                    const statusColor = isPaid ? 'text-green-600' : 'text-[#8a0a0a]';
-                    const statusText = isPaid ? '已結清' : '尚未支付';
-                    const borderClass = isPaid ? 'border-gray-800' : 'border-[#8a0a0a]';
-                    const bgClass = isPaid ? 'opacity-50' : '';
+                        totalDebt += amount;
 
-                    contentDiv.innerHTML += `
-                        <div class="identity-card p-3 mb-3 rounded flex justify-between items-center ${!isPaid ? 'border-l-4 border-l-[#8a0a0a]' : ''} ${bgClass}">
-                            <div>
-                                <div class="font-bold text-lg text-gray-200">${name}</div>
-                                <div class="text-xs text-gray-400">${item}</div>
+                        const statusColor = isPaid ? 'text-green-500' : 'text-[#8a0a0a]';
+                        const statusText = isPaid ? '已結清' : '尚未支付';
+
+                        dataHtml += `
+                            <div class="identity-card p-3 mb-3 rounded flex justify-between items-center ${!isPaid ? 'border-l-4 border-l-[#8a0a0a]' : ''} ${isPaid ? 'opacity-70' : ''}">
+                                <div>
+                                    <div class="font-bold text-lg text-gray-200">${name}</div>
+                                    <div class="text-xs text-gray-400">${item}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-mono ${statusColor}">$${amount.toLocaleString()}</div>
+                                    <div class="text-xs ${statusColor} border border-current px-2 py-0.5 rounded scale-90 origin-right inline-block">${statusText}</div>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-lg font-mono ${statusColor}">$${amount}</div>
-                                <div class="text-xs ${statusColor} border border-current px-2 py-0.5 rounded scale-90 origin-right inline-block">${statusText}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-            };
-
-            if(URL_MONEY) {
-                fetchCSV(URL_MONEY, processData);
-            } else {
-                processData(mockMoney);
-            }
+                        `;
+                    });
+                }
+                
+                contentDiv.innerHTML += `<div class="mt-8">` + dataHtml + `</div>`;
+                document.getElementById('total-debt').innerText = `$${totalDebt.toLocaleString()}`;
+            });
         }
 
-        // --- 3. 渲染資訊 (Info) ---
-        function renderInfo() {
+        // --- 3. 渲染個人記帳 (密碼機 - Local Storage) ---
+        function renderPersonalLedger() {
             setActiveNav(2);
-            contentDiv.innerHTML = `<h2 class="text-lg gothic-font mb-4 border-l-4 border-gray-500 pl-3">檔案室</h2>`;
+            contentDiv.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">個人密碼機：私帳記錄</h2>`;
             
-            const dataSource = URL_INFO ? null : mockInfo;
-            
-            const processData = (data) => {
-                data.forEach(row => {
-                    if(!row['name'] && !row['名稱']) return;
-                    
-                    const category = row['類別'] || row['category'];
-                    const name = row['名稱'] || row['name'];
-                    const detail = row['時間/地址'] || row['detail'];
-                    const note = row['備註'] || row['notes'];
+            const ledger = loadLedger();
 
-                    contentDiv.innerHTML += `
-                        <div class="identity-card p-4 mb-4">
-                            <div class="flex items-center mb-2">
-                                <span class="bg-[#333] border border-[#5d4d2b] text-[#c5a059] text-xs px-2 py-1 rounded mr-2">${category}</span>
-                                <h3 class="font-bold text-white text-lg">${name}</h3>
-                            </div>
-                            <p class="text-gray-300 text-sm mb-2 pl-1 border-l-2 border-[#333]"><i class="fas fa-map-pin mr-2 text-[#5d4d2b]"></i>${detail}</p>
-                            <p class="text-gray-500 text-xs italic pl-1">${note}</p>
+            // 圓餅圖容器
+            contentDiv.innerHTML += `
+                <div class="identity-card p-4 mb-6">
+                    <h3 class="text-lg font-bold text-[#c5a059] mb-3">個人花費分析</h3>
+                    <div class="w-full h-48 mx-auto relative">
+                        <canvas id="expenseChart" class="mx-auto"></canvas>
+                    </div>
+                    <div class="text-center mt-3 text-sm">總花費: <span class="text-[#c5a059] font-bold" id="personalTotal">$0</span></div>
+                </div>
+            `;
+            
+            // 記帳輸入表格
+            let categoryOptions = expenseCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            contentDiv.innerHTML += `
+                <div class="identity-card p-4 mb-6 bg-[#1a0505] border-2 border-dashed border-[#8a0a0a]">
+                    <h3 class="text-lg font-bold text-[#ff6b6b] mb-3"><i class="fas fa-plus-circle mr-2"></i>新增個人支出 (密碼輸入)</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">費用類別</label>
+                            <select id="expense-category" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded">${categoryOptions}</select>
                         </div>
-                    `;
-                });
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">品項內容 (自行輸入)</label>
+                            <input type="text" id="expense-item" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded" placeholder="例如：一杯奶茶或紀念品">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">金額 (數字)</label>
+                            <input type="number" id="expense-amount" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded" placeholder="例如：120">
+                        </div>
+                        <button onclick="addExpense()" class="w-full btn-cipher py-2 rounded mt-2 uppercase tracking-widest text-sm active:scale-95 transition-transform">
+                            <i class="fas fa-lock mr-2"></i>確認輸入 (新增)
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // 歷史紀錄
+            contentDiv.innerHTML += `<h3 class="text-lg font-bold text-gray-400 mb-3 mt-8">📜 歷史紀錄</h3><div id="ledger-list" class="space-y-2"></div>`;
+
+            renderLedgerList(ledger);
+            renderChart(ledger);
+        }
+
+        // 繪製圓餅圖
+        function renderChart(ledger) {
+            const chartData = {};
+            let total = 0;
+            ledger.forEach(item => {
+                chartData[item.category] = (chartData[item.category] || 0) + item.amount;
+                total += item.amount;
+            });
+            document.getElementById('personalTotal').innerText = `$${total.toLocaleString()}`;
+
+            const labels = Object.keys(chartData);
+            const data = Object.values(chartData);
+            const colors = labels.map((_, i) => `hsl(${(i * 50) % 360}, 70%, 50%)`);
+
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            
+            // 銷毀舊的 Chart 實例
+            if (window.myChart) {
+                window.myChart.destroy();
             }
 
-            if(URL_INFO) {
-                fetchCSV(URL_INFO, processData);
-            } else {
-                processData(mockInfo);
+            window.myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: '#0f1014',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#d1d1d1',
+                                font: { family: 'Noto Sans TC' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染記帳列表
+        function renderLedgerList(ledger) {
+            const listDiv = document.getElementById('ledger-list');
+            if (ledger.length === 0) {
+                listDiv.innerHTML = `<p class="text-center text-gray-600 italic">... 無歷史紀錄 ...</p>`;
+                return;
             }
+            
+            listDiv.innerHTML = ledger.map((item, index) => `
+                <div class="identity-card p-3 flex justify-between items-center text-sm">
+                    <div class="w-2/3">
+                        <span class="text-[#c5a059] font-bold mr-2">${item.category}</span>
+                        <span class="text-gray-300">${item.item}</span>
+                    </div>
+                    <div class="text-right flex items-center">
+                        <span class="text-lg font-mono text-white">$${item.amount.toLocaleString()}</span>
+                        <button onclick="deleteExpense(${index})" class="text-red-600 ml-3 p-1 rounded hover:bg-red-900/50 transition-colors">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 新增記帳項目
+        function addExpense() {
+            const category = document.getElementById('expense-category').value;
+            const item = document.getElementById('expense-item').value.trim();
+            const amount = parseInt(document.getElementById('expense-amount').value);
+
+            if (!item || isNaN(amount) || amount <= 0) {
+                alert('請填寫有效的品項內容和金額！');
+                return;
+            }
+
+            const ledger = loadLedger();
+            ledger.unshift({
+                category: category,
+                item: item,
+                amount: amount,
+                timestamp: Date.now()
+            });
+
+            saveLedger(ledger);
+            
+            // 清空輸入
+            document.getElementById('expense-item').value = '';
+            document.getElementById('expense-amount').value = '';
+
+            // 重新渲染
+            renderLedgerList(ledger);
+            renderChart(ledger);
+            alert('✅ 密碼輸入成功！');
+        }
+        
+        // 刪除記帳項目
+        function deleteExpense(index) {
+            if (!confirm('確認刪除此筆記錄？')) return;
+            
+            const ledger = loadLedger();
+            ledger.splice(index, 1);
+            saveLedger(ledger);
+            
+            // 重新渲染
+            renderLedgerList(ledger);
+            renderChart(ledger);
         }
 
         // 初始化
