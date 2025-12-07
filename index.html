@@ -16,7 +16,7 @@
             --text-gold: #c5a059;
             --text-brown: #4a3b2a; /* 羊皮紙上的深棕色文字 */
             --border-gold: #856d3a;
-            --card-dark-bg: rgba(20, 20, 20, 0.9);
+            --card-dark-bg: rgba(20, 20, 20, 0.95);
             --paper-texture: url('https://www.transparenttextures.com/patterns/old-paper.png'); /* 羊皮紙紋理 */
         }
         
@@ -43,12 +43,12 @@
             border-bottom: 1px solid #333;
             height: 60px;
             display: flex;
-            justify-content: center; /* 水平置中 */
+            justify-content: center;
             align-items: center;
             flex-direction: column;
         }
         
-        /* 2. 音樂控制器 (調整位置) */
+        /* 音樂控制器 */
         #music-controls {
             position: absolute;
             right: 10px;
@@ -62,11 +62,11 @@
             font-size: 10px;
             color: #888;
             text-align: right;
-            max-width: 100px;
+            max-width: 80px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            display: none; /* 手機版空間不足先隱藏，點擊播放後可考慮顯示 */
+            display: none;
         }
         
         #main-container {
@@ -80,7 +80,7 @@
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 通用深色卡片 (推演任務用) */
+        /* 通用深色卡片 (行程卡片用) */
         .dark-card {
             background: var(--card-dark-bg);
             border: 1px solid var(--border-gold);
@@ -98,18 +98,24 @@
             opacity: 0.5;
         }
 
-        /* 3. 戰隊成員風格 (舊布料質感) */
-        .member-strip {
-            background-color: #2a2a2a;
+        /* 羊皮紙風格 (戰隊區塊 & 莊園日誌卡片共用) */
+        .parchment-style {
+            background-color: #e3d5b8;
             background-image: var(--paper-texture);
-            border: 1px solid #444;
-            border-left: 3px solid var(--text-gold);
+            border: 2px solid #5c4033;
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(66, 49, 29, 0.2);
+            color: var(--text-brown);
+            position: relative;
+        }
+        /* 戰隊成員條目 (深色，但在羊皮紙背景上) */
+        .member-strip {
+            background-color: rgba(60, 45, 30, 0.1); /* 淡淡的深褐色背景 */
+            border-bottom: 1px solid #a89f91;
             padding: 4px 8px;
-            border-radius: 2px;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
         }
 
-        /* 4. 資訊小卡 (風格統一) */
+        /* 資訊小卡 (風格統一) */
         .info-card-style {
             background: rgba(40, 30, 20, 0.6);
             border: 1px solid var(--border-gold);
@@ -128,20 +134,14 @@
             letter-spacing: 1px;
         }
 
-        /* 5. 莊園日誌 (羊皮紙商城風格) */
-        .parchment-card {
-            background-color: #e3d5b8; /* 羊皮紙底色 */
-            background-image: var(--paper-texture);
-            border: 2px solid #5c4033;
-            border-radius: 6px;
+        /* 莊園日誌卡片 (繼承 parchment-style 並微調) */
+        .shop-card {
+            /* 樣式直接使用 parchment-style */
             padding: 10px;
             margin-bottom: 12px;
-            position: relative;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-            color: var(--text-brown); /* 深棕色文字 */
         }
-        /* 破損效果裝飾 */
-        .parchment-card::after {
+        .shop-card::after {
+            /* 破損折角效果 */
             content: '';
             position: absolute;
             top: -2px; right: -2px;
@@ -151,28 +151,22 @@
             width: 0;
         }
 
-        /* 7. 莊園管家 (固定右下角) */
-        .butler-fixed {
-            position: fixed;
-            bottom: 85px; /* 避開底部導航 */
-            right: -30px;
-            width: 180px;
-            z-index: 5; /* 確保在背景之上，內容之下(視情況調整) */
-            pointer-events: none; /* 點擊穿透 */
-            opacity: 0.9;
-            filter: drop-shadow(-5px 0 10px rgba(0,0,0,0.5));
-            mask-image: linear-gradient(to top, transparent 5%, black 40%);
-            -webkit-mask-image: linear-gradient(to top, transparent 5%, black 40%);
-        }
-
-        /* 8. 記憶碎片 (破舊風格) */
+        /* 記憶碎片 (回歸原版深色輸入框，解決下拉選單問題) */
         .fragment-input {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-gold);
-            color: var(--text-gold);
-            font-family: 'Cinzel', serif;
+            background-color: #1a1a1a;
+            border: 1px solid #555;
+            color: #d1d1d1;
+            font-family: 'Noto Sans TC', sans-serif;
         }
-        .fragment-input::placeholder { color: #555; font-family: 'Noto Sans TC'; }
+        .fragment-input:focus {
+            border-color: var(--text-gold);
+            outline: none;
+        }
+        /* 強制設定下拉選單選項背景，避免白底白字 */
+        select.fragment-input option {
+            background-color: #1a1a1a;
+            color: #d1d1d1;
+        }
 
         /* 通用元件 */
         .loader {
@@ -226,8 +220,6 @@
 
     <div id="main-container" class="p-4 relative">
         
-        <img src="https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E5%8F%A4%E5%A0%A1%E7%AE%A1%E5%AE%B6.png" class="butler-fixed" id="butler-img" style="display:none;" alt="Butler">
-
         <div id="page-schedule" class="page-section active space-y-5">
             <div class="loader"></div>
             <p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>
@@ -266,6 +258,7 @@
         const URL_JOURNAL = BASE_CSV_URL + "&gid=1624206298";
 
         const IMG_TEAM_ICON = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/Identity_V_logo.png';
+        const IMG_BUTLER = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E5%8F%A4%E5%A0%A1%E7%AE%A1%E5%AE%B6.png';
         const ICON_ECHO = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E5%9B%9E%E8%81%B2.png';
         const ICON_FRAGMENT = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E7%A2%8E%E7%89%87.png';
 
@@ -382,10 +375,6 @@
             document.querySelector(`button[onclick="switchPage('${pageId}')"]`).classList.add('active');
             
             window.scrollTo(0, 0);
-
-            const butler = document.getElementById('butler-img');
-            if (pageId === 'journal') butler.style.display = 'block';
-            else butler.style.display = 'none';
             
             if(pageId === 'schedule' && document.getElementById('page-schedule').children.length < 3) renderSchedule();
             if(pageId === 'journal' && document.getElementById('page-journal').children.length < 2) renderJournal();
@@ -416,35 +405,35 @@
             fetchCSV(URL_SCHEDULE, (data) => {
                 container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
 
-                // 戰隊區塊
+                // 戰隊區塊 (套用羊皮紙風格)
                 const teamHtml = `
-                    <div class="dark-card p-4 mb-5 border-l-4 border-[#8a0a0a]">
-                        <div class="flex items-start mb-3 border-b border-[#444] pb-2">
-                            <img src="${IMG_TEAM_ICON}" class="w-12 h-12 rounded object-cover border border-[#666] mr-3 opacity-90 shadow-lg" alt="Team">
+                    <div class="parchment-style p-4 mb-5 border-l-4 border-[#8a0a0a]">
+                        <div class="flex items-start mb-3 border-b border-[#a89f91] pb-2">
+                            <img src="${IMG_TEAM_ICON}" class="w-12 h-12 rounded object-cover border border-[#5c4033] mr-3 opacity-90 shadow-lg" alt="Team">
                             <div>
-                                <h3 class="text-xs text-gray-500 gothic-font">戰隊名稱</h3>
-                                <h2 class="text-xl font-bold text-[#c5a059] leading-tight">學術殿堂戰隊</h2>
+                                <h3 class="text-xs text-[#6b5646] gothic-font">戰隊名稱</h3>
+                                <h2 class="text-xl font-bold text-[#5c4033] leading-tight">學術殿堂戰隊</h2>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 gap-4">
                             <div>
-                                <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-[#5d4d2b] pb-1">戰隊公告</h4>
-                                <ul class="text-xs text-gray-400 space-y-1 pl-2">
+                                <h4 class="text-sm font-bold text-[#5c4033] mb-2 border-b border-[#a89f91] pb-1">戰隊公告</h4>
+                                <ul class="text-xs text-[#4a3b2a] space-y-1 pl-2 font-bold">
                                     ${TEAM_ANNOUNCEMENTS.map(ann => `<li class="flex items-start">${ann}</li>`).join('')}
                                 </ul>
                             </div>
                             <div>
-                                <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-[#5d4d2b] pb-1">戰隊成員</h4>
+                                <h4 class="text-sm font-bold text-[#5c4033] mb-2 border-b border-[#a89f91] pb-1">戰隊成員</h4>
                                 <div class="grid grid-cols-2 gap-x-3 gap-y-2">
                                     ${Object.entries(TEAM_MEMBERS_DATA).map(([name, ranks]) => `
                                         <div class="flex justify-between items-center text-[10px] member-strip">
                                             <div class="flex items-center">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1 shadow-sm"></span>
-                                                <span class="text-gray-200 font-bold font-serif mr-1">${name}</span>
+                                                <span class="w-1.5 h-1.5 rounded-full bg-green-700 mr-1 shadow-sm"></span>
+                                                <span class="text-[#4a3b2a] font-bold font-serif mr-1">${name}</span>
                                             </div>
                                             <div class="flex items-center">
-                                                <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] mr-1">${ranks.s_sub}</span>
-                                                <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img"><span class="text-[#c5a059]">${ranks.h_sub}</span>
+                                                <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#5c4033] mr-1 font-bold">${ranks.s_sub}</span>
+                                                <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img"><span class="text-[#5c4033] font-bold">${ranks.h_sub}</span>
                                                 <span class="invite-btn ml-1 cursor-pointer hover:opacity-80">邀</span>
                                             </div>
                                         </div>
@@ -547,13 +536,13 @@
             });
         }
 
-        // --- 2. 莊園日誌 (商城風格) ---
+        // --- 2. 莊園日誌 (羊皮紙商城風格 + 管家站立) ---
         function renderJournal() {
             const container = document.getElementById('page-journal');
             container.innerHTML = `<div class="loader"></div>`;
 
             fetchCSV(URL_JOURNAL, (data) => {
-                container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：公款清算</h2>`;
+                container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：代墊回聲</h2>`;
                 
                 let totalDebt = 0;
                 let dataHtml = '';
@@ -565,14 +554,12 @@
                         const name = row['姓名'];
                         const item = row['代墊項目'];
                         
-                        // 嚴格過濾：若無姓名或項目，則跳過 (解決公式為0顯示問題)
                         if(!name || !item) return;
 
                         const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
                         let debt = parseInt(rawDebt) || 0;
                         const isClear = (row['是否已結清'] || '').includes('是');
 
-                        // 若已結清，強制顯示 0，不計入總額
                         if (isClear) debt = 0;
                         else totalDebt += debt;
 
@@ -581,7 +568,7 @@
                         const cardOpacity = isClear ? 'opacity-60 grayscale' : '';
 
                         dataHtml += `
-                            <div class="parchment-card ${cardOpacity}">
+                            <div class="parchment-style ${cardOpacity} p-3 mb-3">
                                 <div class="flex justify-between items-center mb-1">
                                     <div class="text-lg font-bold text-[#5c4033] font-serif">${name}</div>
                                     <div class="text-[10px] border px-1 rounded font-bold ${statusColor}">${statusText}</div>
@@ -590,147 +577,3 @@
                                 <div class="flex justify-end items-center">
                                     <span class="text-xs text-[#5c4033] mr-2 font-bold">待支付:</span>
                                     <img src="${ICON_ECHO}" class="currency-icon">
-                                    <span class="text-xl font-bold text-[#8a0a0a]">${debt.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-
-                const headerHtml = `
-                     <div class="relative bg-gradient-to-b from-[#2a0a0a] to-[#0f0505] p-5 rounded-lg shadow-xl border border-[#8a0a0a] mb-6 overflow-hidden">
-                        <div class="relative z-10 text-center">
-                            <p class="text-[#c5a059] text-xs tracking-widest mb-1">CURRENT DEBT</p>
-                            <div class="flex justify-center items-center">
-                                <img src="${ICON_ECHO}" class="w-8 h-8 mr-2 drop-shadow-md">
-                                <p class="text-4xl text-white font-bold tracking-tighter" style="text-shadow: 0 0 10px #ff0000;">${totalDebt.toLocaleString()}</p>
-                            </div>
-                            <p class="text-[10px] text-gray-500 mt-2">總待收回聲</p>
-                        </div>
-                     </div>
-                `;
-
-                container.innerHTML += headerHtml + `<div class="relative z-10 pb-20">` + dataHtml + `</div>`;
-            });
-        }
-
-        // --- 3. 記憶碎片 (破舊風格) ---
-        function renderMemoryFragment() {
-            const container = document.getElementById('page-memory');
-            container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人私帳</h2>`;
-            
-            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
-            
-            let total = 0;
-            const chartData = {};
-            ledger.forEach(item => {
-                total += item.amount;
-                chartData[item.category] = (chartData[item.category] || 0) + item.amount;
-            });
-
-            // 破舊羊皮紙風格的輸入區塊
-            const categories = ['餐飲費', '交通費', '住宿費', '娛樂費', '伴手禮', '雜項'];
-            
-            container.innerHTML += `
-                <div class="dark-card p-4 mb-6" style="background: url('https://www.transparenttextures.com/patterns/black-linen.png'); border: 1px solid #555;">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-[#c5a059] gothic-font">花費分析</h3>
-                        <div class="flex items-center">
-                            <img src="${ICON_FRAGMENT}" class="currency-icon w-6 h-6">
-                            <span class="text-2xl font-bold text-white ml-1">${total.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    <div class="w-48 h-48 mx-auto relative">
-                        <canvas id="expenseChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="dark-card p-4 mb-6" style="background-image: var(--paper-texture); background-color: #2a2a2a;">
-                    <div class="space-y-3">
-                        <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">${categories.map(c=>`<option>${c}</option>`).join('')}</select>
-                        <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱">
-                        <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量">
-                        <button onclick="addExpense()" class="w-full btn-cipher py-2 rounded mt-2 text-sm font-bold tracking-widest border border-[#c5a059] text-[#c5a059]">記錄碎片</button>
-                    </div>
-                </div>
-                <div id="ledger-list" class="space-y-2 pb-20"></div>
-            `;
-            
-            setTimeout(() => {
-                renderLedgerList(ledger);
-                renderChart(chartData);
-            }, 0);
-        }
-
-        function renderLedgerList(ledger) {
-            const listDiv = document.getElementById('ledger-list');
-            if(ledger.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; return; }
-            
-            listDiv.innerHTML = ledger.map((item, idx) => `
-                <div class="dark-card p-2 flex justify-between items-center text-sm" style="margin-bottom: 8px;">
-                    <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div>
-                    <div class="flex items-center">
-                        <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3">
-                        <span class="mx-1">${item.amount}</span>
-                        <button onclick="delExpense(${idx})" class="text-red-500 ml-2 hover:text-red-400"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function addExpense() {
-            const cat = document.getElementById('expense-cat').value;
-            const item = document.getElementById('expense-item').value;
-            const amt = parseInt(document.getElementById('expense-amt').value);
-            if(!item || !amt) return alert("請輸入完整");
-            
-            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
-            ledger.unshift({ category: cat, item: item, amount: amt, time: Date.now() });
-            localStorage.setItem('personalLedger', JSON.stringify(ledger));
-            renderMemoryFragment();
-        }
-
-        window.delExpense = function(idx) {
-            if(!confirm("刪除此紀錄?")) return;
-            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
-            ledger.splice(idx, 1);
-            localStorage.setItem('personalLedger', JSON.stringify(ledger));
-            renderMemoryFragment();
-        }
-
-        function renderChart(dataObj) {
-            const ctx = document.getElementById('expenseChart');
-            if(!ctx) return;
-            if(window.myPieChart) window.myPieChart.destroy();
-            
-            // 使用更符合莊園氛圍的圖表顏色
-            const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a'];
-
-            window.myPieChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(dataObj),
-                    datasets: [{
-                        data: Object.values(dataObj),
-                        backgroundColor: chartColors,
-                        borderWidth: 0
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    plugins: { legend: { display: false } } 
-                }
-            });
-        }
-
-        // ==========================================
-        //  INIT
-        // ==========================================
-        window.onload = function() {
-            initMusicPlayer();
-            renderSchedule(); 
-        };
-
-    </script>
-</body>
-</html>
