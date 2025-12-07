@@ -13,207 +13,221 @@
     <style>
         :root {
             --bg-color: #0f1014;
-            --card-bg: rgba(26, 26, 26, 0.95);
             --text-gold: #c5a059;
-            --text-red: #8a0a0a;
-            --border-color: #5d4d2b;
+            --text-brown: #4a3b2a; /* 羊皮紙上的深棕色文字 */
+            --border-gold: #856d3a;
+            --card-dark-bg: rgba(20, 20, 20, 0.9);
+            --paper-texture: url('https://www.transparenttextures.com/patterns/old-paper.png'); /* 羊皮紙紋理 */
         }
+        
         body {
             background-color: var(--bg-color);
             background-image: url('https://www.transparenttextures.com/patterns/black-linen.png'); 
             color: #d1d1d1;
             font-family: 'Noto Sans TC', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden; /* 防止水平滾動 */
+            overflow-x: hidden;
         }
-        
-        /* 音樂播放器與頂部固定區 */
-        #music-player-bar {
+
+        h1, h2, h3, .gothic-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* 1. 頁首置中與日期 */
+        #header-bar {
             position: fixed;
             top: 0; left: 0; width: 100%;
             background: rgba(15, 16, 20, 0.95);
             backdrop-filter: blur(5px);
             z-index: 100;
             border-bottom: 1px solid #333;
-            padding: 8px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             height: 60px;
+            display: flex;
+            justify-content: center; /* 水平置中 */
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        /* 2. 音樂控制器 (調整位置) */
+        #music-controls {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #now-playing-info {
+            font-size: 10px;
+            color: #888;
+            text-align: right;
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: none; /* 手機版空間不足先隱藏，點擊播放後可考慮顯示 */
         }
         
         #main-container {
-            padding-top: 70px; /* 留給音樂條的空間 */
-            padding-bottom: 80px; /* 留給底部導航的空間 */
+            padding-top: 70px;
+            padding-bottom: 80px;
             min-height: 100vh;
         }
 
-        /* 隱藏/顯示頁面的邏輯 */
-        .page-section {
-            display: none;
-            animation: fadeIn 0.4s ease-out;
-        }
-        .page-section.active {
-            display: block;
-        }
+        /* 頁面切換動畫 */
+        .page-section { display: none; animation: fadeIn 0.4s ease-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1, h2, .gothic-font {
-            font-family: 'Cinzel', serif;
-            color: var(--text-gold);
-            text-shadow: 1px 1px 2px black;
-        }
-        .identity-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+        /* 通用深色卡片 (推演任務用) */
+        .dark-card {
+            background: var(--card-dark-bg);
+            border: 1px solid var(--border-gold);
             box-shadow: 0 4px 15px rgba(0,0,0,0.8);
             position: relative;
             overflow: hidden;
             margin-bottom: 1rem;
+            border-radius: 4px;
         }
-        .identity-card::before {
+        .dark-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 2px;
             background: linear-gradient(90deg, transparent, var(--text-gold), transparent);
             opacity: 0.5;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* 底部導航 */
-        .nav-item.active {
-            color: var(--text-gold);
-            border-bottom: 2px solid var(--text-red);
-        }
-        .nav-item {
-            color: #666;
-            transition: all 0.3s;
+
+        /* 3. 戰隊成員風格 (舊布料質感) */
+        .member-strip {
+            background-color: #2a2a2a;
+            background-image: var(--paper-texture);
+            border: 1px solid #444;
+            border-left: 3px solid var(--text-gold);
+            padding: 4px 8px;
+            border-radius: 2px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
         }
 
-        /* 按鈕樣式 */
-        .btn-cipher {
-            background: linear-gradient(180deg, #3d3d3d, #1a1a1a);
-            border: 1px solid var(--text-gold);
-            color: var(--text-gold);
-        }
-        .invite-btn {
-            background-color: #c5a059;
-            color: #1a1a1a;
-            border: 1px solid #7c6441;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-            font-size: 10px;
-            padding: 1px 6px;
-            line-height: 1.2;
-            font-weight: bold;
-        }
-
-        /* 圖片圖示樣式 */
-        .rank-icon-img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-            margin: 0 2px;
-            filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));
-        }
-        .currency-icon {
-            width: 18px;
-            height: 18px;
-            object-fit: contain;
-            vertical-align: middle;
-            margin-right: 2px;
-            display: inline-block;
-        }
-
-        /* 商城風格 (莊園日誌) */
-        .shop-card {
-            background: url('https://www.transparenttextures.com/patterns/dark-wood.png'), linear-gradient(135deg, #2a2a2a, #1a1a1a);
-            border: 2px solid #5d4d2b;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-        }
-        .shop-tag {
-            background: #8a0a0a;
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            border-bottom-right-radius: 8px;
-        }
-        
-        /* 訂單代號票券樣式 */
-        .ticket-stub {
-            background: #e0e0e0;
-            color: #333;
+        /* 4. 資訊小卡 (風格統一) */
+        .info-card-style {
+            background: rgba(40, 30, 20, 0.6);
+            border: 1px solid var(--border-gold);
             padding: 8px;
             border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            border-left: 4px solid #8a0a0a;
             margin-top: 8px;
-            position: relative;
+            color: #ccc;
         }
-        .ticket-stub::after {
+        .info-card-title {
+            color: var(--text-gold);
+            font-size: 0.75rem;
+            border-bottom: 1px solid #444;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+        }
+
+        /* 5. 莊園日誌 (羊皮紙商城風格) */
+        .parchment-card {
+            background-color: #e3d5b8; /* 羊皮紙底色 */
+            background-image: var(--paper-texture);
+            border: 2px solid #5c4033;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 12px;
+            position: relative;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            color: var(--text-brown); /* 深棕色文字 */
+        }
+        /* 破損效果裝飾 */
+        .parchment-card::after {
             content: '';
             position: absolute;
-            right: -5px; top: 50%;
-            width: 10px; height: 10px;
-            background: #0f1014;
-            border-radius: 50%;
-            transform: translateY(-50%);
+            top: -2px; right: -2px;
+            border-top: 15px solid #0f1014;
+            border-left: 15px solid transparent;
+            display: block;
+            width: 0;
         }
 
-        /* 歸宿管家背景 */
-        .butler-bg {
+        /* 7. 莊園管家 (固定右下角) */
+        .butler-fixed {
             position: fixed;
-            bottom: 80px;
-            right: -20px;
-            width: 150px;
-            opacity: 0.3;
-            z-index: 0;
-            pointer-events: none;
-            mask-image: linear-gradient(to top, black, transparent);
-            -webkit-mask-image: linear-gradient(to top, black, transparent);
+            bottom: 85px; /* 避開底部導航 */
+            right: -30px;
+            width: 180px;
+            z-index: 5; /* 確保在背景之上，內容之下(視情況調整) */
+            pointer-events: none; /* 點擊穿透 */
+            opacity: 0.9;
+            filter: drop-shadow(-5px 0 10px rgba(0,0,0,0.5));
+            mask-image: linear-gradient(to top, transparent 5%, black 40%);
+            -webkit-mask-image: linear-gradient(to top, transparent 5%, black 40%);
         }
 
-        /* Loading */
+        /* 8. 記憶碎片 (破舊風格) */
+        .fragment-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-gold);
+            color: var(--text-gold);
+            font-family: 'Cinzel', serif;
+        }
+        .fragment-input::placeholder { color: #555; font-family: 'Noto Sans TC'; }
+
+        /* 通用元件 */
         .loader {
-            border: 4px solid #333;
-            border-top: 4px solid var(--text-gold);
+            border: 3px solid #333;
+            border-top: 3px solid var(--text-gold);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 30px; height: 30px;
             animation: spin 1s linear infinite;
             margin: 20px auto;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .invite-btn {
+            background-color: #c5a059;
+            color: #1a1a1a;
+            border: 1px solid #7c6441;
+            font-size: 10px;
+            padding: 1px 6px;
+            font-weight: bold;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .rank-icon-img { width: 18px; height: 18px; object-fit: contain; margin: 0 1px; filter: drop-shadow(0 0 1px black); }
+        .currency-icon { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 2px; display: inline-block; }
+        
+        /* 底部導航 */
+        .nav-item.active { color: var(--text-gold); border-bottom: 2px solid var(--text-red); }
+        .nav-item { color: #666; transition: all 0.3s; }
     </style>
 </head>
 <body>
 
-    <div id="music-player-bar">
-        <div class="flex items-center">
-             <h1 class="text-sm font-bold tracking-widest text-[#c5a059] mr-3">IDENTITY V</h1>
-             <div class="text-[10px] text-gray-400" id="now-playing-text">莊園大廳...</div>
-        </div>
-        <div class="flex items-center space-x-3">
+    <div id="header-bar">
+        <h1 class="text-xl font-bold tracking-[0.2em] text-[#c5a059] text-shadow-md">IDENTITY V</h1>
+        <div class="text-[10px] text-gray-500 tracking-widest font-serif mt-0.5">2026.02.28</div>
+        
+        <div id="music-controls">
+             <div id="now-playing-info"></div>
              <button id="play-btn" class="w-8 h-8 rounded-full border border-[#c5a059] flex items-center justify-center text-[#c5a059] active:bg-[#c5a059] active:text-black transition-colors">
                 <i class="fas fa-play text-xs pl-0.5"></i>
              </button>
-             <button id="mute-btn" class="text-gray-400 text-lg">
-                <i class="fas fa-volume-up"></i>
+             <button id="next-btn" class="text-gray-400 active:text-[#c5a059] transition-colors">
+                <i class="fas fa-step-forward text-sm"></i>
+             </button>
+             <button id="mute-btn" class="text-gray-400 active:text-[#c5a059] transition-colors ml-1">
+                <i class="fas fa-volume-up text-sm"></i>
              </button>
         </div>
         <audio id="bgm-player" preload="auto"></audio>
     </div>
 
-    <div id="main-container" class="p-4">
+    <div id="main-container" class="p-4 relative">
         
+        <img src="https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E5%8F%A4%E5%A0%A1%E7%AE%A1%E5%AE%B6.png" class="butler-fixed" id="butler-img" style="display:none;" alt="Butler">
+
         <div id="page-schedule" class="page-section active space-y-5">
             <div class="loader"></div>
             <p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>
@@ -245,22 +259,16 @@
 
     <script>
         // ==========================================
-        //  CONFIG: 圖片與音樂資源設定 (V5.3 豪華版)
+        //  CONFIG: 資源設定
         // ==========================================
-        
-        // 1. Google Sheets CSV 連結
         const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?single=true&output=csv";
         const URL_SCHEDULE = BASE_CSV_URL + "&gid=1831823101";
         const URL_JOURNAL = BASE_CSV_URL + "&gid=1624206298";
-        // gid=374415852 保留給未來擴充
 
-        // 2. 外部資源連結 (Raw Links)
         const IMG_TEAM_ICON = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/Identity_V_logo.png';
-        const IMG_BUTLER = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E5%8F%A4%E5%A0%A1%E7%AE%A1%E5%AE%B6.png';
         const ICON_ECHO = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E5%9B%9E%E8%81%B2.png';
         const ICON_FRAGMENT = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E7%A2%8E%E7%89%87.png';
 
-        // 3. 段位圖示對照
         const RANK_ICONS = {
             'S1': 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E6%B1%82%E7%94%9F%E4%B8%80%E9%9A%8E.png',
             'S2': 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E6%B1%82%E7%94%9F%E4%BA%8C%E9%9A%8E.png',
@@ -273,16 +281,19 @@
             'H4': 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
 
-        // 4. 音樂播放清單 (Raw Links)
         const BGM_PLAYLIST = [
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E5%BE%90%E6%A2%A6%E5%9C%86%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%20-%20%E9%9F%B3%E4%B9%90%E4%BA%BA%E5%BE%90%E6%A2%A6%E5%9C%86YUAN%20(youtube).mp3',
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%83%AD%E3%83%93%E3%83%BC%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Lobby%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3',
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3'
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%82%B5%E3%83%90%E3%82%A4%E3%83%90%E3%83%BC%E6%BA%96%E5%82%99%E4%B8%AD%E3%80%91_%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Survivor%20Preparation%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%BE%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E5%82%AD%E5%85%B5%20-%20%E3%83%8A%E3%83%AF%E3%83%BC%E3%83%96%E3%81%AE%E6%87%90%E9%83%B7%E3%81%AE%E5%A4%9C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3',
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E9%87%8E%E4%BA%BA%20-%20%E3%83%A2%E3%82%A6%E3%83%AD%E3%81%AE%E8%8D%92%E9%87%8E%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3'
         ];
 
-        // 5. 戰隊與成員資訊
         const TEAM_MEMBERS_DATA = {
             '女神': { s: 'S4', h: 'H1', s_sub: 'III', h_sub: 'II' },
             '大神': { s: 'S4', h: 'H2', s_sub: 'III', h_sub: 'I' },
@@ -303,7 +314,6 @@
             '🐦 攜帶殿堂小黃卡'
         ];
         
-        // 6. 天氣 (固定)
         const TAIPEI_WEATHER = {
             location: '台北市大同區',
             temp: '22°C',
@@ -314,66 +324,74 @@
         };
 
         // ==========================================
-        //  CORE LOGIC: 頁面切換與資料處理
+        //  APP LOGIC
         // ==========================================
 
-        // --- 音樂播放器 ---
         let currentTrackIndex = 0;
         const bgmPlayer = document.getElementById('bgm-player');
         const playBtn = document.getElementById('play-btn');
+        const nextBtn = document.getElementById('next-btn');
         const muteBtn = document.getElementById('mute-btn');
-        const nowPlayingText = document.getElementById('now-playing-text');
+        const nowPlayingInfo = document.getElementById('now-playing-info');
 
         function initMusicPlayer() {
             bgmPlayer.src = BGM_PLAYLIST[0];
             
+            const updatePlayIcon = (isPlaying) => {
+                playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause text-xs"></i>' : '<i class="fas fa-play text-xs pl-0.5"></i>';
+                nowPlayingInfo.style.display = isPlaying ? 'block' : 'none';
+                if(isPlaying) nowPlayingInfo.innerText = "Track " + (currentTrackIndex + 1);
+            };
+
             playBtn.addEventListener('click', () => {
                 if (bgmPlayer.paused) {
-                    bgmPlayer.play().then(() => {
-                        playBtn.innerHTML = '<i class="fas fa-pause text-xs"></i>';
-                        nowPlayingText.innerText = "正在播放: Track " + (currentTrackIndex + 1);
-                    }).catch(e => console.log("播放失敗:", e));
+                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => console.log("Play failed", e));
                 } else {
                     bgmPlayer.pause();
-                    playBtn.innerHTML = '<i class="fas fa-play text-xs pl-0.5"></i>';
-                    nowPlayingText.innerText = "已暫停";
+                    updatePlayIcon(false);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
+                bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
+                    bgmPlayer.play();
+                    updatePlayIcon(true);
                 }
             });
 
             muteBtn.addEventListener('click', () => {
                 bgmPlayer.muted = !bgmPlayer.muted;
-                muteBtn.innerHTML = bgmPlayer.muted ? '<i class="fas fa-volume-mute text-red-500"></i>' : '<i class="fas fa-volume-up"></i>';
+                muteBtn.innerHTML = bgmPlayer.muted ? '<i class="fas fa-volume-mute text-red-500 text-sm"></i>' : '<i class="fas fa-volume-up text-sm"></i>';
             });
 
             bgmPlayer.addEventListener('ended', () => {
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 bgmPlayer.play();
-                nowPlayingText.innerText = "正在播放: Track " + (currentTrackIndex + 1);
+                updatePlayIcon(true);
             });
         }
 
-        // --- 頁面切換 ---
         function switchPage(pageId) {
-            // 隱藏所有頁面
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            // 顯示目標頁面
             document.getElementById('page-' + pageId).classList.add('active');
             
-            // 更新導航按鈕狀態
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelector(`button[onclick="switchPage('${pageId}')"]`).classList.add('active');
             
-            // 捲動到頂部
             window.scrollTo(0, 0);
+
+            const butler = document.getElementById('butler-img');
+            if (pageId === 'journal') butler.style.display = 'block';
+            else butler.style.display = 'none';
             
-            // 觸發該頁面的資料渲染 (如果需要)
             if(pageId === 'schedule' && document.getElementById('page-schedule').children.length < 3) renderSchedule();
             if(pageId === 'journal' && document.getElementById('page-journal').children.length < 2) renderJournal();
             if(pageId === 'memory' && document.getElementById('page-memory').children.length < 2) renderMemoryFragment();
         }
 
-        // --- 通用 CSV 讀取 ---
         function fetchCSV(url, callback) {
             Papa.parse(url, {
                 download: true,
@@ -385,28 +403,24 @@
                 },
                 error: function(err) {
                     console.error("CSV Error:", err);
-                    alert("資料讀取失敗，請檢查網路或連結");
+                    alert("資料讀取失敗");
                 }
             });
         }
 
-        // ==========================================
-        //  RENDER FUNCTIONS
-        // ==========================================
-
-        // --- 1. 推演任務 (行程) ---
+        // --- RENDER 1: 推演任務 ---
         function renderSchedule() {
             const container = document.getElementById('page-schedule');
-            container.innerHTML = `<div class="loader"></div>`; // 重置並顯示 loading
+            container.innerHTML = `<div class="loader"></div>`; 
 
             fetchCSV(URL_SCHEDULE, (data) => {
                 container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
 
-                // 戰隊資訊區塊
+                // 戰隊區塊
                 const teamHtml = `
-                    <div class="identity-card p-4 mb-5 border-l-4 border-[#8a0a0a]">
-                        <div class="flex items-start mb-3 border-b border-[#333] pb-2">
-                            <img src="${IMG_TEAM_ICON}" class="w-12 h-12 rounded object-cover border border-gray-600 mr-3 opacity-90 shadow-lg" alt="Team">
+                    <div class="dark-card p-4 mb-5 border-l-4 border-[#8a0a0a]">
+                        <div class="flex items-start mb-3 border-b border-[#444] pb-2">
+                            <img src="${IMG_TEAM_ICON}" class="w-12 h-12 rounded object-cover border border-[#666] mr-3 opacity-90 shadow-lg" alt="Team">
                             <div>
                                 <h3 class="text-xs text-gray-500 gothic-font">戰隊名稱</h3>
                                 <h2 class="text-xl font-bold text-[#c5a059] leading-tight">學術殿堂戰隊</h2>
@@ -421,17 +435,17 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-[#5d4d2b] pb-1">戰隊成員</h4>
-                                <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+                                <div class="grid grid-cols-2 gap-x-3 gap-y-2">
                                     ${Object.entries(TEAM_MEMBERS_DATA).map(([name, ranks]) => `
-                                        <div class="flex justify-between items-center text-[10px] bg-[#1a1a1a] p-1 rounded border border-[#333]">
+                                        <div class="flex justify-between items-center text-[10px] member-strip">
                                             <div class="flex items-center">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1 shadow-sm"></span>
-                                                <span class="text-gray-200 font-bold mr-1">${name}</span>
+                                                <span class="text-gray-200 font-bold font-serif mr-1">${name}</span>
                                             </div>
                                             <div class="flex items-center">
                                                 <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] mr-1">${ranks.s_sub}</span>
                                                 <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img"><span class="text-[#c5a059]">${ranks.h_sub}</span>
-                                                <span class="invite-btn ml-1">邀</span>
+                                                <span class="invite-btn ml-1 cursor-pointer hover:opacity-80">邀</span>
                                             </div>
                                         </div>
                                     `).join('')}
@@ -444,7 +458,7 @@
 
                 // 天氣
                 container.innerHTML += `
-                    <div class="identity-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t-2 border-l-2 border-[#5d4d2b]">
+                    <div class="dark-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t-2 border-l-2 border-[#5d4d2b]">
                         <div class="flex items-center">
                             <i class="fas ${TAIPEI_WEATHER.icon} text-3xl mr-3 text-gray-400"></i>
                             <div>
@@ -456,7 +470,6 @@
                     </div>
                 `;
 
-                // 行程列表
                 if (!data || data.length === 0) {
                     container.innerHTML += `<div class="text-center text-gray-500">無行程資料</div>`;
                     return;
@@ -469,13 +482,12 @@
                     const location = row['地點'] || '未知地點';
                     const type = row['類別'] || '行程';
                     const mapLink = row['GOOGLE MAP連結'] || '';
-                    const navLink = row['Google Maps 導航連結'] || mapLink; // 導航優先用導航連結
-                    const desc = row['備註'] || row['描述地點介紹'] || ''; // 地點描述
+                    const navLink = row['Google Maps 導航連結'] || mapLink; 
+                    const desc = row['描述地點介紹'] || row['備註'] || ''; 
                     const bookingInfo = row['預約資訊'] || '';
                     const phone = row['連絡電話'] || '';
                     const trafficInfo = row['交通資訊'] || '';
                     const orderId = row['訂單代號'] || '';
-                    const recommendMenu = row['推薦菜單'] || ''; // 已取消顯示，但保留欄位讀取以免報錯
                     
                     const weekdayDisplay = weekday ? `(${weekday})` : '';
 
@@ -485,7 +497,7 @@
                     if(type.includes('交通')) iconClass = 'fa-subway';
 
                     container.innerHTML += `
-                        <div class="identity-card p-4 rounded-md mb-4 relative group">
+                        <div class="dark-card p-4 rounded-md mb-4 relative group">
                             <div class="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
                                 <i class="fas ${iconClass} text-8xl text-white"></i>
                             </div>
@@ -503,27 +515,28 @@
                             
                             <div class="space-y-2 mt-3 relative z-10">
                                 ${bookingInfo ? `
-                                    <div class="ticket-stub text-xs">
-                                        <div class="font-bold border-b border-gray-400 pb-1 mb-1">預約資訊</div>
+                                    <div class="info-card-style text-xs">
+                                        <div class="info-card-title">預約資訊</div>
                                         ${bookingInfo}
-                                        ${orderId ? `<div class="mt-1 font-mono text-[#8a0a0a]">NO. ${orderId}</div>` : ''}
+                                        ${orderId ? `<div class="mt-1 font-mono text-[#c5a059]">NO. ${orderId}</div>` : ''}
                                     </div>
                                 ` : ''}
 
                                 ${trafficInfo ? `
-                                    <div class="bg-[#1a1a1a] border-l-2 border-[#5d4d2b] p-2 text-xs text-gray-300">
+                                    <div class="info-card-style text-xs">
+                                        <div class="info-card-title">交通資訊</div>
                                         <i class="fas fa-bus mr-1 text-[#c5a059]"></i> ${trafficInfo}
                                     </div>
                                 ` : ''}
 
                                 ${phone ? `
-                                    <a href="tel:${phone}" class="block bg-[#1a0505] border border-[#8a0a0a] text-[#ff6b6b] text-center py-2 rounded text-sm font-bold active:bg-[#8a0a0a] active:text-white transition-colors">
+                                    <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold active:bg-[#3d2a2a] transition-colors mt-2">
                                         <i class="fas fa-phone-alt mr-2"></i>撥打電話：${phone}
                                     </a>
                                 ` : ''}
 
                                 ${desc ? `
-                                    <div class="mt-2 pt-2 border-t border-[#333] text-sm text-gray-300 leading-relaxed">
+                                    <div class="mt-2 pt-2 border-t border-[#333] text-sm text-gray-300 leading-relaxed font-serif">
                                          ${desc}
                                     </div>
                                 ` : ''}
@@ -534,18 +547,14 @@
             });
         }
 
-        // --- 2. 莊園日誌 (公帳) ---
+        // --- 2. 莊園日誌 (商城風格) ---
         function renderJournal() {
             const container = document.getElementById('page-journal');
             container.innerHTML = `<div class="loader"></div>`;
 
-            // 歸宿管家背景圖
-            container.innerHTML += `<img src="${IMG_BUTLER}" class="butler-bg" alt="Butler">`;
-
             fetchCSV(URL_JOURNAL, (data) => {
                 container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：公款清算</h2>`;
                 
-                // 計算總待收金額
                 let totalDebt = 0;
                 let dataHtml = '';
 
@@ -553,41 +562,43 @@
                     dataHtml = `<div class="text-center text-gray-500 mt-8">日誌空白</div>`;
                 } else {
                     data.forEach(row => {
-                        const name = row['姓名'] || '偵探';
-                        const item = row['代墊項目'] || '未知消費';
+                        const name = row['姓名'];
+                        const item = row['代墊項目'];
                         
-                        // 金額處理：移除逗號
+                        // 嚴格過濾：若無姓名或項目，則跳過 (解決公式為0顯示問題)
+                        if(!name || !item) return;
+
                         const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
-                        const debt = parseInt(rawDebt) || 0;
-                        
+                        let debt = parseInt(rawDebt) || 0;
                         const isClear = (row['是否已結清'] || '').includes('是');
 
-                        if (!isClear) totalDebt += debt;
+                        // 若已結清，強制顯示 0，不計入總額
+                        if (isClear) debt = 0;
+                        else totalDebt += debt;
 
-                        const statusClass = isClear ? 'text-green-500 border-green-500 opacity-50' : 'text-[#ff6b6b] border-[#8a0a0a]';
                         const statusText = isClear ? '已結清' : '未結清';
+                        const statusColor = isClear ? 'text-green-700 border-green-700' : 'text-[#8a0a0a] border-[#8a0a0a]';
+                        const cardOpacity = isClear ? 'opacity-60 grayscale' : '';
 
                         dataHtml += `
-                            <div class="shop-card ${isClear ? 'grayscale' : ''}">
-                                ${!isClear ? '<div class="shop-tag">NEW</div>' : ''}
+                            <div class="parchment-card ${cardOpacity}">
                                 <div class="flex justify-between items-center mb-1">
-                                    <div class="text-lg font-bold text-[#c5a059]">${name}</div>
-                                    <div class="text-[10px] border px-1 rounded ${statusClass}">${statusText}</div>
+                                    <div class="text-lg font-bold text-[#5c4033] font-serif">${name}</div>
+                                    <div class="text-[10px] border px-1 rounded font-bold ${statusColor}">${statusText}</div>
                                 </div>
-                                <div class="text-xs text-gray-400 mb-2 border-b border-[#333] pb-1">${item}</div>
+                                <div class="text-xs text-[#6b5646] mb-2 border-b border-[#a89f91] pb-1">${item}</div>
                                 <div class="flex justify-end items-center">
-                                    <span class="text-xs text-gray-500 mr-2">待支付:</span>
+                                    <span class="text-xs text-[#5c4033] mr-2 font-bold">待支付:</span>
                                     <img src="${ICON_ECHO}" class="currency-icon">
-                                    <span class="text-xl font-bold text-white">${debt.toLocaleString()}</span>
+                                    <span class="text-xl font-bold text-[#8a0a0a]">${debt.toLocaleString()}</span>
                                 </div>
                             </div>
                         `;
                     });
                 }
 
-                // 總覽卡片 (商城頂部)
                 const headerHtml = `
-                     <div class="relative bg-gradient-to-r from-[#2a0a0a] to-[#1a0505] p-5 rounded-lg shadow-xl border border-[#8a0a0a] mb-6 overflow-hidden">
+                     <div class="relative bg-gradient-to-b from-[#2a0a0a] to-[#0f0505] p-5 rounded-lg shadow-xl border border-[#8a0a0a] mb-6 overflow-hidden">
                         <div class="relative z-10 text-center">
                             <p class="text-[#c5a059] text-xs tracking-widest mb-1">CURRENT DEBT</p>
                             <div class="flex justify-center items-center">
@@ -603,14 +614,13 @@
             });
         }
 
-        // --- 3. 記憶碎片 (記帳) ---
+        // --- 3. 記憶碎片 (破舊風格) ---
         function renderMemoryFragment() {
             const container = document.getElementById('page-memory');
             container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人私帳</h2>`;
             
             const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
             
-            // 總計區塊
             let total = 0;
             const chartData = {};
             ledger.forEach(item => {
@@ -618,10 +628,13 @@
                 chartData[item.category] = (chartData[item.category] || 0) + item.amount;
             });
 
+            // 破舊羊皮紙風格的輸入區塊
+            const categories = ['餐飲費', '交通費', '住宿費', '娛樂費', '伴手禮', '雜項'];
+            
             container.innerHTML += `
-                <div class="identity-card p-4 mb-6">
+                <div class="dark-card p-4 mb-6" style="background: url('https://www.transparenttextures.com/patterns/black-linen.png'); border: 1px solid #555;">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-[#c5a059]">花費分析</h3>
+                        <h3 class="text-lg font-bold text-[#c5a059] gothic-font">花費分析</h3>
                         <div class="flex items-center">
                             <img src="${ICON_FRAGMENT}" class="currency-icon w-6 h-6">
                             <span class="text-2xl font-bold text-white ml-1">${total.toLocaleString()}</span>
@@ -631,43 +644,35 @@
                         <canvas id="expenseChart"></canvas>
                     </div>
                 </div>
-            `;
 
-            // 輸入區塊
-            const categories = ['餐飲費', '交通費', '住宿費', '娛樂費', '伴手禮', '雜項'];
-            container.innerHTML += `
-                <div class="identity-card p-4 mb-6 bg-[#1a1a2e] border-[#5d4d2b]">
+                <div class="dark-card p-4 mb-6" style="background-image: var(--paper-texture); background-color: #2a2a2a;">
                     <div class="space-y-3">
-                        <select id="expense-cat" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded text-sm">${categories.map(c=>`<option>${c}</option>`).join('')}</select>
-                        <input type="text" id="expense-item" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded text-sm" placeholder="項目名稱">
-                        <input type="number" id="expense-amt" class="w-full p-2 bg-[#0f1014] border border-[#5d4d2b] text-white rounded text-sm" placeholder="碎片數量">
-                        <button onclick="addExpense()" class="w-full btn-cipher py-2 rounded mt-2 text-sm font-bold">記錄碎片</button>
+                        <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">${categories.map(c=>`<option>${c}</option>`).join('')}</select>
+                        <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱">
+                        <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量">
+                        <button onclick="addExpense()" class="w-full btn-cipher py-2 rounded mt-2 text-sm font-bold tracking-widest border border-[#c5a059] text-[#c5a059]">記錄碎片</button>
                     </div>
                 </div>
+                <div id="ledger-list" class="space-y-2 pb-20"></div>
             `;
-
-            // 列表區塊
-            container.innerHTML += `<div id="ledger-list" class="space-y-2 pb-20"></div>`;
             
-            // 延遲渲染列表與圖表
             setTimeout(() => {
                 renderLedgerList(ledger);
                 renderChart(chartData);
             }, 0);
         }
 
-        // 輔助函式: 記帳
         function renderLedgerList(ledger) {
             const listDiv = document.getElementById('ledger-list');
             if(ledger.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; return; }
             
             listDiv.innerHTML = ledger.map((item, idx) => `
-                <div class="identity-card p-2 flex justify-between items-center text-sm">
+                <div class="dark-card p-2 flex justify-between items-center text-sm" style="margin-bottom: 8px;">
                     <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div>
                     <div class="flex items-center">
                         <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3">
                         <span class="mx-1">${item.amount}</span>
-                        <button onclick="delExpense(${idx})" class="text-red-500 ml-2"><i class="fas fa-times"></i></button>
+                        <button onclick="delExpense(${idx})" class="text-red-500 ml-2 hover:text-red-400"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -696,16 +701,18 @@
         function renderChart(dataObj) {
             const ctx = document.getElementById('expenseChart');
             if(!ctx) return;
-            
             if(window.myPieChart) window.myPieChart.destroy();
             
+            // 使用更符合莊園氛圍的圖表顏色
+            const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a'];
+
             window.myPieChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(dataObj),
                     datasets: [{
                         data: Object.values(dataObj),
-                        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40'],
+                        backgroundColor: chartColors,
                         borderWidth: 0
                     }]
                 },
@@ -721,7 +728,7 @@
         // ==========================================
         window.onload = function() {
             initMusicPlayer();
-            renderSchedule(); // 預設載入首頁
+            renderSchedule(); 
         };
 
     </script>
