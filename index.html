@@ -337,9 +337,11 @@
         const nowPlayingInfo = document.getElementById('now-playing-info');
 
         function initMusicPlayer() { 
-            // V7.10/V7.11: 初始設定，確保從第一首開始
+            // V7.10: 初始設定，確保從第一首開始
             currentTrackIndex = 0; 
             bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
+            
+            // V7.11 修正: 首次載入時也強制執行 load()，確保第一個 track 的 metadata 被讀取，解決播放器無反應問題。
             bgmPlayer.load(); 
             
             const updatePlayIcon = (isPlaying) => {
@@ -347,18 +349,9 @@
             };
 
             playBtn.addEventListener('click', () => {
-                // V7.12 關鍵修正: 為了確保行動裝置能正常播放，每次點擊都強制重新設定來源並載入
                 if (bgmPlayer.paused) {
-                    // 確保是最新的音軌
-                    bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
-                    bgmPlayer.load(); 
-
-                    // 嘗試播放
-                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
-                        console.error("Play failed on click:", e);
-                        alert("播放失敗，請確認是否為靜音模式或瀏覽器限制。");
-                        updatePlayIcon(false);
-                    });
+                    // 為了避免第一次無法自動播放，我們使用 promise
+                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => console.log("Play failed", e));
                 } else {
                     bgmPlayer.pause();
                     updatePlayIcon(false);
@@ -370,14 +363,13 @@
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 
-                // 強制瀏覽器開始處理新的音訊來源
+                // V7.7/V7.11 修正: 強制瀏覽器開始處理新的音訊來源
                 bgmPlayer.load(); 
 
                 if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
                     // 嘗試播放
                     bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
                         console.log("Play failed after load on next click. Resource might not be ready yet.");
-                        updatePlayIcon(false);
                     });
                 }
             });
