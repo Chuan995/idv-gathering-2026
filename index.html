@@ -59,7 +59,7 @@
             align-items: center;
             gap: 8px;
         }
-        /* V7.17: 確保文字隱藏 */
+        /* V7.17/V7.19: 確保文字隱藏 */
         #now-playing-info { display: none !important; } 
         
         #main-container {
@@ -337,7 +337,8 @@
 
 
         /**
-         * V7.17 修正版音樂播放器初始化函數
+         * V7.19 最終修正版音樂播放器初始化函數
+         * 採用更直覺的播放邏輯，修復 Next 後需要二次點擊的問題。
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
@@ -349,62 +350,70 @@
                     '<i class="fas fa-play text-xs pl-0.5"></i>';
             };
 
-            const startPlayback = async () => {
+            // 處理 explicit Play/Pause click
+            playBtn.addEventListener('click', () => {
                 if (bgmPlayer.paused) {
-                    // 1. 強制重設 src 並 load()，確保從頭開始載入
-                    bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                    bgmPlayer.load();
-
-                    // 2. 輪詢檢查音訊是否已準備好
-                    let attempts = 0;
-                    const maxAttempts = 50; 
-
-                    while (bgmPlayer.readyState < 3 && attempts < maxAttempts) {
-                        await new Promise(resolve => setTimeout(resolve, 50));
-                        attempts++;
-                    }
-
-                    // 3. 資源確認 ready 後，使用使用者點擊權限執行 play()
-                    try {
-                        await bgmPlayer.play();
+                    // Start or resume
+                    bgmPlayer.play().then(() => {
                         updatePlayIcon(true);
-                    } catch (e) {
-                        console.error("Final play attempt failed:", e);
-                        alert("播放失敗。瀏覽器限制無法繞過，請檢查裝置設定或切換瀏覽器 (建議使用 Chrome)。");
+                    }).catch(e => {
+                        console.error("Play button failed:", e);
+                        alert("無法播放音樂。請確認您的裝置沒有靜音，或瀏覽器允許媒體播放。");
                         updatePlayIcon(false);
-                    }
+                    });
                 } else {
+                    // Pause
                     bgmPlayer.pause();
                     updatePlayIcon(false);
                 }
-            };
+            });
 
-            playBtn.addEventListener('click', startPlayback);
-
+            // 處理 Next button click
             nextBtn.addEventListener('click', () => {
+                const wasPlaying = !bgmPlayer.paused; // 記錄切換前是否正在播放
+                
                 // 循環切換到下一首
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 
-                // 如果原本在播放，則切換後直接啟動播放
-                if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
-                    startPlayback();
+                bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                bgmPlayer.load(); // 載入新曲目
+
+                if (wasPlaying) {
+                    // 如果切換前正在播放，則嘗試自動播放新曲目
+                    bgmPlayer.play().then(() => {
+                        updatePlayIcon(true); // 播放成功，顯示暫停鍵
+                    }).catch(e => {
+                        console.error("Next button autoplay failed:", e);
+                        // 播放失敗，可能需要使用者再次點擊
+                        updatePlayIcon(false); 
+                    });
                 } else {
-                    // 如果原本是暫停的，只切換 src，不播放
-                    bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                    bgmPlayer.load();
+                    // 如果切換前是暫停的，只更新 UI 為暫停狀態
+                    updatePlayIcon(false);
                 }
             });
 
             bgmPlayer.addEventListener('ended', () => {
                 // 自動播放下一首
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
-                startPlayback(); // 結束後自動觸發播放
+                bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                bgmPlayer.load();
+                
+                bgmPlayer.play().then(() => {
+                    updatePlayIcon(true);
+                }).catch(e => {
+                    console.error("Autoplay failed after track end:", e);
+                    updatePlayIcon(false);
+                });
             });
+            
+            // 初始 UI 設置
+            updatePlayIcon(false);
         }
 
 
         /**
-         * V7.16 修正: switchPage 恢復強制載入，解決刷新後內容不穩定的問題
+         * 修正: switchPage 恢復強制載入，解決刷新後內容不穩定的問題
          */
         function switchPage(pageId) { 
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
