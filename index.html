@@ -341,6 +341,9 @@
             currentTrackIndex = 0; 
             bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
             
+            // V7.11 修正: 首次載入時也強制執行 load()，確保第一個 track 的 metadata 被讀取，解決播放器無反應問題。
+            bgmPlayer.load(); 
+            
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause text-xs"></i>' : '<i class="fas fa-play text-xs pl-0.5"></i>';
             };
@@ -360,7 +363,7 @@
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 
-                // V7.7/V7.10 修正: 強制瀏覽器開始處理新的音訊來源，解決點擊一次沒聲音的問題
+                // V7.7/V7.11 修正: 強制瀏覽器開始處理新的音訊來源
                 bgmPlayer.load(); 
 
                 if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
@@ -516,6 +519,23 @@
                         if(type.includes('集合')) iconClass = 'fa-flag-checkered';
                         if(type.includes('交通')) iconClass = 'fa-subway';
 
+                        // V7.11 修正: 處理備註欄位的格式化
+                        let formattedDesc = desc;
+                        if (formattedDesc) {
+                            // 1. 將所有 【 替換為換行+【
+                            formattedDesc = formattedDesc.replace(/【/g, '\n【'); 
+                            
+                            // 2. 移除字串開頭可能多出來的換行
+                            formattedDesc = formattedDesc.trim();
+
+                            // 3. 將 【([^】]+)】 替換為粗體的 <strong class="text-white">【$1】</strong>
+                            // 並將換行符 \n 替換為 <br>
+                            formattedDesc = formattedDesc
+                                .replace(/【([^】]+)】/g, '<strong class="text-white">【$1】</strong>')
+                                .replace(/\n/g, '<br>');
+                        }
+
+
                         container.innerHTML += `
                             <div class="dark-card p-4 rounded-md mb-4 relative group">
                                 <div class="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
@@ -555,9 +575,9 @@
                                         </a>
                                     ` : ''}
 
-                                    ${desc ? `
+                                    ${formattedDesc ? `
                                         <div class="mt-2 pt-2 border-t border-[#333] text-sm text-gray-300 leading-relaxed font-serif">
-                                            ${desc}
+                                            ${formattedDesc}
                                         </div>
                                     ` : ''}
                                 </div>
