@@ -220,7 +220,7 @@
                 <i class="fas fa-step-forward text-sm"></i>
              </button>
         </div>
-        <audio id="bgm-player" preload="auto"></audio>
+        <audio id="bgm-player" preload="auto" loop></audio>
     </div>
 
     <div id="main-container" class="p-4 relative">
@@ -337,12 +337,10 @@
         const nowPlayingInfo = document.getElementById('now-playing-info');
 
         function initMusicPlayer() { 
-            // V7.10: 初始設定，確保從第一首開始
+            // V7.14 修正: 初始時只設定 src，不強制 load()，並確保 loop 屬性被正確讀取
             currentTrackIndex = 0; 
             bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
-            
-            // V7.11 修正: 首次載入時也強制執行 load()，確保第一個 track 的 metadata 被讀取，解決播放器無反應問題。
-            bgmPlayer.load(); 
+            // 由於 HTML 標籤已設定 loop，這裡無需重複設定
             
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause text-xs"></i>' : '<i class="fas fa-play text-xs pl-0.5"></i>';
@@ -350,8 +348,22 @@
 
             playBtn.addEventListener('click', () => {
                 if (bgmPlayer.paused) {
-                    // 為了避免第一次無法自動播放，我們使用 promise
-                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => console.log("Play failed", e));
+                    // 嘗試播放，依賴使用者點擊事件的權限
+                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
+                        console.error("Play failed on first click:", e);
+                        // 如果播放失敗，可能是因為資源未準備好，我們強制 load() 一次再試
+                        try {
+                            bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
+                            bgmPlayer.load(); // <-- 強制 Load/Reload，利用這次點擊權限
+                            bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
+                                alert("播放失敗。請確保音訊來源有效且您的裝置未處於靜音模式。");
+                                updatePlayIcon(false);
+                            });
+                        } catch (loadError) {
+                            alert("無法啟動播放器。");
+                            updatePlayIcon(false);
+                        }
+                    });
                 } else {
                     bgmPlayer.pause();
                     updatePlayIcon(false);
@@ -363,21 +375,23 @@
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 
-                // V7.7/V7.11 修正: 強制瀏覽器開始處理新的音訊來源
+                // 切換下一首時必須強制載入，否則 play() 會失敗
                 bgmPlayer.load(); 
 
+                // 如果原本在播放，則嘗試播放新的音軌
                 if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
-                    // 嘗試播放
                     bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
-                        console.log("Play failed after load on next click. Resource might not be ready yet.");
+                        console.warn("Autoplay failed after next click. User needs to click play.");
+                        updatePlayIcon(false); // 播放失敗，將圖標切回播放
                     });
                 }
             });
 
             bgmPlayer.addEventListener('ended', () => {
-                // 自動播放下一首
+                // 自動播放下一首 (即使 loop 屬性已開啟，這也是個保險機制)
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                bgmPlayer.load(); // 自動載入下一首
                 bgmPlayer.play();
                 updatePlayIcon(true);
             });
