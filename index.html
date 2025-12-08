@@ -282,9 +282,10 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
 
+        // V7.9 修正: 重新使用 V7.1 (V7.7) 的完整音樂清單
         const BGM_PLAYLIST = [
             CDN_BASE + '/%E5%BE%90%E6%A2%A6%E5%9C%86%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%20-%20%E9%9F%B3%E4%B9%90%E4%BA%BA%E5%BE%90%E6%A2%A6%E5%9C%86YUAN%20(youtube).mp3',
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%83%AD%E3%83%93%E3%83%BC%E3%83%BB%E3%83%AB%E3%83%BC%E3%83%A0%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Lobby%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%83%AD%E3%83%93%E3%83%BC%E3%83%BB%E3%83%AB%E3%83%BC%E3%83%A0%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Lobby%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', // 重新加入可能有問題的歌曲
             CDN_BASE + '/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
@@ -294,6 +295,7 @@
             CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E5%82%AC%E5%85%B5%20-%20%E3%83%8A%E3%83%AF%E3%83%BC%E3%83%96%E3%81%AE%E6%87%90%E9%83%B7%E3%81%AE%E5%A4%9C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E9%87%8E%E4%BA%BA%20-%20%E3%83%A2%E3%82%A6%E3%83%AD%E3%81%AE%E8%8D%92%E9%87%8E%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3'
         ];
+
 
         const TEAM_MEMBERS_DATA = { 
             '女神': { s: 'S4', h: 'H1', s_sub: 'III', h_sub: 'II' },
@@ -335,7 +337,7 @@
         const nowPlayingInfo = document.getElementById('now-playing-info');
 
         function initMusicPlayer() { 
-            // V7.7: 初始設定，確保從第一首開始
+            // V7.9: 初始設定，確保從第一首開始
             currentTrackIndex = 0; 
             bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
             
@@ -354,14 +356,15 @@
             });
 
             nextBtn.addEventListener('click', () => {
+                // 循環切換到下一首
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 
-                // V7.7 修正: 強制瀏覽器開始處理新的音訊來源
+                // V7.7/V7.9 修正: 強制瀏覽器開始處理新的音訊來源，解決點擊一次沒聲音的問題
                 bgmPlayer.load(); 
 
                 if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
-                    // 再次嘗試播放，解決點擊一次沒聲音的問題
+                    // 嘗試播放
                     bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
                         console.log("Play failed after load on next click. Resource might not be ready yet.");
                     });
@@ -369,6 +372,7 @@
             });
 
             bgmPlayer.addEventListener('ended', () => {
+                // 自動播放下一首
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 bgmPlayer.play();
@@ -605,7 +609,7 @@
                             const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
                             let debt = parseInt(rawDebt) || 0;
                             
-                            // V7.4/V7.6 修正結清邏輯：如果欄位明確寫「是」，或是「有姓名項目但金額為 0」，都視為已結清
+                            // 修正結清邏輯：如果欄位明確寫「是」，或是「有姓名項目但金額為 0」，都視為已結清
                             const isClearText = (row['是否已結清'] || '').toLowerCase();
                             const isClear = isClearText.includes('是') || (debt === 0);
 
