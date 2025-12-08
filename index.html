@@ -44,12 +44,14 @@
             border-bottom: 1px solid #333;
             height: 65px; /* 稍微增高以容納日期 */
             display: flex;
-            justify-content: center; /* 水平置中 */
-            align-items: center;     /* 垂直置中 */
+            justify-content: center;
+            /* 水平置中 */
+            align-items: center;
+            /* 垂直置中 */
             flex-direction: column;
         }
         
-        /* --- 1. 音樂控制器 (靠右，移除靜音) --- */
+        /* --- 2. 音樂控制器 (靠右) --- */
         #music-controls {
             position: absolute;
             right: 12px;
@@ -59,21 +61,35 @@
             align-items: center;
             gap: 8px;
         }
-        /* 3. 隱藏文字 */
-        #now-playing-info { display: none !important; } 
+        #now-playing-info {
+            font-size: 10px;
+            color: #888;
+            text-align: right;
+            max-width: 80px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: none;
+            /* 手機空間小，預設隱藏，播放時顯示 */
+        }
+        @media (min-width: 380px) {
+            #now-playing-info { display: block;
+            }
+        }
         
         #main-container {
             padding-top: 75px;
             padding-bottom: 80px;
             min-height: 100vh;
-            max-width: 600px; /* 限制寬度以保持手機版面外觀 */
-            margin: 0 auto;
         }
 
         /* 頁面切換動畫 */
-        .page-section { display: none; animation: fadeIn 0.4s ease-out; }
-        .page-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .page-section { display: none;
+            animation: fadeIn 0.4s ease-out; }
+        .page-section.active { display: block;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);
+            } to { opacity: 1; transform: translateY(0); } }
 
         /* --- 通用深色卡片 (推演任務 & 記憶碎片) --- */
         .dark-card {
@@ -93,9 +109,10 @@
             opacity: 0.5;
         }
 
-        /* --- 羊皮紙風格 (莊園日誌專用) --- */
+        /* --- 6. 羊皮紙風格 (莊園日誌專用) --- */
         .parchment-style {
-            background-color: #e3d5b8; /* 羊皮紙底色 */
+            background-color: #e3d5b8;
+            /* 羊皮紙底色 */
             background-image: var(--paper-texture);
             border: 2px solid #5c4033;
             border-radius: 4px;
@@ -142,8 +159,10 @@
             color: #d1d1d1;
             font-family: 'Noto Sans TC', sans-serif;
         }
-        .fragment-input:focus { border-color: var(--text-gold); outline: none; }
-        select.fragment-input option { background-color: #1a1a1a; color: #d1d1d1; }
+        .fragment-input:focus { border-color: var(--text-gold); outline: none;
+        }
+        select.fragment-input option { background-color: #1a1a1a; color: #d1d1d1;
+        }
 
         /* Loader */
         .loader {
@@ -154,35 +173,24 @@
             animation: spin 1s linear infinite;
             margin: 20px auto;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);
+        } }
         
-        /* 邀按鈕 */
-        .invite-btn { 
-            background-color: #c5a059; 
-            color: #1a1a1a; 
-            border: 1px solid #7c6441; 
-            font-size: 10px; 
-            padding: 1px 6px; 
-            font-weight: bold; 
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
-            min-width: 20px; 
-            text-align: center;
-            margin-left: auto; /* 靠右對齊 */
+        .invite-btn { background-color: #c5a059;
+            color: #1a1a1a; border: 1px solid #7c6441; font-size: 10px; padding: 1px 6px; font-weight: bold; box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
-        .rank-icon-img { width: 18px; height: 18px; object-fit: contain; margin: 0 1px; filter: drop-shadow(0 0 1px black); }
-        .currency-icon { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 2px; display: inline-block; }
+        .rank-icon-img { width: 18px; height: 18px; object-fit: contain; margin: 0 1px;
+            filter: drop-shadow(0 0 1px black); }
+        .currency-icon { width: 16px; height: 16px;
+            object-fit: contain; vertical-align: middle; margin-right: 2px; display: inline-block; }
         
-        /* 羅馬數字縮小 */
-        .rank-sub {
-            font-size: 0.65rem; /* 縮小字體 */
-            margin-left: 2px;
-        }
-
         /* 底部導航 */
-        .nav-item.active { color: var(--text-gold); border-bottom: 2px solid var(--text-red); }
-        .nav-item { color: #666; transition: all 0.3s; }
+        .nav-item.active { color: var(--text-gold);
+            border-bottom: 2px solid var(--text-red); }
+        .nav-item { color: #666; transition: all 0.3s;
+        }
 
-        /* --- 管家定位 --- */
+        /* --- 8. 管家定位 --- */
         .butler-container {
             position: relative;
             background: linear-gradient(to bottom, #2a0a0a, #0f0505); /* 深紅漸層背景 */
@@ -213,20 +221,26 @@
         
         <div id="music-controls">
              <div id="now-playing-info"></div>
-             <button id="play-btn" class="w-8 h-8 rounded-full border border-[#c5a059] flex items-center justify-center text-[#c5a059] active:bg-[#c5a059] active:text-black transition-colors">
+             <button id="play-btn" class="w-8 h-8 rounded-full border border-[#c5a059] flex items-center justify-center text-[#c5a059] 
+active:bg-[#c5a059] active:text-black transition-colors">
                 <i class="fas fa-play text-xs pl-0.5"></i>
              </button>
              <button id="next-btn" class="text-gray-400 active:text-[#c5a059] transition-colors ml-1" title="下一首">
                 <i class="fas fa-step-forward text-sm"></i>
              </button>
+             <button 
+id="mute-btn" class="text-gray-400 active:text-[#c5a059] transition-colors ml-1">
+                <i class="fas fa-volume-up text-sm"></i>
+             </button>
         </div>
-        <audio id="bgm-player" preload="auto" loop></audio>
+        <audio id="bgm-player" preload="auto"></audio>
     </div>
 
     <div id="main-container" class="p-4 relative">
         
         <div id="page-schedule" class="page-section active space-y-5">
             <div class="loader"></div>
+  
             <p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>
         </div>
 
@@ -240,6 +254,7 @@
     </div>
 
     <nav class="fixed bottom-0 w-full bg-[#141414] border-t border-[#333] flex justify-around py-3 z-50 pb-safe">
+    
         <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3">
             <i class="fas fa-map-marked-alt text-xl mb-1"></i>
             <span class="text-[10px]">推演任務</span>
@@ -248,6 +263,7 @@
             <i class="fas fa-book-open text-xl mb-1"></i>
             <span class="text-[10px]">莊園日誌</span>
         </button>
+ 
         <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3">
             <i class="fas fa-calculator text-xl mb-1"></i>
             <span class="text-[10px]">記憶碎片</span>
@@ -258,17 +274,19 @@
         // ==========================================
         //  CONFIG: 資源設定 (使用 Raw Links 確保穩定性)
         // ==========================================
-        const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?single=true&output=csv";
+        const 
+BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?single=true&output=csv";
         const URL_SCHEDULE = BASE_CSV_URL + "&gid=1831823101";
         const URL_JOURNAL = BASE_CSV_URL + "&gid=1624206298";
-
-        // GitHub Raw Links
+// GitHub Raw Links
         const CDN_BASE = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main';
-
         const IMG_TEAM_ICON = CDN_BASE + '/Identity_V_logo.png';
-        const IMG_BUTLER = CDN_BASE + '/%E5%8F%A4%E5%A0%A1%E7%AE%A1%E5%AE%B6.png'; // 古堡管家
-        const ICON_ECHO = CDN_BASE + '/%E5%9B%9E%E8%81%B2.png'; // 回聲
-        const ICON_FRAGMENT = CDN_BASE + '/%E7%A2%8E%E7%89%87.png'; // 碎片
+        const IMG_BUTLER = CDN_BASE + '/%E5%8F%A4%E5%A0%A1%E7%AE%A1%E5%AE%B6.png';
+// 古堡管家
+        const ICON_ECHO = CDN_BASE + '/%E5%9B%9E%E8%81%B2.png';
+// 回聲
+        const ICON_FRAGMENT = CDN_BASE + '/%E7%A2%8E%E7%89%87.png';
+// 碎片
 
         const RANK_ICONS = {
             'S1': CDN_BASE + '/%E6%B1%82%E7%94%9F%E4%B8%80%E9%9A%8E.png',
@@ -276,37 +294,38 @@
             'S3': CDN_BASE + '/%E6%B1%82%E7%94%9F%E4%B8%89%E9%9A%8E.png',
             'S4': CDN_BASE + '/%E6%B1%82%E7%94%9F%E5%9B%9B%E9%9A%8E.png',
             'S5': CDN_BASE + '/%E6%B1%82%E7%94%9F%E4%BA%94%E9%9A%8E.png',
-            'H1': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E4%B8%80%E9%9A%8E.png',
+            'H1': 
+CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E4%B8%80%E9%9A%8E.png',
             'H2': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E4%BA%8C%E9%9A%8E.png',
             'H3': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E4%B8%89%E9%9A%8E.png',
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
-
-        // V7.10 修正: 使用新的、簡潔的連結取代有問題的兩首歌
+// 9. 完整 10 首音樂清單
         const BGM_PLAYLIST = [
-            CDN_BASE + '/%E5%BE%90%E6%A2%A6%E5%9C%93%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%20-%20%E9%9F%B3%E4%B9%90%E4%BA%BA%E5%BE%90%E6%A2%A6%E5%9C%93YUAN%20(youtube).mp3',
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', // 替換掉第二首 (原羅比房)
+            CDN_BASE + '/%E5%BE%90%E6%A2%A6%E5%9C%86%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%20-%20%E9%9F%B3%E4%B9%90%E4%BA%BA%E5%BE%90%E6%A2%A6%E5%9C%86YUAN%20(youtube).mp3',
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%83%AD%E3%83%93%E3%83%BC%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Lobby%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%82%B5%E3%83%90%E3%82%A4%E3%83%90%E3%83%BC%E6%BA%96%E5%82%99%E4%B8%AD%E3%80%91_%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Survivor%20Preparation%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
+ 
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%BE%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E5%82%AC%E5%85%B5%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91.mp3', // 替換掉倒數第二首 (原催兵)
+            CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E5%82%AD%E5%85%B5%20-%20%E3%83%8A%E3%83%AF%E3%83%BC%E3%83%96%E3%81%AE%E6%87%90%E9%83%B7%E3%81%AE%E5%A4%9C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E9%87%8E%E4%BA%BA%20-%20%E3%83%A2%E3%82%A6%E3%83%AD%E3%81%AE%E8%8D%92%E9%87%8E%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3'
         ];
-
-
         const TEAM_MEMBERS_DATA = { 
             '女神': { s: 'S4', h: 'H1', s_sub: 'III', h_sub: 'II' },
             '大神': { s: 'S4', h: 'H2', s_sub: 'III', h_sub: 'I' },
             'ㄎㄎ': { s: 'S1', h: 'H1', s_sub: 'III', h_sub: 'III' },
             '紅茶': { s: 'S5', h: 'H3', s_sub: 'I', h_sub: 'III' },
+        
             '鳥鳥': { s: 'S2', h: 'H2', s_sub: 'I', h_sub: 'I' },
             '寧寧': { s: 'S3', h: 'H2', s_sub: 'III', h_sub: 'I' },
             '阿洛': { s: 'S5', h: 'H2', s_sub: 'II', h_sub: 'I' },
             '小姐姐': { s: 'S2', h: 'H1', s_sub: 'I', h_sub: 'III' },
-            '青雨': { s: 'S2', h: 'H2', s_sub: 'I', h_sub: 'I' },
+            '青雨': { s: 'S2', h: 'H2', s_sub: 'I', 
+h_sub: 'I' },
             '辣醬': { s: 'S3', h: 'H2', s_sub: 'V', h_sub: 'I' }
         };
         const TEAM_ANNOUNCEMENTS = [ 
@@ -316,7 +335,6 @@
             '🐦 有任何變動需盡早提出',
             '🐦 攜帶殿堂小黃卡'
         ];
-        
         const TAIPEI_WEATHER = { 
             location: '台北市大同區',
             temp: '22°C',
@@ -325,7 +343,6 @@
             condition: '多雲時晴',
             icon: 'fa-cloud-sun'
         };
-
         // ==========================================
         //  APP LOGIC
         // ==========================================
@@ -334,66 +351,83 @@
         const bgmPlayer = document.getElementById('bgm-player');
         const playBtn = document.getElementById('play-btn');
         const nextBtn = document.getElementById('next-btn');
+        const muteBtn = document.getElementById('mute-btn');
         const nowPlayingInfo = document.getElementById('now-playing-info');
 
+        /**
+         * V7.15 終極暴力修復版音樂播放器初始化函數
+         * 採用 Promise + ReadyState 輪詢，強制等待音訊資源載入完成
+         * 以確保在行動裝置瀏覽器上 play() 成功。
+         */
         function initMusicPlayer() { 
-            // V7.14 修正: 初始時只設定 src，不強制 load()，並確保 loop 屬性被正確讀取
             currentTrackIndex = 0; 
             bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
-            // 由於 HTML 標籤已設定 loop，這裡無需重複設定
             
             const updatePlayIcon = (isPlaying) => {
-                playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause text-xs"></i>' : '<i class="fas fa-play text-xs pl-0.5"></i>';
+                playBtn.innerHTML = isPlaying ? 
+                    '<i class="fas fa-pause text-xs"></i>' : 
+                    '<i class="fas fa-play text-xs pl-0.5"></i>';
+                nowPlayingInfo.style.display = isPlaying ? 'block' : 'none';
+                if(isPlaying) nowPlayingInfo.innerText = "Track " + (currentTrackIndex + 1);
             };
 
-            playBtn.addEventListener('click', () => {
+            const startPlayback = async () => {
                 if (bgmPlayer.paused) {
-                    // 嘗試播放，依賴使用者點擊事件的權限
-                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
-                        console.error("Play failed on first click:", e);
-                        // 如果播放失敗，可能是因為資源未準備好，我們強制 load() 一次再試
-                        try {
-                            bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
-                            bgmPlayer.load(); // <-- 強制 Load/Reload，利用這次點擊權限
-                            bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
-                                alert("播放失敗。請確保音訊來源有效且您的裝置未處於靜音模式。");
-                                updatePlayIcon(false);
-                            });
-                        } catch (loadError) {
-                            alert("無法啟動播放器。");
-                            updatePlayIcon(false);
-                        }
-                    });
+                    // 1. 強制重設 src 並 load()，確保從頭開始載入
+                    bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                    bgmPlayer.load();
+
+                    // 2. 輪詢檢查音訊是否已準備好 (readyState >= 3)
+                    // 這是犧牲速度換取穩定性的關鍵步驟，可能會有 ~1 秒延遲
+                    let attempts = 0;
+                    const maxAttempts = 50; // 最大等待 50 * 50ms = 2.5 秒
+
+                    while (bgmPlayer.readyState < 3 && attempts < maxAttempts) {
+                        // readyState = 3 (可以播放)
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                        attempts++;
+                    }
+
+                    // 3. 資源確認 ready 後，使用使用者點擊權限執行 play()
+                    try {
+                        await bgmPlayer.play();
+                        updatePlayIcon(true);
+                    } catch (e) {
+                        console.error("Final play attempt failed:", e);
+                        alert("播放失敗。瀏覽器限制無法繞過，請檢查裝置設定或切換瀏覽器 (建議使用 Chrome)。");
+                        updatePlayIcon(false);
+                    }
                 } else {
                     bgmPlayer.pause();
                     updatePlayIcon(false);
                 }
-            });
+            };
+
+            playBtn.addEventListener('click', startPlayback);
 
             nextBtn.addEventListener('click', () => {
                 // 循環切換到下一首
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
-                bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 
-                // 切換下一首時必須強制載入，否則 play() 會失敗
-                bgmPlayer.load(); 
-
-                // 如果原本在播放，則嘗試播放新的音軌
+                // 如果原本在播放，則切換後直接啟動播放
                 if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
-                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
-                        console.warn("Autoplay failed after next click. User needs to click play.");
-                        updatePlayIcon(false); // 播放失敗，將圖標切回播放
-                    });
+                    startPlayback();
+                } else {
+                    // 如果原本是暫停的，只切換 src，不播放
+                    bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                    bgmPlayer.load();
                 }
+            });
+            
+            muteBtn.addEventListener('click', () => {
+                bgmPlayer.muted = !bgmPlayer.muted;
+                muteBtn.innerHTML = bgmPlayer.muted ? '<i class="fas fa-volume-mute text-red-500 text-sm"></i>' : '<i class="fas fa-volume-up text-sm"></i>';
             });
 
             bgmPlayer.addEventListener('ended', () => {
-                // 自動播放下一首 (即使 loop 屬性已開啟，這也是個保險機制)
+                // 自動播放下一首
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
-                bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                bgmPlayer.load(); // 自動載入下一首
-                bgmPlayer.play();
-                updatePlayIcon(true);
+                startPlayback(); // 結束後自動觸發播放 (會強制載入，確保穩定)
             });
         }
 
@@ -406,312 +440,289 @@
             
             window.scrollTo(0, 0);
             
-            // 每次切換到指定頁面時，強制重新渲染 (解決手機資料不同步的關鍵)
-            if(pageId === 'schedule') renderSchedule(true);
-            if(pageId === 'journal') renderJournal(true);
-            if(pageId === 'memory') renderMemoryFragment();
+            if(pageId === 'schedule' && document.getElementById('page-schedule').children.length < 3) renderSchedule();
+            if(pageId === 'journal' && document.getElementById('page-journal').children.length < 2) renderJournal();
+            if(pageId === 'memory' && document.getElementById('page-memory').children.length < 2) renderMemoryFragment();
         }
 
-        /**
-         * 讀取 CSV 資料，並強制繞過快取
-         * @param {string} url - 原始 CSV 網址
-         * @param {function} callback - 資料處理回調函數
-         */
         function fetchCSV(url, callback) { 
-             // 關鍵步驟：在網址後面加上一個隨機的時間戳記 (Cache Buster)
-            const cacheBusterUrl = url + '&t=' + Date.now();
-            
-            Papa.parse(cacheBusterUrl, {
+            Papa.parse(url, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    // 保留沒有空值的行
+      
                     const filteredData = results.data.filter(row => Object.values(row).some(val => val !== ''));
                     callback(filteredData);
                 },
                 error: function(err) {
                     console.error("CSV Error:", err);
-                    // V7.6: 錯誤時彈出提示，防止卡住
-                    alert("資料讀取失敗，請檢查網路連線或稍後再試。");
+ 
+                    alert("資料讀取失敗");
                 }
             });
         }
 
-        // --- RENDER 1: 推演任務 ---
-        function renderSchedule(forceReload = false) {
+        // --- RENDER 1: 推演任務 (深色卡片風格) ---
+        function renderSchedule() {
             const container = document.getElementById('page-schedule');
-            
-            // 避免重複渲染，除非是強制刷新
-            if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
-                return;
-            }
-            
-            container.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>`; 
+            container.innerHTML = `<div class="loader"></div>`; 
 
             fetchCSV(URL_SCHEDULE, (data) => {
-                try {
-                    container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
+                container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
 
-                    // 戰隊區塊
-                    const teamHtml = `
-                        <div class="dark-card p-4 mb-5 border-l-4 border-[#c5a059]">
-                            <div class="flex items-start mb-3 border-b border-gray-700 pb-2">
-                                <img src="${IMG_TEAM_ICON}" class="w-12 h-12 rounded object-cover border border-[#c5a059] mr-3 opacity-90 shadow-lg" alt="Team">
-                                <div>
-                                    <h3 class="text-xs text-[#c5a059] gothic-font">戰隊名稱</h3>
-                                    <h2 class="text-xl font-bold text-white leading-tight">學術殿堂戰隊</h2>
-                                </div>
+                // 戰隊區塊 (使用深色卡片風格，確保載入)
+                const teamHtml = `
+                    <div class="dark-card p-4 mb-5 border-l-4 border-[#c5a059]">
+       
+                        <div class="flex items-start mb-3 border-b border-gray-700 pb-2">
+                            <img src="${IMG_TEAM_ICON}" class="w-12 h-12 rounded object-cover border border-[#c5a059] mr-3 opacity-90 shadow-lg" alt="Team">
+                            <div>
+          
+                                <h3 class="text-xs text-[#c5a059] gothic-font">戰隊名稱</h3>
+                                <h2 class="text-xl font-bold text-white leading-tight">學術殿堂戰隊</h2>
                             </div>
-                            <div class="grid grid-cols-1 gap-4">
-                                <div>
-                                    <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-gray-700 pb-1">戰隊公告</h4>
-                                    <ul class="text-xs text-gray-400 space-y-1 pl-2 font-bold">
-                                        ${TEAM_ANNOUNCEMENTS.map(ann => `<li class="flex items-start text-gray-300">${ann}</li>`).join('')}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-gray-700 pb-1">戰隊成員</h4>
-                                    <div class="grid grid-cols-2 gap-x-2 gap-y-2"> 
-                                        ${Object.entries(TEAM_MEMBERS_DATA).map(([name, ranks]) => `
-                                            <div class="flex items-center text-[10px] bg-[#1a1a1a] border border-[#333] p-1 rounded">
-                                                <div class="flex items-center w-auto">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1 shadow-sm"></span>
-                                                    <span class="text-white font-bold font-serif mr-2">${name}</span>
-                                                </div>
-                                                <div class="flex items-center text-[11px] mr-2">
-                                                    <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] rank-sub">${ranks.s_sub}</span>
-                                                    <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img ml-2"><span class="text-[#c5a059] rank-sub">${ranks.h_sub}</span>
-                                                </div>
-                                                <span class="invite-btn cursor-pointer hover:opacity-80">邀</span>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            </div>
+           
                         </div>
-                    `;
-                    container.innerHTML += teamHtml;
-
-                    // 天氣區塊
-                    container.innerHTML += `
-                        <div class="dark-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t-2 border-l-2 border-[#5d4d2b]">
-                            <div class="flex items-center">
-                                <i class="fas ${TAIPEI_WEATHER.icon} text-3xl mr-3 text-gray-400"></i>
-                                <div>
-                                    <div class="text-sm text-gray-400">${TAIPEI_WEATHER.location}</div>
-                                    <div class="text-xl font-bold text-[#c5a059]">${TAIPEI_WEATHER.temp} <span class="text-xs text-gray-500">${TAIPEI_WEATHER.condition}</span></div>
-                                </div>
-                            </div>
-                            <div class="text-right text-xs text-gray-500">濕度: ${TAIPEI_WEATHER.humidity}</div>
-                        </div>
-                    `;
-
-                    // 行程列表
-                    if (!data || data.length === 0) {
-                        container.innerHTML += `<div class="text-center text-gray-500">無行程資料</div>`;
-                        return;
-                    }
-
-                    data.forEach(row => {
-                        const date = row['日期'] || '';
-                        const weekday = row['星期'] || '';
-                        const time = row['時間'] || '??:??';
-                        const location = row['地點'] || '未知地點';
-                        const type = row['類別'] || '行程';
-                        const navLink = row['Google Maps 導航連結'] || row['GOOGLE MAP連結'] || ''; 
-                        const desc = row['描述地點介紹'] || row['備註'] || ''; 
-                        const bookingInfo = row['預約資訊'] || '';
-                        const phone = row['連絡電話'] || '';
-                        const trafficInfo = row['交通資訊'] || '';
-                        const orderId = row['訂單代號'] || '';
-                        
-                        const weekdayDisplay = weekday ? `(${weekday})` : '';
-
-                        let iconClass = 'fa-map-marker-alt';
-                        if(type.includes('餐廳') || type.includes('食')) iconClass = 'fa-utensils';
-                        if(type.includes('集合')) iconClass = 'fa-flag-checkered';
-                        if(type.includes('交通')) iconClass = 'fa-subway';
-
-                        // V7.11 修正: 處理備註欄位的格式化
-                        let formattedDesc = desc;
-                        if (formattedDesc) {
-                            // 1. 將所有 【 替換為換行+【
-                            formattedDesc = formattedDesc.replace(/【/g, '\n【'); 
-                            
-                            // 2. 移除字串開頭可能多出來的換行
-                            formattedDesc = formattedDesc.trim();
-
-                            // 3. 將 【([^】]+)】 替換為粗體的 <strong class="text-white">【$1】</strong>
-                            // 並將換行符 \n 替換為 <br>
-                            formattedDesc = formattedDesc
-                                .replace(/【([^】]+)】/g, '<strong class="text-white">【$1】</strong>')
-                                .replace(/\n/g, '<br>');
-                        }
-
-
-                        container.innerHTML += `
-                            <div class="dark-card p-4 rounded-md mb-4 relative group">
-                                <div class="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
-                                    <i class="fas ${iconClass} text-8xl text-white"></i>
-                                </div>
-
-                                <div class="flex justify-between items-start relative z-10 mb-2">
-                                    <div class="w-3/4">
-                                        <span class="text-[#c5a059] font-bold text-lg font-mono flex items-center">
-                                            <i class="far fa-clock mr-2 text-xs"></i>${date} ${weekdayDisplay} ${time}
-                                        </span>
-                                        <h3 class="text-xl font-bold mt-1 text-white leading-tight">${location}</h3>
-                                        <div class="text-xs text-gray-400 mt-2 uppercase tracking-widest border-b border-gray-700 inline-block pb-1">${type}</div>
-                                    </div>
-                                    ${navLink ? `<a href="${navLink}" target="_blank" class="w-10 h-10 bg-[#333] border border-[#c5a059] text-[#c5a059] flex items-center justify-center rounded-full shadow-lg active:scale-95"><i class="fas fa-location-arrow"></i></a>` : ''}
-                                </div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
                                 
-                                <div class="space-y-2 mt-3 relative z-10">
-                                    ${bookingInfo ? `
-                                        <div class="info-card-style text-xs">
-                                            <div class="info-card-title">預約資訊</div>
-                                            ${bookingInfo}
-                                            ${orderId ? `<div class="mt-1 font-mono text-[#c5a059]">NO. ${orderId}</div>` : ''}
+                                <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-gray-700 pb-1">戰隊公告</h4>
+                                <ul class="text-xs text-gray-400 space-y-1 pl-2 font-bold">
+                                    ${TEAM_ANNOUNCEMENTS.map(ann => `<li class="flex items-start text-gray-300">${ann}</li>`).join('')}
+               
+                                </ul>
+                            </div>
+                            <div>
+                           
+                                <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-gray-700 pb-1">戰隊成員</h4>
+                                <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+                                    ${Object.entries(TEAM_MEMBERS_DATA).map(([name, ranks]) => `
+             
+                                        <div class="flex justify-between items-center text-[10px] bg-[#1a1a1a] border border-[#333] p-1 rounded">
+                                            <div class="flex items-center">
+                  
+                                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1 shadow-sm"></span>
+                                                <span class="text-white font-bold font-serif mr-1">${name}</span>
+            
+                                            </div>
+                                            <div class="flex items-center">
+                      
+                                                <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] mr-1 font-bold">${ranks.s_sub}</span>
+                                                <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img"><span class="text-[#c5a059] font-bold">${ranks.h_sub}</span>
+                 
+                                                <span class="invite-btn ml-1 cursor-pointer hover:opacity-80">邀</span>
+                                            </div>
+                     
                                         </div>
-                                    ` : ''}
+                                    `).join('')}
+                                </div>
+             
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += teamHtml;
 
-                                    ${trafficInfo ? `
-                                        <div class="info-card-style text-xs">
-                                            <div class="info-card-title">交通資訊</div>
-                                            <i class="fas fa-bus mr-1 text-[#c5a059]"></i> ${trafficInfo}
-                                        </div>
-                                    ` : ''}
+                // 天氣區塊
+                container.innerHTML += `
+                    <div class="dark-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t-2 border-l-2 border-[#5d4d2b]">
+                        <div class="flex items-center">
+                    
+                            <i class="fas ${TAIPEI_WEATHER.icon} text-3xl mr-3 text-gray-400"></i>
+                            <div>
+                                <div class="text-sm text-gray-400">${TAIPEI_WEATHER.location}</div>
+                         
+                                <div class="text-xl font-bold text-[#c5a059]">${TAIPEI_WEATHER.temp} <span class="text-xs text-gray-500">${TAIPEI_WEATHER.condition}</span></div>
+                            </div>
+                        </div>
+                        <div class="text-right text-xs text-gray-500">濕度: ${TAIPEI_WEATHER.humidity}</div>
+       
+                    </div>
+                `;
+// 行程列表
+                if (!data || data.length === 0) {
+                    container.innerHTML += `<div class="text-center text-gray-500">無行程資料</div>`;
+                    return;
+                }
 
-                                    ${phone ? `
-                                        <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold active:bg-[#3d2a2a] transition-colors mt-2">
-                                            <i class="fas fa-phone-alt mr-2"></i>撥打電話：${phone}
-                                        </a>
-                                    ` : ''}
+                data.forEach(row => {
+                    const date = row['日期'] || '';
+                    const weekday = row['星期'] || '';
+                    const time = row['時間'] || '??:??';
+      
+                    const location = row['地點'] || '未知地點';
+                    const type = row['類別'] || '行程';
+                    const navLink = row['Google Maps 導航連結'] || row['GOOGLE MAP連結'] || ''; 
+                    const desc = row['描述地點介紹'] || 
+row['備註'] || ''; 
+                    const bookingInfo = row['預約資訊'] || '';
+                    const phone = row['連絡電話'] || '';
+                    const trafficInfo = row['交通資訊'] || '';
+                    const orderId 
+= row['訂單代號'] || '';
+                    
+                    const weekdayDisplay = weekday ? `(${weekday})` : '';
 
-                                    ${formattedDesc ? `
-                                        <div class="mt-2 pt-2 border-t border-[#333] text-sm text-gray-300 leading-relaxed font-serif">
-                                            ${formattedDesc}
-                                        </div>
-                                    ` : ''}
+                    let iconClass = 'fa-map-marker-alt';
+                    if(type.includes('餐廳') || type.includes('食')) iconClass = 'fa-utensils';
+  
+                    if(type.includes('集合')) iconClass = 'fa-flag-checkered';
+                    if(type.includes('交通')) iconClass = 'fa-subway';
+
+                    container.innerHTML += `
+                        <div class="dark-card p-4 rounded-md mb-4 relative group">
+                            <div class="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
+                              
+                                <i class="fas ${iconClass} text-8xl text-white"></i>
+                            </div>
+
+                            <div class="flex justify-between items-start relative z-10 mb-2">
+                                
+                                <div class="w-3/4">
+                                    <span class="text-[#c5a059] font-bold text-lg font-mono flex items-center">
+                                        <i class="far fa-clock mr-2 text-xs"></i>${date} ${weekdayDisplay} ${time}
+           
+                                    </span>
+                                    <h3 class="text-xl font-bold mt-1 text-white leading-tight">${location}</h3>
+                                  
+                                    <div class="text-xs text-gray-400 mt-2 uppercase tracking-widest border-b border-gray-700 inline-block pb-1">${type}</div>
+                                </div>
+                                ${navLink ?
+                                `<a href="${navLink}" target="_blank" class="w-10 h-10 bg-[#333] border border-[#c5a059] text-[#c5a059] flex items-center justify-center rounded-full shadow-lg active:scale-95"><i class="fas fa-location-arrow"></i></a>` : ''}
+                            </div>
+                            
+                          
+                            <div class="space-y-2 mt-3 relative z-10">
+                                ${bookingInfo ?
+                                `
+                                    <div class="info-card-style text-xs">
+                                        <div class="info-card-title">預約資訊</div>
+                     
+                                        ${bookingInfo}
+                                        ${orderId ?
+                                        `<div class="mt-1 font-mono text-[#c5a059]">NO. ${orderId}</div>` : ''}
+                                    </div>
+                                ` : ''}
+
+                        
+                                ${trafficInfo ?
+                                `
+                                    <div class="info-card-style text-xs">
+                                        <div class="info-card-title">交通資訊</div>
+                     
+                                        <i class="fas fa-bus mr-1 text-[#c5a059]"></i> ${trafficInfo}
+                                    </div>
+                                ` : ''}
+
+      
+                                ${phone ?
+                                `
+                                    <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold active:bg-[#3d2a2a] transition-colors mt-2">
+                                        <i class="fas fa-phone-alt mr-2"></i>撥打電話：${phone}
+       
+                                    </a>
+                                ` : ''}
+
+                                ${desc ?
+                                `
+                                    <div class="mt-2 pt-2 border-t border-[#333] text-sm text-gray-300 leading-relaxed font-serif">
+                                         ${desc}
+               
+                                     </div>
+                                ` : ''}
+                            </div>
+                 
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // --- 2. 莊園日誌 (羊皮紙風格 + 8.管家 + 1.標題修正 + 7.邏輯修正) ---
+        function renderJournal() {
+            const container = document.getElementById('page-journal');
+            container.innerHTML = `<div class="loader"></div>`;
+
+            fetchCSV(URL_JOURNAL, (data) => {
+                container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：代墊回聲</h2>`;
+                
+                let totalDebt = 0;
+                let dataHtml = '';
+
+               
+                if (!data || data.length === 0) {
+                    dataHtml = `<div class="text-center text-gray-500 mt-8">日誌空白</div>`;
+                } else {
+                    data.forEach(row => {
+                        const name = row['姓名'];
+ 
+                        const item = row['代墊項目'];
+                        
+                        // 7. 修正邏輯：必須同時有姓名和項目才顯示，解決公式產生的 0 元問題
+                      
+                        if(!name || !item || name === '' || item === '') return;
+
+                        const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
+                        let debt = parseInt(rawDebt) || 0;
+                        const isClear = (row['是否已結清'] 
+|| '').includes('是');
+
+                        if (isClear) debt = 0;
+                        else totalDebt += debt;
+
+                        const statusText = isClear ? '已結清' : '未結清';
+                        const statusColor = isClear ?
+'text-green-700 border-green-700' : 'text-[#8a0a0a] border-[#8a0a0a]';
+                        const cardOpacity = isClear ? 'opacity-60 grayscale' : '';
+// 6. 使用羊皮紙風格渲染列表
+                        dataHtml += `
+                            <div class="parchment-style ${cardOpacity}">
+                                <div class="flex justify-between items-center mb-1">
+      
+                                    <div class="text-lg font-bold text-[#5c4033] font-serif">${name}</div>
+                                    <div class="text-[10px] border px-1 rounded font-bold ${statusColor}">${statusText}</div>
+                        
+                                </div>
+                                <div class="text-xs text-[#6b5646] mb-2 border-b border-[#a89f91] pb-1">${item}</div>
+                                <div class="flex justify-end items-center">
+                   
+                                    <span class="text-xs text-[#5c4033] mr-2 font-bold">待支付:</span>
+                                    <img src="${ICON_ECHO}" class="currency-icon">
+                                    <span class="text-xl font-bold text-[#8a0a0a]">${debt.toLocaleString()}</span>
+  
                                 </div>
                             </div>
                         `;
                     });
-
-                } catch (e) {
-                    console.error("Rendering Error:", e);
-                    // V7.6: 如果資料載入成功但渲染失敗，顯示錯誤訊息
-                    container.innerHTML = `
-                        <h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>
-                        <div class="dark-card p-4 text-center text-red-500">
-                            <i class="fas fa-bug mr-2"></i>資料破譯異常。請檢查 Google Sheet 欄位是否有誤，或重新整理。
-                        </div>
-                    `;
                 }
-            });
-        }
 
-        // --- RENDER 2: 莊園日誌 ---
-        function renderJournal(forceReload = false) {
-            const container = document.getElementById('page-journal');
-
-             // 避免重複渲染，除非是強制刷新
-            if (!forceReload && container.children.length > 1 && !container.innerHTML.includes('loader')) {
-                return;
-            }
+                // 8. 加上管家圖片 (Header)
+                const headerHtml = `
+                     <div class="butler-container">
+                        <div class="relative z-10 text-center">
             
-            container.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>`;
-
-            fetchCSV(URL_JOURNAL, (data) => {
-                try {
-                    container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：代墊回聲</h2>`;
-                    
-                    let totalDebt = 0;
-                    let dataHtml = '';
-
-                    if (!data || data.length === 0) {
-                        dataHtml = `<div class="text-center text-gray-500 mt-8">日誌空白</div>`;
-                    } else {
-                        data.forEach(row => {
-                            const name = row['姓名'];
-                            const item = row['代墊項目'];
-                            
-                            // 確保有基本資訊才顯示
-                            if(!name || !item || name === '' || item === '') return;
-
-                            const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
-                            let debt = parseInt(rawDebt) || 0;
-                            
-                            // 修正結清邏輯：如果欄位明確寫「是」，或是「有姓名項目但金額為 0」，都視為已結清
-                            const isClearText = (row['是否已結清'] || '').toLowerCase();
-                            const isClear = isClearText.includes('是') || (debt === 0);
-
-                            // 只有未結清且金額大於 0 的才加到總數
-                            if (isClear) {
-                                debt = 0; // 結清的項目，確保顯示為 0
-                            } else {
-                                totalDebt += debt;
-                            }
-                            
-                            const statusText = isClear ? '已結清' : '未結清';
-                            const statusColor = isClear ? 'text-green-700 border-green-700' : 'text-[#8a0a0a] border-[#8a0a0a]';
-                            const cardOpacity = isClear ? 'opacity-60 grayscale' : '';
-                            
-
-                            // 羊皮紙風格渲染列表
-                            dataHtml += `
-                                <div class="parchment-style ${cardOpacity}">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <div class="text-lg font-bold text-[#5c4033] font-serif">${name}</div>
-                                        <div class="text-[10px] border px-1 rounded font-bold ${statusColor}">${statusText}</div>
-                                    </div>
-                                    <div class="text-xs text-[#6b5646] mb-2 border-b border-[#a89f91] pb-1">${item}</div>
-                                    <div class="flex justify-end items-center">
-                                        <span class="text-xs text-[#5c4033] mr-2 font-bold">待支付:</span>
-                                        <img src="${ICON_ECHO}" class="currency-icon">
-                                        <span class="text-xl font-bold text-[#8a0a0a]">${debt.toLocaleString()}</span>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                    }
-
-                    // 加上管家圖片 (Header)
-                    const headerHtml = `
-                        <div class="butler-container">
-                            <div class="relative z-10 text-center">
-                                <p class="text-[#c5a059] text-xs tracking-widest mb-1">CURRENT DEBT</p>
-                                <div class="flex justify-center items-center">
-                                    <img src="${ICON_ECHO}" class="w-8 h-8 mr-2 drop-shadow-md">
-                                    <p class="text-4xl text-white font-bold tracking-tighter" style="text-shadow: 0 0 10px #ff0000;">${totalDebt.toLocaleString()}</p>
-                                </div>
-                                <p class="text-[10px] text-gray-500 mt-2">總待收回聲</p>
+                            <p class="text-[#c5a059] text-xs tracking-widest mb-1">CURRENT DEBT</p>
+                            <div class="flex justify-center items-center">
+                                <img src="${ICON_ECHO}" class="w-8 h-8 mr-2 drop-shadow-md">
+           
+                                <p class="text-4xl text-white font-bold tracking-tighter" style="text-shadow: 0 0 10px #ff0000;">${totalDebt.toLocaleString()}</p>
                             </div>
-                            <img src="${IMG_BUTLER}" class="butler-img" alt="Butler">
+                            <p class="text-[10px] text-gray-500 mt-2">總待收回聲</p>
+           
                         </div>
-                    `;
-
-                    container.innerHTML += headerHtml + `<div class="relative z-10 pb-20">` + dataHtml + `</div>`;
-                } catch (e) {
-                    console.error("Journal Rendering Error:", e);
-                    // V7.6: 如果資料載入成功但渲染失敗，顯示錯誤訊息
-                    container.innerHTML = `
-                        <h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：代墊回聲</h2>
-                        <div class="dark-card p-4 text-center text-red-500">
-                            <i class="fas fa-bug mr-2"></i>日誌資料解析異常。請檢查 Google Sheet 欄位是否有誤，或重新整理。
-                        </div>
-                    `;
-                }
+                        <img src="${IMG_BUTLER}" class="butler-img" alt="Butler">
+                     </div>
+                `;
+                container.innerHTML += headerHtml + `<div class="relative z-10 pb-20">` + dataHtml + `</div>`;
             });
         }
 
-        // --- RENDER 3: 記憶碎片 ---
+        // --- 3. 記憶碎片 (2. 標題修正 + 警語 + 深色風格) ---
         function renderMemoryFragment() {
             const container = document.getElementById('page-memory');
             container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人記帳</h2>`;
             container.innerHTML += `<p class="text-[10px] text-gray-500 mb-4 pl-3">※ 此處紀錄僅儲存於您的裝置，清除快取將會消失</p>`;
-            
             const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
             
             let total = 0;
@@ -720,7 +731,6 @@
                 total += item.amount;
                 chartData[item.category] = (chartData[item.category] || 0) + item.amount;
             });
-
             const categories = ['餐飲費', '交通費', '住宿費', '娛樂費', '伴手禮', '雜項'];
             
             // 圖表區 (深色風格)
@@ -728,27 +738,31 @@
                 <div class="dark-card p-4 mb-6">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
                         <h3 class="text-lg font-bold text-white gothic-font">花費分析</h3>
+ 
                         <div class="flex items-center">
                             <img src="${ICON_FRAGMENT}" class="currency-icon w-6 h-6">
                             <span class="text-2xl font-bold text-[#c5a059] ml-1">${total.toLocaleString()}</span>
+           
                         </div>
                     </div>
                     <div class="w-48 h-48 mx-auto relative mt-4">
                         <canvas id="expenseChart"></canvas>
+                 
                     </div>
                 </div>
 
                 <div class="dark-card p-4 mb-6" style="border: 1px solid #555;">
                     <div class="space-y-3">
                         <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">${categories.map(c=>`<option>${c}</option>`).join('')}</select>
+       
                         <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱">
                         <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量">
                         <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest hover:bg-[#c5a059]/10">記錄碎片</button>
+      
                     </div>
                 </div>
                 <div id="ledger-list" class="space-y-2 pb-20"></div>
             `;
-            
             setTimeout(() => {
                 renderLedgerList(ledger);
                 renderChart(chartData);
@@ -757,15 +771,18 @@
 
         function renderLedgerList(ledger) {
             const listDiv = document.getElementById('ledger-list');
-            if(ledger.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; return; }
+            if(ledger.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; return;
+            }
             
             listDiv.innerHTML = ledger.map((item, idx) => `
                 <div class="dark-card p-2 flex justify-between items-center text-sm" style="margin-bottom: 8px;">
                     <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div>
                     <div class="flex items-center">
+   
                         <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3">
                         <span class="mx-1 font-bold text-white">${item.amount}</span>
                         <button onclick="delExpense(${idx})" class="text-red-500 ml-2 hover:text-red-400"><i class="fas fa-times"></i></button>
+                  
                     </div>
                 </div>
             `).join('');
@@ -776,7 +793,6 @@
             const item = document.getElementById('expense-item').value;
             const amt = parseInt(document.getElementById('expense-amt').value);
             if(isNaN(amt) || !item || amt <= 0) return alert("請輸入有效的項目名稱和碎片數量");
-            
             const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
             ledger.unshift({ category: cat, item: item, amount: amt, time: Date.now() });
             localStorage.setItem('personalLedger', JSON.stringify(ledger));
@@ -797,19 +813,21 @@
             if(window.myPieChart) window.myPieChart.destroy();
             
             const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a'];
-            
             const hasData = Object.values(dataObj).some(val => val > 0);
-            if (!hasData) { ctx.style.display = 'none'; return; } else { ctx.style.display = 'block'; }
+            if (!hasData) { ctx.style.display = 'none'; return;
+            } else { ctx.style.display = 'block'; }
 
             window.myPieChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(dataObj),
                     datasets: [{
+  
                         data: Object.values(dataObj),
                         backgroundColor: chartColors,
                         borderWidth: 0
                     }]
+       
                 },
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
@@ -817,7 +835,7 @@
 
         window.onload = function() {
             initMusicPlayer();
-            renderSchedule(true); // 初始載入時強制刷新
+            renderSchedule(); 
         };
 
     </script>
