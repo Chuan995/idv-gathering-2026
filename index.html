@@ -49,7 +49,7 @@
             flex-direction: column;
         }
         
-        /* --- 2. 音樂控制器 (靠右) --- */
+        /* --- 1. 音樂控制器 (靠右，移除靜音) --- */
         #music-controls {
             position: absolute;
             right: 12px;
@@ -59,24 +59,15 @@
             align-items: center;
             gap: 8px;
         }
-        #now-playing-info {
-            font-size: 10px;
-            color: #888;
-            text-align: right;
-            max-width: 80px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: none; /* 手機空間小，預設隱藏，播放時顯示 */
-        }
-        @media (min-width: 380px) {
-            #now-playing-info { display: block; }
-        }
+        /* 3. 隱藏文字 */
+        #now-playing-info { display: none !important; } 
         
         #main-container {
             padding-top: 75px;
             padding-bottom: 80px;
             min-height: 100vh;
+            max-width: 600px; /* 限制寬度以保持手機版面外觀 */
+            margin: 0 auto;
         }
 
         /* 頁面切換動畫 */
@@ -102,7 +93,7 @@
             opacity: 0.5;
         }
 
-        /* --- 6. 羊皮紙風格 (莊園日誌專用) --- */
+        /* --- 羊皮紙風格 (莊園日誌專用) --- */
         .parchment-style {
             background-color: #e3d5b8; /* 羊皮紙底色 */
             background-image: var(--paper-texture);
@@ -165,15 +156,33 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .invite-btn { background-color: #c5a059; color: #1a1a1a; border: 1px solid #7c6441; font-size: 10px; padding: 1px 6px; font-weight: bold; box-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        /* 邀按鈕 */
+        .invite-btn { 
+            background-color: #c5a059; 
+            color: #1a1a1a; 
+            border: 1px solid #7c6441; 
+            font-size: 10px; 
+            padding: 1px 6px; 
+            font-weight: bold; 
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
+            min-width: 20px; 
+            text-align: center;
+            margin-left: auto; /* 靠右對齊 */
+        }
         .rank-icon-img { width: 18px; height: 18px; object-fit: contain; margin: 0 1px; filter: drop-shadow(0 0 1px black); }
         .currency-icon { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 2px; display: inline-block; }
         
+        /* 羅馬數字縮小 */
+        .rank-sub {
+            font-size: 0.65rem; /* 縮小字體 */
+            margin-left: 2px;
+        }
+
         /* 底部導航 */
         .nav-item.active { color: var(--text-gold); border-bottom: 2px solid var(--text-red); }
         .nav-item { color: #666; transition: all 0.3s; }
 
-        /* --- 8. 管家定位 --- */
+        /* --- 管家定位 --- */
         .butler-container {
             position: relative;
             background: linear-gradient(to bottom, #2a0a0a, #0f0505); /* 深紅漸層背景 */
@@ -210,10 +219,7 @@
              <button id="next-btn" class="text-gray-400 active:text-[#c5a059] transition-colors ml-1" title="下一首">
                 <i class="fas fa-step-forward text-sm"></i>
              </button>
-             <button id="mute-btn" class="text-gray-400 active:text-[#c5a059] transition-colors ml-1">
-                <i class="fas fa-volume-up text-sm"></i>
-             </button>
-        </div>
+             </div>
         <audio id="bgm-player" preload="auto"></audio>
     </div>
 
@@ -276,17 +282,16 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
 
-        // 9. 完整 10 首音樂清單
         const BGM_PLAYLIST = [
             CDN_BASE + '/%E5%BE%90%E6%A2%A6%E5%9C%86%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%20-%20%E9%9F%B3%E4%B9%90%E4%BA%BA%E5%BE%90%E6%A2%A6%E5%9C%86YUAN%20(youtube).mp3',
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%83%AD%E3%83%93%E3%83%BC%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Lobby%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%83%AD%E3%83%93%E3%83%BC%E3%83%BB%E3%83%AB%E3%83%BC%E3%83%A0%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Lobby%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E3%82%B5%E3%83%90%E3%82%A4%E3%83%90%E3%83%BC%E6%BA%96%E5%82%99%E4%B8%AD%E3%80%91_%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Survivor%20Preparation%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%BE%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3',
-            CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E5%82%AD%E5%85%B5%20-%20%E3%83%8A%E3%83%AF%E3%83%BC%E3%83%96%E3%81%AE%E6%87%90%E9%83%B7%E3%81%AE%E5%A4%9C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3',
+            CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E5%82%AC%E5%85%B5%20-%20%E3%83%8A%E3%83%AF%E3%83%BC%E3%83%96%E3%81%AE%E6%87%90%E9%83%B7%E3%81%AE%E5%A4%9C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3',
             CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E9%87%8E%E4%BA%BA%20-%20%E3%83%A2%E3%82%A6%E3%83%AD%E3%81%AE%E8%8D%92%E9%87%8E%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3'
         ];
 
@@ -327,7 +332,7 @@
         const bgmPlayer = document.getElementById('bgm-player');
         const playBtn = document.getElementById('play-btn');
         const nextBtn = document.getElementById('next-btn');
-        const muteBtn = document.getElementById('mute-btn');
+        // 1. 靜音按鈕已移除
         const nowPlayingInfo = document.getElementById('now-playing-info');
 
         function initMusicPlayer() { 
@@ -335,12 +340,12 @@
             
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause text-xs"></i>' : '<i class="fas fa-play text-xs pl-0.5"></i>';
-                nowPlayingInfo.style.display = isPlaying ? 'block' : 'none';
-                if(isPlaying) nowPlayingInfo.innerText = "Track " + (currentTrackIndex + 1);
+                // 3. 隱藏文字：移除 nowPlayingInfo 的顯示/隱藏/文字設定
             };
 
             playBtn.addEventListener('click', () => {
                 if (bgmPlayer.paused) {
+                    // 為了避免第一次無法自動播放，我們使用 promise
                     bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => console.log("Play failed", e));
                 } else {
                     bgmPlayer.pause();
@@ -357,10 +362,7 @@
                 }
             });
 
-            muteBtn.addEventListener('click', () => {
-                bgmPlayer.muted = !bgmPlayer.muted;
-                muteBtn.innerHTML = bgmPlayer.muted ? '<i class="fas fa-volume-mute text-red-500 text-sm"></i>' : '<i class="fas fa-volume-up text-sm"></i>';
-            });
+            // 1. 靜音按鈕事件已移除
 
             bgmPlayer.addEventListener('ended', () => {
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
@@ -379,17 +381,27 @@
             
             window.scrollTo(0, 0);
             
-            if(pageId === 'schedule' && document.getElementById('page-schedule').children.length < 3) renderSchedule();
-            if(pageId === 'journal' && document.getElementById('page-journal').children.length < 2) renderJournal();
-            if(pageId === 'memory' && document.getElementById('page-memory').children.length < 2) renderMemoryFragment();
+            // 每次切換到指定頁面時，強制重新渲染 (強制讀取最新資料)
+            if(pageId === 'schedule') renderSchedule(true);
+            if(pageId === 'journal') renderJournal(true);
+            if(pageId === 'memory') renderMemoryFragment();
         }
 
+        /**
+         * 讀取 CSV 資料，並強制繞過快取 (手機問題的關鍵修復)
+         * @param {string} url - 原始 CSV 網址
+         * @param {function} callback - 資料處理回調函數
+         */
         function fetchCSV(url, callback) { 
-            Papa.parse(url, {
+             // 關鍵步驟：在網址後面加上一個隨機的時間戳記 (Cache Buster)
+            const cacheBusterUrl = url + '&t=' + Date.now();
+            
+            Papa.parse(cacheBusterUrl, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
+                    // 保留沒有空值的行
                     const filteredData = results.data.filter(row => Object.values(row).some(val => val !== ''));
                     callback(filteredData);
                 },
@@ -400,15 +412,21 @@
             });
         }
 
-        // --- RENDER 1: 推演任務 (深色卡片風格) ---
-        function renderSchedule() {
+        // --- RENDER 1: 推演任務 ---
+        function renderSchedule(forceReload = false) {
             const container = document.getElementById('page-schedule');
+            
+            // 避免重複渲染，除非是強制刷新
+            if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
+                return;
+            }
+            
             container.innerHTML = `<div class="loader"></div>`; 
 
             fetchCSV(URL_SCHEDULE, (data) => {
                 container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
 
-                // 戰隊區塊 (使用深色卡片風格，確保載入)
+                // 戰隊區塊 (排版 V7.2 保持單行)
                 const teamHtml = `
                     <div class="dark-card p-4 mb-5 border-l-4 border-[#c5a059]">
                         <div class="flex items-start mb-3 border-b border-gray-700 pb-2">
@@ -427,18 +445,18 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-gray-700 pb-1">戰隊成員</h4>
-                                <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+                                <div class="grid grid-cols-1 gap-y-2">
                                     ${Object.entries(TEAM_MEMBERS_DATA).map(([name, ranks]) => `
-                                        <div class="flex justify-between items-center text-[10px] bg-[#1a1a1a] border border-[#333] p-1 rounded">
-                                            <div class="flex items-center">
+                                        <div class="flex items-center text-[10px] bg-[#1a1a1a] border border-[#333] p-1 rounded">
+                                            <div class="flex items-center w-auto">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1 shadow-sm"></span>
-                                                <span class="text-white font-bold font-serif mr-1">${name}</span>
+                                                <span class="text-white font-bold font-serif mr-2">${name}</span>
                                             </div>
-                                            <div class="flex items-center">
-                                                <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] mr-1 font-bold">${ranks.s_sub}</span>
-                                                <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img"><span class="text-[#c5a059] font-bold">${ranks.h_sub}</span>
-                                                <span class="invite-btn ml-1 cursor-pointer hover:opacity-80">邀</span>
+                                            <div class="flex items-center text-[11px] mr-2">
+                                                <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] font-bold">${ranks.s}</span><span class="text-[#c5a059] rank-sub">${ranks.s_sub}</span>
+                                                <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img ml-2"><span class="text-[#c5a059] font-bold">${ranks.h}</span><span class="text-[#c5a059] rank-sub">${ranks.h_sub}</span>
                                             </div>
+                                            <span class="invite-btn cursor-pointer hover:opacity-80">邀</span>
                                         </div>
                                     `).join('')}
                                 </div>
@@ -539,9 +557,15 @@
             });
         }
 
-        // --- 2. 莊園日誌 (羊皮紙風格 + 8.管家 + 1.標題修正 + 7.邏輯修正) ---
-        function renderJournal() {
+        // --- RENDER 2: 莊園日誌 ---
+        function renderJournal(forceReload = false) {
             const container = document.getElementById('page-journal');
+
+             // 避免重複渲染，除非是強制刷新
+            if (!forceReload && container.children.length > 1 && !container.innerHTML.includes('loader')) {
+                return;
+            }
+            
             container.innerHTML = `<div class="loader"></div>`;
 
             fetchCSV(URL_JOURNAL, (data) => {
@@ -557,21 +581,29 @@
                         const name = row['姓名'];
                         const item = row['代墊項目'];
                         
-                        // 7. 修正邏輯：必須同時有姓名和項目才顯示，解決公式產生的 0 元問題
+                        // 確保有基本資訊才顯示，避免顯示空行 (維持原本的防呆機制)
                         if(!name || !item || name === '' || item === '') return;
 
                         const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
                         let debt = parseInt(rawDebt) || 0;
-                        const isClear = (row['是否已結清'] || '').includes('是');
+                        
+                        // 2. 修正結清邏輯：如果欄位明確寫「是」，或是「有姓名項目但金額為 0」，都視為已結清
+                        const isClearText = (row['是否已結清'] || '').toLowerCase();
+                        const isClear = isClearText.includes('是') || (debt === 0);
 
-                        if (isClear) debt = 0;
-                        else totalDebt += debt;
-
+                        // 只有未結清且金額大於 0 的才加到總數
+                        if (isClear) {
+                            debt = 0; // 結清的項目，確保顯示為 0
+                        } else {
+                            totalDebt += debt;
+                        }
+                        
                         const statusText = isClear ? '已結清' : '未結清';
                         const statusColor = isClear ? 'text-green-700 border-green-700' : 'text-[#8a0a0a] border-[#8a0a0a]';
                         const cardOpacity = isClear ? 'opacity-60 grayscale' : '';
+                        
 
-                        // 6. 使用羊皮紙風格渲染列表
+                        // 羊皮紙風格渲染列表
                         dataHtml += `
                             <div class="parchment-style ${cardOpacity}">
                                 <div class="flex justify-between items-center mb-1">
@@ -589,7 +621,7 @@
                     });
                 }
 
-                // 8. 加上管家圖片 (Header)
+                // 加上管家圖片 (Header)
                 const headerHtml = `
                      <div class="butler-container">
                         <div class="relative z-10 text-center">
@@ -608,7 +640,7 @@
             });
         }
 
-        // --- 3. 記憶碎片 (2. 標題修正 + 警語 + 深色風格) ---
+        // --- RENDER 3: 記憶碎片 ---
         function renderMemoryFragment() {
             const container = document.getElementById('page-memory');
             container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人記帳</h2>`;
@@ -719,7 +751,7 @@
 
         window.onload = function() {
             initMusicPlayer();
-            renderSchedule(); 
+            renderSchedule(true); // 初始載入時強制刷新
         };
 
     </script>
