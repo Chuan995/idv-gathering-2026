@@ -335,7 +335,9 @@
         const nowPlayingInfo = document.getElementById('now-playing-info');
 
         function initMusicPlayer() { 
-            bgmPlayer.src = BGM_PLAYLIST[0];
+            // V7.7: 初始設定，確保從第一首開始
+            currentTrackIndex = 0; 
+            bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
             
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause text-xs"></i>' : '<i class="fas fa-play text-xs pl-0.5"></i>';
@@ -354,9 +356,15 @@
             nextBtn.addEventListener('click', () => {
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                
+                // V7.7 修正: 強制瀏覽器開始處理新的音訊來源
+                bgmPlayer.load(); 
+
                 if (!bgmPlayer.paused || playBtn.innerHTML.includes('pause')) {
-                    bgmPlayer.play();
-                    updatePlayIcon(true);
+                    // 再次嘗試播放，解決點擊一次沒聲音的問題
+                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(e => {
+                        console.log("Play failed after load on next click. Resource might not be ready yet.");
+                    });
                 }
             });
 
