@@ -306,9 +306,8 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        // 音樂列表
+        // 音樂列表：已移除 Lobby_full.mp3，從 Lobby.mp3 開始
         const BGM_PLAYLIST = [
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby_full.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3', 
@@ -324,7 +323,7 @@
             '寧寧': { s: 'S3', h: 'H2', s_sub: 'III', h_sub: 'I' },
             '阿洛': { s: 'S5', h: 'H2', s_sub: 'II', h_sub: 'I' },
             '小姐姐': { s: 'S2', h: 'H1', s_sub: 'I', h_sub: 'III' },
-            '青雨': { s: 'S2', h: 'H2', s_sub: 'I', h_sub: 'I' },
+            '青雨': { s: 'S2', h: 'H2', s_sub: 'I', h: 'I' },
             '辣醬': { s: 'S3', h: 'H2', s_sub: 'V', h_sub: 'I' }
         };
         const TEAM_ANNOUNCEMENTS = [ 
@@ -344,7 +343,7 @@
             icon: 'fa-cloud-sun'
         };
 
-        // 記帳類別 (已整合所有費用類別與收入)
+        // 記帳類別：已使用您提供的完整清單
         const INCOME_CATEGORY = '收入'; 
         const EXPENSE_CATEGORIES = [
             '餐飲費用', '交通費用', '娛樂費用', '住宿費用', '伴手禮', 
@@ -364,7 +363,7 @@
 
 
         /**
-         * 🎧 優化後的音樂播放器初始化 (單次點擊即可從第二首開始播放)
+         * 🎧 簡化後的音樂播放器初始化 (直接播放列表第一首)
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
@@ -387,31 +386,25 @@
                     }).catch(e => {
                         console.warn("Autoplay/Play failed, user interaction required:", e);
                         updatePlayIcon(false);
-                        // 如果播放失敗，但使用者已經點擊，保持索引不變，等待下一次點擊
                     });
                 } else {
                     updatePlayIcon(false);
                 }
             };
             
-            // 播放按鈕: 單次點擊即可啟用 (重點修復)
+            // 播放按鈕: 單次點擊即可啟用 (正常播放/暫停邏輯)
             playBtn.addEventListener('click', () => {
                 if (bgmPlayer.paused) {
-                    // 關鍵邏輯：如果目前是第一首 (index 0) 且暫停 (或未載入)，則直接跳到第二首 (index 1) 並播放
-                    if (currentTrackIndex === 0 && (bgmPlayer.src === '' || bgmPlayer.src.includes(BGM_PLAYLIST[0]))) {
-                         setTrackAndPlay(1, true); // 跳到第二首並嘗試播放
-                    } else {
-                         // 如果已經在播放列表或非第一首，直接嘗試播放
-                         bgmPlayer.play().then(() => updatePlayIcon(true)).catch(() => updatePlayIcon(false));
-                    }
+                    // 嘗試播放當前曲目
+                    bgmPlayer.play().then(() => updatePlayIcon(true)).catch(() => updatePlayIcon(false));
                 } else {
-                    // 如果正在播放，則暫停
+                    // 暫停
                     bgmPlayer.pause();
                     updatePlayIcon(false);
                 }
             });
 
-            // 下一首按鈕: 強制切換曲目，並根據目前狀態決定是否嘗試播放
+            // 下一首按鈕: 切換到下一首，並嘗試播放
             nextBtn.addEventListener('click', () => {
                 const wasPlaying = !bgmPlayer.paused;
                 setTrackAndPlay(currentTrackIndex + 1, wasPlaying); 
@@ -422,9 +415,8 @@
                 setTrackAndPlay(currentTrackIndex + 1, true);
             });
             
-            // 初始 UI 設置
+            // 初始 UI 設置：載入列表第一首 (原第二首)，但不播放
             updatePlayIcon(false);
-            // 預先載入第一首，但不要嘗試播放 (保持 index = 0)
             setTrackAndPlay(0, false);
         }
 
@@ -747,7 +739,10 @@
                     totalIncome += item.amount;
                 } else {
                     totalExpense += item.amount;
-                    expenseChartData[item.category] = (expenseChartData[item.category] || 0) + item.amount;
+                    // 只統計支出類別
+                    if(item.category !== INCOME_CATEGORY) {
+                         expenseChartData[item.category] = (expenseChartData[item.category] || 0) + item.amount;
+                    }
                 }
             });
 
