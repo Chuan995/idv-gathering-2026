@@ -68,7 +68,8 @@
         
         #main-container {
             padding-top: 75px;
-            padding-bottom: 80px;
+            /* V7.33: 移除底部的 padding，因為底部導航不再是 fixed */
+            padding-bottom: 0px; 
             min-height: 100vh;
             max-width: 600px; /* 限制寬度以保持手機版面外觀 */
             margin: 0 auto;
@@ -183,6 +184,15 @@
         }
 
         /* 底部導航 */
+        /* V7.33 關鍵修正: 移除 fixed 定位，讓它成為頁面內容的一部分，解決鍵盤/Select遮蔽問題 */
+        .nav-footer {
+            position: relative; /* 關鍵：從 fixed 改為相對定位 */
+            width: 100%;
+            background: #141414;
+            border-top: 1px solid #333;
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom, 12px); /* 保持安全區域填充 */
+        }
         .nav-item.active { color: var(--text-gold); border-bottom: 2px solid #8a0a0a; } /* 底部導航活躍色 */
         .nav-item { color: #666; transition: all 0.3s; }
 
@@ -249,23 +259,24 @@
 
         <div id="page-memory" class="page-section space-y-5">
              </div>
+        
+        <nav class="nav-footer flex justify-around py-3 mt-6">
+            <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3 simple-interact">
+                <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+                <span class="text-[10px]">推演任務</span>
+            </button>
+            <button onclick="switchPage('journal')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
+                <i class="fas fa-book-open text-xl mb-1"></i>
+                <span class="text-[10px]">莊園日誌</span>
+            </button>
+            <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
+                <i class="fas fa-calculator text-xl mb-1"></i>
+                <span class="text-[10px]">記憶碎片</span>
+            </button>
+        </nav>
 
     </div>
 
-    <nav class="fixed bottom-0 w-full bg-[#141414] border-t border-[#333] flex justify-around py-3 z-50 pb-safe">
-        <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3 simple-interact">
-            <i class="fas fa-map-marked-alt text-xl mb-1"></i>
-            <span class="text-[10px]">推演任務</span>
-        </button>
-        <button onclick="switchPage('journal')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
-            <i class="fas fa-book-open text-xl mb-1"></i>
-            <span class="text-[10px]">莊園日誌</span>
-        </button>
-        <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
-            <i class="fas fa-calculator text-xl mb-1"></i>
-            <span class="text-[10px]">記憶碎片</span>
-        </button>
-    </nav>
 
     <script>
         // ==========================================
@@ -295,16 +306,12 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        // V7.34: 擴大音樂列表，增加 V7.24 數量，確保播放成功率
+        // V7.33: 保持精簡的音樂列表
         const BGM_PLAYLIST = [
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby_full.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3',
-            // 增加更多曲目鏈結 (確保穩定性)
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20City.mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Cursed.mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Cunning.mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3', 
         ];
 
 
@@ -358,11 +365,10 @@
 
 
         /**
-         * V7.34 音樂播放器初始化函數 (保留 V7.33 自動跳轉邏輯 + 擴大歌單)
+         * V7.33 音樂播放器初始化函數 (解決首曲播放失敗問題)
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
-            bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; // 預設第一首歌
             
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? 
@@ -372,63 +378,52 @@
 
             // 核心功能：切換到下一首曲目
             const playNextTrack = (wasPlaying) => {
-                const prevIndex = currentTrackIndex;
-                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
-                bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                // 如果是第一次播放，則使用 index 0，否則才遞增
+                if (bgmPlayer.src !== '' && !bgmPlayer.paused) { 
+                    currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
+                } else if (bgmPlayer.src === '') {
+                    currentTrackIndex = 0;
+                }
                 
-                console.log(`Switching track from ${prevIndex} to ${currentTrackIndex}. Trying to play: ${wasPlaying}`);
-
+                bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
+                bgmPlayer.load(); // 強制載入新曲目
+                
                 if (wasPlaying) {
-                    bgmPlayer.load(); // 強制載入新曲目
                     bgmPlayer.play().then(() => {
                         updatePlayIcon(true); 
-                        console.log(`Track ${currentTrackIndex} started successfully.`);
                     }).catch(e => {
-                        console.error(`Autoplay of track ${currentTrackIndex} failed (Recyclic).`, e);
+                        console.error("Autoplay failed:", e);
+                        // 雖然失敗，但按鈕已經代表使用者互動，應該能播下一首
                         updatePlayIcon(false); 
                     });
                 } else {
-                    bgmPlayer.load(); 
                     updatePlayIcon(false);
                 }
             };
             
-            // 處理 explicit Play/Pause click (V7.33 核心邏輯)
+            // V7.33 修正: 播放按鈕直接呼叫 playNextTrack(true) 
+            // 這樣單次點擊就能強制換曲目並播放，繞過第一首被瀏覽器鎖定的問題。
             playBtn.addEventListener('click', () => {
-                if (bgmPlayer.paused) {
-                    if(bgmPlayer.src === '') {
-                         bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                    }
-                    bgmPlayer.load(); 
-                    
-                    bgmPlayer.play().then(() => {
-                        updatePlayIcon(true);
-                    }).catch(e => {
-                        console.error("Play button failed on first attempt:", e);
-                        updatePlayIcon(false);
-                        
-                        // 關鍵步驟: 首次播放失敗，自動跳到下一首並再嘗試播放
-                        if(e.name === "NotAllowedError" || e.name === "AbortError" || e.name === "MediaError") {
-                            console.log("Browser blocked or link failed. Attempting to skip the track...");
-                            playNextTrack(true); // 跳到下一首，並嘗試播放
-                        } else {
-                            alert("音樂無法播放 (瀏覽器限制)。請嘗試點擊下一首按鈕，或重新整理頁面。");
-                        }
-                    });
+                if (bgmPlayer.paused || bgmPlayer.src === '') {
+                    playNextTrack(true); // 嘗試播放第一首，如果失敗會自動被下一首取代
                 } else {
                     bgmPlayer.pause();
                     updatePlayIcon(false);
                 }
             });
 
-            // 處理 Next button click 
+            // 處理 Next button click (強制播放下一首)
             nextBtn.addEventListener('click', () => {
-                const wasPlaying = !bgmPlayer.paused; 
+                const wasPlaying = !bgmPlayer.paused;
+                // 強制跳到下一首並播放
+                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
                 playNextTrack(wasPlaying);
             });
 
             // 處理曲目結束事件 (自動播放下一首)
             bgmPlayer.addEventListener('ended', () => {
+                // 結束時自動遞增 index
+                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
                 playNextTrack(true);
             });
             
@@ -436,24 +431,6 @@
             updatePlayIcon(false);
         }
 
-        /**
-         * V7.32: UI 修正函數，強制捲動到焦點元素 (解決鍵盤遮蔽問題)
-         */
-        function handleInputFocus(event) {
-            const target = event.target;
-            if (target.closest('#page-memory')) {
-                // 給瀏覽器一點時間讓鍵盤彈出
-                setTimeout(() => {
-                    // 嘗試捲動到整個輸入區的父級卡片
-                    const inputCard = document.querySelector('#page-memory .dark-card:nth-child(3)');
-                    if(inputCard) {
-                        inputCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 捲動到視窗頂部附近
-                    } else {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                    }
-                }, 300); 
-            }
-        }
         
         /**
          * 頁面切換函數
@@ -462,6 +439,7 @@
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
             
+            // 確保 Nav 活躍狀態正確
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelector(`button[onclick="switchPage('${pageId}')"]`).classList.add('active');
             
@@ -470,7 +448,7 @@
             // 每次切換到指定頁面時，強制重新渲染
             if(pageId === 'schedule') renderSchedule(true);
             if(pageId === 'journal') renderJournal(true);
-            if(pageId === 'memory') renderMemoryFragment(true); // 傳入 true 確保重新渲染
+            if(pageId === 'memory') renderMemoryFragment(true); 
         }
 
         /**
@@ -753,16 +731,11 @@
             });
         }
 
-        // --- RENDER 3: 記憶碎片 (V7.34: 終極捲動修正) ---
+        // --- RENDER 3: 記憶碎片 (V7.33: 依賴底部非固定導航解決 Select 完成按鈕遮蔽) ---
         function renderMemoryFragment(forceReload = false) {
             const container = document.getElementById('page-memory');
             
             if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
-                // 如果不是強制重載，且內容已存在，則直接返回
-                 document.querySelectorAll('#page-memory .fragment-input').forEach(input => {
-                    input.removeEventListener('focus', handleInputFocus); // 避免重複綁定
-                    input.addEventListener('focus', handleInputFocus);
-                });
                 return;
             }
 
@@ -827,22 +800,12 @@
                         <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest simple-interact hover:bg-[#c5a059]/10">記錄碎片</button>
                     </div>
                 </div>
-                <div id="ledger-list" class="space-y-2 pb-80"></div>
+                <div id="ledger-list" class="space-y-2 pb-6"></div>
             `;
             
-            // V7.32: 延遲綁定事件監聽器，確保元素已在 DOM 中
             setTimeout(() => {
                 renderLedgerList(ledger);
                 renderChart(expenseChartData); // 傳入只包含支出的資料
-                
-                // V7.32 關鍵修正：綁定焦點事件處理
-                document.querySelectorAll('#page-memory .fragment-input').forEach(input => {
-                    // 移除舊的監聽器，避免重複
-                    input.removeEventListener('focus', handleInputFocus); 
-                    // 綁定新的監聽器
-                    input.addEventListener('focus', handleInputFocus);
-                });
-
             }, 0);
         }
 
@@ -971,11 +934,6 @@
             initMusicPlayer();
             // 首次載入時強制渲染推演任務頁
             renderSchedule(true); 
-            
-            // V7.32: 預先檢查並綁定記憶碎片頁面的事件監聽器，確保如果直接進入該頁面也能立即生效
-            document.querySelectorAll('#page-memory .fragment-input').forEach(input => {
-                input.addEventListener('focus', handleInputFocus);
-            });
         };
 
     </script>
