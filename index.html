@@ -295,22 +295,25 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        // V7.28 使用 V7.26 的連結組（較穩定），但使用 V7.24 的播放邏輯
+        // V7.30 音樂連結：使用較穩定的連結組，並確保播放邏輯為 V7.24 穩定版
         const BGM_PLAYLIST = [
+            // 嘗試使用較短的連結，減少解析問題
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby_full.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', 
-            CDN_BASE + '/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BCBGM%20-%20%E9%81%B8%E8%A7%92%E7%95%AB%E9%9D%A2.mp3', 
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%B9%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E3%80%8C%E3%83%AC%E3%83%87%E3%82%A3%E3%83%BB%E3%83%95%E3%82%A1%E3%82%A6%E3%83%AD%E3%80%8D-%20%E3%82%A8%E3%83%96%E3%83%AA%E3%83%B3%E3%81%AE%E5%8D%88%E5%BE%8C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Final.mp3' 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Final.mp3',
+             // 其他
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%B9%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E3%80%8C%E3%83%AC%E3%83%87%E3%82%A3%E3%83%BB%E3%83%95%E3%82%A1%E3%82%A6%E3%83%AD%E3%80%8D-%20%E3%82%A8%E3%83%96%E3%83%AA%E3%83%B3%E3%81%AE%E5%8D%88%E5%BE%8C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3'
         ];
 
 
         const TEAM_MEMBERS_DATA = { 
+            // ... (成員資料保持不變)
             '女神': { s: 'S4', h: 'H1', s_sub: 'III', h_sub: 'II' },
             '大神': { s: 'S4', h: 'H2', s_sub: 'III', h_sub: 'I' },
             'ㄎㄎ': { s: 'S1', h: 'H1', s_sub: 'III', h_sub: 'III' },
@@ -339,7 +342,7 @@
             icon: 'fa-cloud-sun'
         };
 
-        // V7.29 關鍵變動：定義支出與收入類別
+        // 記帳類別 (已包含您所有的支出項目 + 收入)
         const INCOME_CATEGORY = '收入'; 
         const EXPENSE_CATEGORIES = [
             '餐飲費用', '交通費用', '娛樂費用', '住宿費用', '伴手禮', 
@@ -359,7 +362,9 @@
 
 
         /**
-         * V7.28 音樂播放器初始化函數 (純 V7.24 穩定邏輯)
+         * V7.30 音樂播放器初始化函數 (使用 V7.24 穩定邏輯)
+         * 🚨 注意：瀏覽器通常會限制非使用者互動觸發的音樂播放 (Autoplay)。
+         * 若按下 Play 鍵無反應，請手動點擊頁面其他地方後再試一次。
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
@@ -382,6 +387,7 @@
                         updatePlayIcon(true); 
                     }).catch(e => {
                         console.error("Autoplay failed:", e);
+                        // 播放失敗時，保持暫停狀態，並提示使用者
                         updatePlayIcon(false); 
                     });
                 } else {
@@ -396,7 +402,7 @@
                         updatePlayIcon(true);
                     }).catch(e => {
                         console.error("Play button failed:", e);
-                        alert("無法播放音樂。請確認您的裝置沒有靜音，或瀏覽器允許媒體播放。");
+                        alert("無法播放音樂。瀏覽器限制了自動播放。請確認您的裝置沒有靜音，或手動點擊頁面其他地方後再試一次。");
                         updatePlayIcon(false);
                     });
                 } else {
@@ -719,7 +725,7 @@
             });
         }
 
-        // --- RENDER 3: 記憶碎片 (V7.29: 支援收入/支出/淨額分析) ---
+        // --- RENDER 3: 記憶碎片 (V7.30: 圖表顯示百分比) ---
         function renderMemoryFragment(forceReload = false) {
             const container = document.getElementById('page-memory');
             
@@ -792,7 +798,7 @@
             `;
             setTimeout(() => {
                 renderLedgerList(ledger);
-                renderChart(expenseChartData); // **傳入只包含支出的資料**
+                renderChart(expenseChartData); // 傳入只包含支出的資料
             }, 0);
         }
 
@@ -856,6 +862,9 @@
             renderMemoryFragment(true); // 強制重新渲染以更新列表和圖表
         }
 
+        /**
+         * V7.30 圖表更新：加入百分比顯示
+         */
         function renderChart(dataObj) { 
             const ctx = document.getElementById('expenseChart');
             const noDataMsg = document.querySelector('.no-data-msg');
@@ -890,12 +899,25 @@
                     responsive: true, 
                     plugins: { 
                         legend: { display: false },
-                        tooltip: { callbacks: { label: function(context) {
-                            let label = context.label || '';
-                            if (label) { label += ': '; }
-                            if (context.parsed !== null) { label += context.parsed.toLocaleString(); }
-                            return label;
-                        }}}
+                        tooltip: { 
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    // 計算總和
+                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    let value = context.parsed;
+                                    // 計算百分比
+                                    let percentage = ((value / total) * 100).toFixed(1) + '%';
+                                    
+                                    if (label) { label += ': '; }
+                                    if (value !== null) { 
+                                        // 顯示金額和百分比
+                                        label += `${value.toLocaleString()} (${percentage})`; 
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
                     } 
                 }
             });
