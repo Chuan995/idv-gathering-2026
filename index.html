@@ -9,7 +9,7 @@
     <link rel="icon" href="https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/bird.jpg">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght=300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -183,7 +183,7 @@
         }
 
         /* 底部導航 */
-        .nav-item.active { color: var(--text-gold); border-bottom: 2px solid var(--text-red); }
+        .nav-item.active { color: var(--text-gold); border-bottom: 2px solid #8a0a0a; } /* 底部導航活躍色 */
         .nav-item { color: #666; transition: all 0.3s; }
 
         /* --- 管家定位 --- */
@@ -207,6 +207,15 @@
             z-index: 5;
             filter: drop-shadow(-2px 0 5px rgba(0,0,0,0.5));
         }
+
+        /* 簡單的按鈕回饋 */
+        .simple-interact {
+            transition: all 0.1s ease-out;
+        }
+        .simple-interact:active {
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -217,10 +226,10 @@
         
         <div id="music-controls">
              <div id="now-playing-info"></div>
-             <button id="play-btn" class="w-8 h-8 rounded-full border border-[#c5a059] flex items-center justify-center text-[#c5a059] active:bg-[#c5a059] active:text-black transition-colors">
+             <button id="play-btn" class="w-8 h-8 rounded-full border border-[#c5a059] flex items-center justify-center text-[#c5a059] transition-colors simple-interact active:bg-[#c5a059] active:text-black">
                 <i class="fas fa-play text-xs pl-0.5"></i>
              </button>
-             <button id="next-btn" class="text-gray-400 active:text-[#c5a059] transition-colors ml-1" title="下一首">
+             <button id="next-btn" class="text-gray-400 transition-colors ml-1 simple-interact active:text-[#c5a059] active:opacity-100" title="下一首">
                 <i class="fas fa-step-forward text-sm"></i>
              </button>
         </div>
@@ -244,15 +253,15 @@
     </div>
 
     <nav class="fixed bottom-0 w-full bg-[#141414] border-t border-[#333] flex justify-around py-3 z-50 pb-safe">
-        <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3">
+        <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3 simple-interact">
             <i class="fas fa-map-marked-alt text-xl mb-1"></i>
             <span class="text-[10px]">推演任務</span>
         </button>
-        <button onclick="switchPage('journal')" class="nav-item flex flex-col items-center w-1/3">
+        <button onclick="switchPage('journal')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
             <i class="fas fa-book-open text-xl mb-1"></i>
             <span class="text-[10px]">莊園日誌</span>
         </button>
-        <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3">
+        <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
             <i class="fas fa-calculator text-xl mb-1"></i>
             <span class="text-[10px]">記憶碎片</span>
         </button>
@@ -286,18 +295,18 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        // V7.24 更新: 已替換第 1, 6, 8, 9 首音樂連結
+        // V7.28 使用 V7.26 的連結組（較穩定），但使用 V7.24 的播放邏輯
         const BGM_PLAYLIST = [
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E5%BE%90%E6%A2%A6%E5%9C%93%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC.mp3', // [0] (新: 徐夢圓 - 第五人格)
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', // [1]
-            CDN_BASE + '/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', // [2]
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', // [3]
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', // [4]
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BCBGM%20-%20%E9%81%B8%E8%A7%92%E7%95%AB%E9%9D%A2.mp3', // [5] (新: 選角畫面)
-            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%BE%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', // [6]
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E3%80%8C%E3%83%AC%E3%83%87%E3%82%A3%E3%83%BB%E3%83%95%E3%82%A1%E3%82%A6%E3%83%AD%E3%80%8D-%20%E3%82%A8%E3%83%96%E3%83%AA%E3%83%B3%E3%81%AE%E5%8D%88%E5%BE%8C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3', // [7] (新: 紅蝶-午后)
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/9%E5%82%AC%E5%85%B5-%E6%87%B7%E9%84%89%E7%9A%84%E5%A4%9C.mp3', // [8] (新: 催兵-懷鄉的夜)
-            CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E9%87%8E%E4%BA%BA%20-%20%E3%83%A2%E3%82%A6%E3%83%AD%E3%81%AE%E8%8D%92%E9%87%8E%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3' // [9]
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby_full.mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', 
+            CDN_BASE + '/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BCBGM%20-%20%E9%81%B8%E8%A7%92%E7%95%AB%E9%9D%A2.mp3', 
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%B9%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E3%80%8C%E3%83%AC%E3%83%87%E3%82%A3%E3%83%BB%E3%83%95%E3%82%A1%E3%82%A6%E3%83%AD%E3%80%8D-%20%E3%82%A8%E3%83%96%E3%83%AA%E3%83%B3%E3%81%AE%E5%8D%88%E5%BE%8C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Final.mp3' 
         ];
 
 
@@ -330,6 +339,14 @@
             icon: 'fa-cloud-sun'
         };
 
+        // V7.29 關鍵變動：定義支出與收入類別
+        const INCOME_CATEGORY = '收入'; 
+        const EXPENSE_CATEGORIES = [
+            '餐飲費用', '交通費用', '娛樂費用', '住宿費用', '伴手禮', 
+            '治裝/保養費用', '電信費用', '醫療費用', '日用品採買費用', '其他費用'
+        ];
+        const ALL_CATEGORIES = [INCOME_CATEGORY, ...EXPENSE_CATEGORIES];
+
         // ==========================================
         //  APP LOGIC
         // ==========================================
@@ -342,10 +359,7 @@
 
 
         /**
-         * V7.21 音樂播放器初始化函數
-         * 1. 確保 Next 後無縫播放。
-         * 2. 新增 Error 監聽器，自動跳過無效的音樂檔案。
-         * 3. 移除 HTML 中的 loop 屬性，確保列表播放循環。
+         * V7.28 音樂播放器初始化函數 (純 V7.24 穩定邏輯)
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
@@ -359,7 +373,7 @@
 
             // 核心功能：切換到下一首曲目
             const playNextTrack = (wasPlaying) => {
-                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
+                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                 bgmPlayer.load(); 
                 
@@ -368,7 +382,6 @@
                         updatePlayIcon(true); 
                     }).catch(e => {
                         console.error("Autoplay failed:", e);
-                        // 如果自動播放失敗 (通常是瀏覽器限制)，不自動跳轉，但更新為暫停圖標
                         updatePlayIcon(false); 
                     });
                 } else {
@@ -392,7 +405,7 @@
                 }
             });
 
-            // 處理 Next button click (會檢查播放狀態並嘗試無縫播放)
+            // 處理 Next button click 
             nextBtn.addEventListener('click', () => {
                 const wasPlaying = !bgmPlayer.paused; // 記錄切換前是否正在播放
                 playNextTrack(wasPlaying);
@@ -400,35 +413,16 @@
 
             // 處理曲目結束事件 (自動播放下一首)
             bgmPlayer.addEventListener('ended', () => {
-                // ended 時，視為 'wasPlaying' 為 true
                 playNextTrack(true);
             });
-
-            // V7.20 新增：處理音樂載入或播放錯誤 (自動跳過無效曲目)
-            bgmPlayer.addEventListener('error', (e) => {
-                // 檢查是否為媒體錯誤
-                if (bgmPlayer.error && bgmPlayer.error.code !== 0) {
-                    const errorMsg = `音樂播放錯誤 (代碼: ${bgmPlayer.error.code})，跳過當前曲目 ${currentTrackIndex}。`;
-                    console.error(errorMsg, e);
-
-                    // 只有在嘗試播放或載入時發生錯誤，且播放器不是暫停狀態，才嘗試跳到下一首
-                    if (!bgmPlayer.paused) {
-                        // 移除 alert 以減少干擾，只在 console 報告
-                        // alert(`部分音樂連結失效，已自動跳至下一首。`);
-                    }
-                    // 無論狀態如何，都嘗試切換下一首，以擺脫這個錯誤檔案
-                    const wasPlaying = !bgmPlayer.paused;
-                    playNextTrack(wasPlaying); 
-                }
-            });
-
+            
             // 初始 UI 設置
             updatePlayIcon(false);
         }
 
 
         /**
-         * 修正: switchPage 恢復強制載入，解決刷新後內容不穩定的問題
+         * 頁面切換函數
          */
         function switchPage(pageId) { 
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
@@ -442,7 +436,7 @@
             // 每次切換到指定頁面時，強制重新渲染
             if(pageId === 'schedule') renderSchedule(true);
             if(pageId === 'journal') renderJournal(true);
-            if(pageId === 'memory') renderMemoryFragment();
+            if(pageId === 'memory') renderMemoryFragment(true); // 傳入 true 確保重新渲染
         }
 
         /**
@@ -475,9 +469,8 @@
         function renderSchedule(forceReload = false) {
             const container = document.getElementById('page-schedule');
             
-            // 避免重複渲染，除非是強制刷新
             if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
-                return;
+                return; 
             }
             
             container.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>`; 
@@ -516,7 +509,7 @@
                                                     <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] rank-sub">${ranks.s_sub}</span>
                                                     <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img ml-2"><span class="text-[#c5a059] rank-sub">${ranks.h_sub}</span>
                                                 </div>
-                                                <span class="invite-btn cursor-pointer hover:opacity-80">邀</span>
+                                                <span class="invite-btn cursor-pointer hover:opacity-80 simple-interact">邀</span>
                                             </div>
                                         `).join('')}
                                     </div>
@@ -566,7 +559,6 @@
                         if(type.includes('集合')) iconClass = 'fa-flag-checkered';
                         if(type.includes('交通')) iconClass = 'fa-subway';
 
-                        // 備註欄位的格式化邏輯 (V7.16 修正已保留)
                         let formattedDesc = desc;
                         if (formattedDesc) {
                             formattedDesc = formattedDesc.replace(/【/g, '\n【'); 
@@ -575,7 +567,6 @@
                                 .replace(/【([^】]+)】/g, '<strong class="text-white">【$1】</strong>')
                                 .replace(/\n/g, '<br>');
                         }
-
 
                         container.innerHTML += `
                             <div class="dark-card p-4 rounded-md mb-4 relative group">
@@ -591,7 +582,7 @@
                                         <h3 class="text-xl font-bold mt-1 text-white leading-tight">${location}</h3>
                                         <div class="text-xs text-gray-400 mt-2 uppercase tracking-widest border-b border-gray-700 inline-block pb-1">${type}</div>
                                     </div>
-                                    ${navLink ? `<a href="${navLink}" target="_blank" class="w-10 h-10 bg-[#333] border border-[#c5a059] text-[#c5a059] flex items-center justify-center rounded-full shadow-lg active:scale-95"><i class="fas fa-location-arrow"></i></a>` : ''}
+                                    ${navLink ? `<a href="${navLink}" target="_blank" class="w-10 h-10 bg-[#333] border border-[#c5a059] text-[#c5a059] flex items-center justify-center rounded-full shadow-lg simple-interact"><i class="fas fa-location-arrow"></i></a>` : ''}
                                 </div>
                                 
                                 <div class="space-y-2 mt-3 relative z-10">
@@ -611,7 +602,7 @@
                                     ` : ''}
 
                                     ${phone ? `
-                                        <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold active:bg-[#3d2a2a] transition-colors mt-2">
+                                        <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold simple-interact hover:bg-[#3d2a3a] transition-colors mt-2">
                                             <i class="fas fa-phone-alt mr-2"></i>撥打電話：${phone}
                                         </a>
                                     ` : ''}
@@ -628,7 +619,6 @@
 
                 } catch (e) {
                     console.error("Rendering Error:", e);
-                    // 如果資料載入成功但渲染失敗，顯示錯誤訊息
                     container.innerHTML = `
                         <h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>
                         <div class="dark-card p-4 text-center text-red-500">
@@ -643,8 +633,7 @@
         function renderJournal(forceReload = false) {
             const container = document.getElementById('page-journal');
 
-             // 避免重複渲染，除非是強制刷新
-            if (!forceReload && container.children.length > 1 && !container.innerHTML.includes('loader')) {
+             if (!forceReload && container.children.length > 1 && !container.innerHTML.includes('loader')) {
                 return;
             }
             
@@ -664,19 +653,16 @@
                             const name = row['姓名'];
                             const item = row['代墊項目'];
                             
-                            // 確保有基本資訊才顯示
                             if(!name || !item || name === '' || item === '') return;
 
                             const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
                             let debt = parseInt(rawDebt) || 0;
                             
-                            // 修正結清邏輯：如果欄位明確寫「是」，或是「有姓名項目但金額為 0」，都視為已結清
                             const isClearText = (row['是否已結清'] || '').toLowerCase();
                             const isClear = isClearText.includes('是') || (debt === 0);
 
-                            // 只有未結清且金額大於 0 的才加到總數
                             if (isClear) {
-                                debt = 0; // 結清的項目，確保顯示為 0
+                                debt = 0; 
                             } else {
                                 totalDebt += debt;
                             }
@@ -720,9 +706,9 @@
                     `;
 
                     container.innerHTML += headerHtml + `<div class="relative z-10 pb-20">` + dataHtml + `</div>`;
+                    
                 } catch (e) {
                     console.error("Journal Rendering Error:", e);
-                    // 如果資料載入成功但渲染失敗，顯示錯誤訊息
                     container.innerHTML = `
                         <h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：代墊回聲</h2>
                         <div class="dark-card p-4 text-center text-red-500">
@@ -733,116 +719,161 @@
             });
         }
 
-        // --- RENDER 3: 記憶碎片 ---
-        function renderMemoryFragment() {
+        // --- RENDER 3: 記憶碎片 (V7.29: 支援收入/支出/淨額分析) ---
+        function renderMemoryFragment(forceReload = false) {
             const container = document.getElementById('page-memory');
+            
+            if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
+                return;
+            }
+
             container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人記帳</h2>`;
             container.innerHTML += `<p class="text-[10px] text-gray-500 mb-4 pl-3">※ 此處紀錄僅儲存於您的裝置，清除快取將會消失</p>`;
             
             const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
             
-            let total = 0;
-            const chartData = {};
+            let totalIncome = 0;
+            let totalExpense = 0;
+            const expenseChartData = {}; // 僅用於支出分析
+            
             ledger.forEach(item => {
-                total += item.amount;
-                chartData[item.category] = (chartData[item.category] || 0) + item.amount;
+                // 處理舊資料或確保 type 正確
+                const type = item.type || (item.category === INCOME_CATEGORY ? 'income' : 'expense'); 
+                
+                if (type === 'income') {
+                    totalIncome += item.amount;
+                } else {
+                    totalExpense += item.amount;
+                    // 只將支出項目計入圖表資料
+                    expenseChartData[item.category] = (expenseChartData[item.category] || 0) + item.amount;
+                }
             });
 
-            const categories = ['餐飲費', '交通費', '住宿費', '娛樂費', '伴手禮', '雜項'];
-            
-            // 圖表區 (深色風格)
+            const netTotal = totalIncome - totalExpense; // 淨餘額 (收入 - 支出)
+
+            // 圖表與收支總覽區
             container.innerHTML += `
                 <div class="dark-card p-4 mb-6">
-                    <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
-                        <h3 class="text-lg font-bold text-white gothic-font">花費分析</h3>
-                        <div class="flex items-center">
-                            <img src="${ICON_FRAGMENT}" class="currency-icon w-6 h-6">
-                            <span class="text-2xl font-bold text-[#c5a059] ml-1">${total.toLocaleString()}</span>
+                    <h3 class="text-lg font-bold text-white gothic-font mb-3 border-b border-gray-700 pb-2">收支總覽</h3>
+                    
+                    <div class="grid grid-cols-3 gap-3 text-center mb-4">
+                        <div class="border-r border-gray-700">
+                            <div class="text-[10px] text-gray-500">總收入</div>
+                            <div class="text-lg font-bold text-green-400">${totalIncome.toLocaleString()}</div>
+                        </div>
+                        <div class="border-r border-gray-700">
+                            <div class="text-[10px] text-gray-500">總支出</div>
+                            <div class="text-lg font-bold text-red-400">${totalExpense.toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-gray-500">淨餘額</div>
+                            <div class="text-xl font-bold ${netTotal >= 0 ? 'text-[#c5a059]' : 'text-red-600'}">${netTotal.toLocaleString()}</div>
                         </div>
                     </div>
+
+                    <h3 class="text-sm font-bold text-white gothic-font mt-4 mb-3 border-t border-gray-700 pt-3">支出類別細分</h3>
                     <div class="w-48 h-48 mx-auto relative mt-4">
                         <canvas id="expenseChart"></canvas>
                     </div>
+                    <div class="no-data-msg text-center text-gray-500 text-sm mt-8" style="display: none;">無花費紀錄，請新增碎片。</div>
                 </div>
 
                 <div class="dark-card p-4 mb-6" style="border: 1px solid #555;">
                     <div class="space-y-3">
-                        <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">${categories.map(c=>`<option>${c}</option>`).join('')}</select>
-                        <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱">
-                        <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量">
-                        <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest hover:bg-[#c5a059]/10">記錄碎片</button>
+                        <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">
+                            ${ALL_CATEGORIES.map(c=>`<option>${c}</option>`).join('')}
+                        </select>
+                        <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱 (例如：晚餐聚餐 / 收到轉帳)">
+                        <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量 (請輸入正數)">
+                        <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest simple-interact hover:bg-[#c5a059]/10">記錄碎片</button>
                     </div>
                 </div>
                 <div id="ledger-list" class="space-y-2 pb-20"></div>
             `;
             setTimeout(() => {
                 renderLedgerList(ledger);
-                renderChart(chartData);
+                renderChart(expenseChartData); // **傳入只包含支出的資料**
             }, 0);
         }
 
+        /**
+         * V7.29 邏輯更新：新增 type 欄位來區分收入和支出
+         */
+        window.addExpense = function() { 
+            const cat = document.getElementById('expense-cat').value;
+            const item = document.getElementById('expense-item').value;
+            let amt = parseInt(document.getElementById('expense-amt').value);
+            
+            if(isNaN(amt) || !item || amt <= 0) return alert("請輸入有效的項目名稱和碎片數量 (必須為正數)");
+            
+            const isIncome = (cat === INCOME_CATEGORY);
+            const type = isIncome ? 'income' : 'expense';
+            
+            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
+            // 儲存正數金額，並用 type 區分
+            ledger.unshift({ category: cat, item: item, amount: amt, type: type, time: Date.now() }); 
+            localStorage.setItem('personalLedger', JSON.stringify(ledger));
+            
+            // 清空輸入欄位
+            document.getElementById('expense-item').value = '';
+            document.getElementById('expense-amt').value = '';
+
+            renderMemoryFragment(true); // 強制重新渲染以更新列表和圖表
+        }
+
+        /**
+         * V7.29 邏輯更新：顯示收入/支出符號與顏色
+         */
         function renderLedgerList(ledger) {
             const listDiv = document.getElementById('ledger-list');
             if(ledger.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; return;
             }
             
-            listDiv.innerHTML = ledger.map((item, idx) => `
-                <div class="dark-card p-2 flex justify-between items-center text-sm" style="margin-bottom: 8px;">
-                    <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div>
-                    <div class="flex items-center">
-                        <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3">
-                        <span class="mx-1 font-bold text-white">${item.amount}</span>
-                        <button onclick="delExpense(${idx})" class="text-red-500 ml-2 hover:text-red-400"><i class="fas fa-times"></i></button>
+            listDiv.innerHTML = ledger.map((item, idx) => {
+                // 使用 type 欄位來判斷，若無 type 則檢查 category (相容舊資料)
+                const isIncome = (item.type === 'income' || item.category === INCOME_CATEGORY);
+                const amountClass = isIncome ? 'text-green-400' : 'text-red-400';
+                const sign = isIncome ? '+' : '-';
+
+                return `
+                    <div class="dark-card p-2 flex justify-between items-center text-sm" style="margin-bottom: 8px;">
+                        <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div>
+                        <div class="flex items-center">
+                            <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3">
+                            <span class="mx-1 font-bold ${amountClass}">${sign}${item.amount.toLocaleString()}</span>
+                            <button onclick="delExpense(${idx})" class="text-gray-500 ml-2 simple-interact hover:text-red-400"><i class="fas fa-times"></i></button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
         
-        function addExpense() { 
-            const cat = document.getElementById('expense-cat').value;
-            const item = document.getElementById('expense-item').value;
-            const amt = parseInt(document.getElementById('expense-amt').value);
-            if(isNaN(amt) || !item || amt <= 0) return alert("請輸入有效的項目名稱和碎片數量");
-            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
-            ledger.unshift({ category: cat, item: item, amount: amt, time: Date.now() });
-            localStorage.setItem('personalLedger', JSON.stringify(ledger));
-            renderMemoryFragment();
-        }
-
         window.delExpense = function(idx) { 
             if(!confirm("確定要刪除此筆紀錄嗎？")) return;
             const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
             ledger.splice(idx, 1);
             localStorage.setItem('personalLedger', JSON.stringify(ledger));
-            renderMemoryFragment();
+            renderMemoryFragment(true); // 強制重新渲染以更新列表和圖表
         }
 
         function renderChart(dataObj) { 
             const ctx = document.getElementById('expenseChart');
-            if(!ctx) return;
+            const noDataMsg = document.querySelector('.no-data-msg');
+            if(!ctx || !noDataMsg) return;
             if(window.myPieChart) window.myPieChart.destroy();
             
-            const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a'];
+            // Chart.js 顏色 (可擴充)
+            const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a', '#770000', '#3e3e3e', '#b8860b', '#3a2a1a'];
+            
             const hasData = Object.values(dataObj).some(val => val > 0);
             
             if (!hasData) { 
                 ctx.style.display = 'none'; 
-                // 顯示一個預設的訊息
-                if(ctx.parentElement) {
-                    let msg = ctx.parentElement.querySelector('.no-data-msg');
-                    if (!msg) {
-                        msg = document.createElement('div');
-                        msg.className = 'no-data-msg text-center text-gray-500 text-sm mt-8';
-                        msg.innerText = '無花費紀錄，請新增碎片。';
-                        ctx.parentElement.appendChild(msg);
-                    }
-                }
+                noDataMsg.style.display = 'block';
                 return;
             } else { 
                 ctx.style.display = 'block'; 
-                // 移除無數據訊息
-                let msg = ctx.parentElement.querySelector('.no-data-msg');
-                if (msg) msg.remove();
+                noDataMsg.style.display = 'none';
             }
 
             window.myPieChart = new Chart(ctx, {
@@ -855,7 +886,18 @@
                         borderWidth: 0
                     }]
                 },
-                options: { responsive: true, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context) {
+                            let label = context.label || '';
+                            if (label) { label += ': '; }
+                            if (context.parsed !== null) { label += context.parsed.toLocaleString(); }
+                            return label;
+                        }}}
+                    } 
+                }
             });
         }
 
