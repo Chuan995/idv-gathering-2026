@@ -18,7 +18,7 @@
         :root {
             --bg-color: #0f1014;
             --text-gold: #c5a059;
-            --text-brown: #4a3b2a; /* 羊皮紙上的深褐色字 */
+            --text-brown: #4a3b2a; 
             --border-gold: #856d3a;
             --card-dark-bg: rgba(20, 20, 20, 0.95);
             /* 羊皮紙紋理 */
@@ -46,10 +46,10 @@
             backdrop-filter: blur(5px);
             z-index: 100;
             border-bottom: 1px solid #333;
-            height: 65px; /* 稍微增高以容納日期 */
+            height: 65px; 
             display: flex;
-            justify-content: center; /* 水平置中 */
-            align-items: center;     /* 垂直置中 */
+            justify-content: center; 
+            align-items: center;     
             flex-direction: column;
         }
         
@@ -63,15 +63,14 @@
             align-items: center;
             gap: 8px;
         }
-        /* V7.17/V7.19: 確保文字隱藏 */
         #now-playing-info { display: none !important; } 
         
         #main-container {
             padding-top: 75px;
-            /* V7.33: 移除底部的 padding，因為底部導航不再是 fixed */
-            padding-bottom: 0px; 
+            /* V7.24 固定底部導航的 padding */
+            padding-bottom: 70px; 
             min-height: 100vh;
-            max-width: 600px; /* 限制寬度以保持手機版面外觀 */
+            max-width: 600px; 
             margin: 0 auto;
         }
 
@@ -100,7 +99,7 @@
 
         /* --- 羊皮紙風格 (莊園日誌專用) --- */
         .parchment-style {
-            background-color: #e3d5b8; /* 羊皮紙底色 */
+            background-color: #e3d5b8; 
             background-image: var(--paper-texture);
             border: 2px solid #5c4033;
             border-radius: 4px;
@@ -172,34 +171,35 @@
             box-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
             min-width: 20px; 
             text-align: center;
-            margin-left: auto; /* 靠右對齊 */
+            margin-left: auto; 
         }
         .rank-icon-img { width: 18px; height: 18px; object-fit: contain; margin: 0 1px; filter: drop-shadow(0 0 1px black); }
         .currency-icon { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 2px; display: inline-block; }
         
         /* 羅馬數字縮小 */
         .rank-sub {
-            font-size: 0.65rem; /* 縮小字體 */
+            font-size: 0.65rem; 
             margin-left: 2px;
         }
 
-        /* 底部導航 */
-        /* V7.33 關鍵修正: 移除 fixed 定位，讓它成為頁面內容的一部分，解決鍵盤/Select遮蔽問題 */
+        /* 底部導航 (V7.24 狀態: Fixed) */
         .nav-footer {
-            position: relative; /* 關鍵：從 fixed 改為相對定位 */
+            position: fixed; 
+            bottom: 0;
+            left: 0;
             width: 100%;
             background: #141414;
             border-top: 1px solid #333;
             z-index: 50;
-            padding-bottom: env(safe-area-inset-bottom, 12px); /* 保持安全區域填充 */
+            padding-bottom: env(safe-area-inset-bottom, 12px); 
         }
-        .nav-item.active { color: var(--text-gold); border-bottom: 2px solid #8a0a0a; } /* 底部導航活躍色 */
+        .nav-item.active { color: var(--text-gold); border-bottom: 2px solid #8a0a0a; } 
         .nav-item { color: #666; transition: all 0.3s; }
 
         /* --- 管家定位 --- */
         .butler-container {
             position: relative;
-            background: linear-gradient(to bottom, #2a0a0a, #0f0505); /* 深紅漸層背景 */
+            background: linear-gradient(to bottom, #2a0a0a, #0f0505); 
             border: 1px solid #8a0a0a;
             border-radius: 8px;
             padding: 20px;
@@ -211,7 +211,7 @@
             position: absolute;
             bottom: 0;
             right: -5px;
-            width: 100px; /* 調整大小 */
+            width: 100px; 
             opacity: 0.9;
             pointer-events: none;
             z-index: 5;
@@ -260,22 +260,22 @@
         <div id="page-memory" class="page-section space-y-5">
              </div>
         
-        <nav class="nav-footer flex justify-around py-3 mt-6">
-            <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3 simple-interact">
-                <i class="fas fa-map-marked-alt text-xl mb-1"></i>
-                <span class="text-[10px]">推演任務</span>
-            </button>
-            <button onclick="switchPage('journal')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
-                <i class="fas fa-book-open text-xl mb-1"></i>
-                <span class="text-[10px]">莊園日誌</span>
-            </button>
-            <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
-                <i class="fas fa-calculator text-xl mb-1"></i>
-                <span class="text-[10px]">記憶碎片</span>
-            </button>
-        </nav>
-
     </div>
+
+    <nav class="nav-footer flex justify-around py-3">
+        <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3 simple-interact">
+            <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+            <span class="text-[10px]">推演任務</span>
+        </button>
+        <button onclick="switchPage('journal')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
+            <i class="fas fa-book-open text-xl mb-1"></i>
+            <span class="text-[10px]">莊園日誌</span>
+        </button>
+        <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3 simple-interact">
+            <i class="fas fa-calculator text-xl mb-1"></i>
+            <span class="text-[10px]">記憶碎片</span>
+        </button>
+    </nav>
 
 
     <script>
@@ -306,7 +306,7 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        // V7.33: 保持精簡的音樂列表
+        // 音樂列表
         const BGM_PLAYLIST = [
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby_full.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', 
@@ -316,7 +316,6 @@
 
 
         const TEAM_MEMBERS_DATA = { 
-            // ... (成員資料保持不變)
             '女神': { s: 'S4', h: 'H1', s_sub: 'III', h_sub: 'II' },
             '大神': { s: 'S4', h: 'H2', s_sub: 'III', h_sub: 'I' },
             'ㄎㄎ': { s: 'S1', h: 'H1', s_sub: 'III', h_sub: 'III' },
@@ -345,7 +344,7 @@
             icon: 'fa-cloud-sun'
         };
 
-        // 記帳類別
+        // 記帳類別 (已整合所有費用類別與收入)
         const INCOME_CATEGORY = '收入'; 
         const EXPENSE_CATEGORIES = [
             '餐飲費用', '交通費用', '娛樂費用', '住宿費用', '伴手禮', 
@@ -365,7 +364,7 @@
 
 
         /**
-         * V7.33 音樂播放器初始化函數 (解決首曲播放失敗問題)
+         * 🎧 優化後的音樂播放器初始化 (單次點擊即可從第二首開始播放)
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
@@ -376,59 +375,57 @@
                     '<i class="fas fa-play text-xs pl-0.5"></i>';
             };
 
-            // 核心功能：切換到下一首曲目
-            const playNextTrack = (wasPlaying) => {
-                // 如果是第一次播放，則使用 index 0，否則才遞增
-                if (bgmPlayer.src !== '' && !bgmPlayer.paused) { 
-                    currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
-                } else if (bgmPlayer.src === '') {
-                    currentTrackIndex = 0;
-                }
-                
+            const setTrackAndPlay = (index, attemptPlay) => {
+                // 確保索引在範圍內循環
+                currentTrackIndex = index % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                bgmPlayer.load(); // 強制載入新曲目
+                bgmPlayer.load();
                 
-                if (wasPlaying) {
+                if (attemptPlay) {
                     bgmPlayer.play().then(() => {
-                        updatePlayIcon(true); 
+                        updatePlayIcon(true);
                     }).catch(e => {
-                        console.error("Autoplay failed:", e);
-                        // 雖然失敗，但按鈕已經代表使用者互動，應該能播下一首
-                        updatePlayIcon(false); 
+                        console.warn("Autoplay/Play failed, user interaction required:", e);
+                        updatePlayIcon(false);
+                        // 如果播放失敗，但使用者已經點擊，保持索引不變，等待下一次點擊
                     });
                 } else {
                     updatePlayIcon(false);
                 }
             };
             
-            // V7.33 修正: 播放按鈕直接呼叫 playNextTrack(true) 
-            // 這樣單次點擊就能強制換曲目並播放，繞過第一首被瀏覽器鎖定的問題。
+            // 播放按鈕: 單次點擊即可啟用 (重點修復)
             playBtn.addEventListener('click', () => {
-                if (bgmPlayer.paused || bgmPlayer.src === '') {
-                    playNextTrack(true); // 嘗試播放第一首，如果失敗會自動被下一首取代
+                if (bgmPlayer.paused) {
+                    // 關鍵邏輯：如果目前是第一首 (index 0) 且暫停 (或未載入)，則直接跳到第二首 (index 1) 並播放
+                    if (currentTrackIndex === 0 && (bgmPlayer.src === '' || bgmPlayer.src.includes(BGM_PLAYLIST[0]))) {
+                         setTrackAndPlay(1, true); // 跳到第二首並嘗試播放
+                    } else {
+                         // 如果已經在播放列表或非第一首，直接嘗試播放
+                         bgmPlayer.play().then(() => updatePlayIcon(true)).catch(() => updatePlayIcon(false));
+                    }
                 } else {
+                    // 如果正在播放，則暫停
                     bgmPlayer.pause();
                     updatePlayIcon(false);
                 }
             });
 
-            // 處理 Next button click (強制播放下一首)
+            // 下一首按鈕: 強制切換曲目，並根據目前狀態決定是否嘗試播放
             nextBtn.addEventListener('click', () => {
                 const wasPlaying = !bgmPlayer.paused;
-                // 強制跳到下一首並播放
-                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
-                playNextTrack(wasPlaying);
+                setTrackAndPlay(currentTrackIndex + 1, wasPlaying); 
             });
 
             // 處理曲目結束事件 (自動播放下一首)
             bgmPlayer.addEventListener('ended', () => {
-                // 結束時自動遞增 index
-                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
-                playNextTrack(true);
+                setTrackAndPlay(currentTrackIndex + 1, true);
             });
             
             // 初始 UI 設置
             updatePlayIcon(false);
+            // 預先載入第一首，但不要嘗試播放 (保持 index = 0)
+            setTrackAndPlay(0, false);
         }
 
         
@@ -453,11 +450,8 @@
 
         /**
          * 讀取 CSV 資料，並強制繞過快取
-         * @param {string} url - 原始 CSV 網址
-         * @param {function} callback - 資料處理回調函數
          */
         function fetchCSV(url, callback) { 
-             // 關鍵步驟：在網址後面加上一個隨機的時間戳記 (Cache Buster)
             const cacheBusterUrl = url + '&t=' + Date.now();
             
             Papa.parse(cacheBusterUrl, {
@@ -465,13 +459,11 @@
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    // 保留沒有空值的行
                     const filteredData = results.data.filter(row => Object.values(row).some(val => val !== ''));
                     callback(filteredData);
                 },
                 error: function(err) {
                     console.error("CSV Error:", err);
-                    // 錯誤時彈出提示，防止卡住
                     alert("資料讀取失敗，請檢查網路連線或稍後再試。");
                 }
             });
@@ -731,7 +723,7 @@
             });
         }
 
-        // --- RENDER 3: 記憶碎片 (V7.33: 依賴底部非固定導航解決 Select 完成按鈕遮蔽) ---
+        // --- RENDER 3: 記憶碎片 (V7.24 Base + 收入/支出功能) ---
         function renderMemoryFragment(forceReload = false) {
             const container = document.getElementById('page-memory');
             
@@ -746,17 +738,15 @@
             
             let totalIncome = 0;
             let totalExpense = 0;
-            const expenseChartData = {}; // 僅用於支出分析
+            const expenseChartData = {}; 
             
             ledger.forEach(item => {
-                // 處理舊資料或確保 type 正確
                 const type = item.type || (item.category === INCOME_CATEGORY ? 'income' : 'expense'); 
                 
                 if (type === 'income') {
                     totalIncome += item.amount;
                 } else {
                     totalExpense += item.amount;
-                    // 只將支出項目計入圖表資料
                     expenseChartData[item.category] = (expenseChartData[item.category] || 0) + item.amount;
                 }
             });
@@ -805,12 +795,12 @@
             
             setTimeout(() => {
                 renderLedgerList(ledger);
-                renderChart(expenseChartData); // 傳入只包含支出的資料
+                renderChart(expenseChartData); 
             }, 0);
         }
 
         /**
-         * V7.29 邏輯更新：新增 type 欄位來區分收入和支出
+         * 記帳邏輯：新增 type 欄位來區分收入和支出
          */
         window.addExpense = function() { 
             const cat = document.getElementById('expense-cat').value;
@@ -831,11 +821,11 @@
             document.getElementById('expense-item').value = '';
             document.getElementById('expense-amt').value = '';
 
-            renderMemoryFragment(true); // 強制重新渲染以更新列表和圖表
+            renderMemoryFragment(true); 
         }
 
         /**
-         * V7.29 邏輯更新：顯示收入/支出符號與顏色
+         * 記帳列表渲染邏輯：顯示收入/支出符號與顏色
          */
         function renderLedgerList(ledger) {
             const listDiv = document.getElementById('ledger-list');
@@ -843,7 +833,6 @@
             }
             
             listDiv.innerHTML = ledger.map((item, idx) => {
-                // 使用 type 欄位來判斷，若無 type 則檢查 category (相容舊資料)
                 const isIncome = (item.type === 'income' || item.category === INCOME_CATEGORY);
                 const amountClass = isIncome ? 'text-green-400' : 'text-red-400';
                 const sign = isIncome ? '+' : '-';
@@ -866,11 +855,11 @@
             const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
             ledger.splice(idx, 1);
             localStorage.setItem('personalLedger', JSON.stringify(ledger));
-            renderMemoryFragment(true); // 強制重新渲染以更新列表和圖表
+            renderMemoryFragment(true); 
         }
 
         /**
-         * V7.30 圖表更新：加入百分比顯示
+         * 圖表渲染邏輯
          */
         function renderChart(dataObj) { 
             const ctx = document.getElementById('expenseChart');
@@ -878,7 +867,6 @@
             if(!ctx || !noDataMsg) return;
             if(window.myPieChart) window.myPieChart.destroy();
             
-            // Chart.js 顏色 (可擴充)
             const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a', '#770000', '#3e3e3e', '#b8860b', '#3a2a1a'];
             
             const hasData = Object.values(dataObj).some(val => val > 0);
@@ -910,15 +898,12 @@
                             callbacks: {
                                 label: function(context) {
                                     let label = context.label || '';
-                                    // 計算總和
                                     let total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     let value = context.parsed;
-                                    // 計算百分比
                                     let percentage = ((value / total) * 100).toFixed(1) + '%';
                                     
                                     if (label) { label += ': '; }
                                     if (value !== null) { 
-                                        // 顯示金額和百分比
                                         label += `${value.toLocaleString()} (${percentage})`; 
                                     }
                                     return label;
@@ -932,7 +917,6 @@
 
         window.onload = function() {
             initMusicPlayer();
-            // 首次載入時強制渲染推演任務頁
             renderSchedule(true); 
         };
 
