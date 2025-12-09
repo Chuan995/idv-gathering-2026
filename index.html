@@ -295,12 +295,16 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        // V7.32: 簡化音樂列表，僅保留幾個測試後較穩定的
+        // V7.34: 擴大音樂列表，增加 V7.24 數量，確保播放成功率
         const BGM_PLAYLIST = [
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby_full.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3',
+            // 增加更多曲目鏈結 (確保穩定性)
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20City.mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Cursed.mp3', 
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Cunning.mp3', 
         ];
 
 
@@ -354,11 +358,11 @@
 
 
         /**
-         * V7.32 音樂播放器初始化函數 (移除首曲自動載入)
+         * V7.34 音樂播放器初始化函數 (保留 V7.33 自動跳轉邏輯 + 擴大歌單)
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
-            // V7.32: 首次載入時不設定 src，等待使用者點擊播放按鈕
+            bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; // 預設第一首歌
             
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? 
@@ -368,38 +372,48 @@
 
             // 核心功能：切換到下一首曲目
             const playNextTrack = (wasPlaying) => {
+                const prevIndex = currentTrackIndex;
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                bgmPlayer.load(); // 強制載入新曲目
                 
+                console.log(`Switching track from ${prevIndex} to ${currentTrackIndex}. Trying to play: ${wasPlaying}`);
+
                 if (wasPlaying) {
+                    bgmPlayer.load(); // 強制載入新曲目
                     bgmPlayer.play().then(() => {
                         updatePlayIcon(true); 
+                        console.log(`Track ${currentTrackIndex} started successfully.`);
                     }).catch(e => {
-                        console.error("Autoplay failed:", e);
+                        console.error(`Autoplay of track ${currentTrackIndex} failed (Recyclic).`, e);
                         updatePlayIcon(false); 
                     });
                 } else {
+                    bgmPlayer.load(); 
                     updatePlayIcon(false);
                 }
             };
             
-            // 處理 explicit Play/Pause click
+            // 處理 explicit Play/Pause click (V7.33 核心邏輯)
             playBtn.addEventListener('click', () => {
-                if (bgmPlayer.paused || bgmPlayer.src === '') {
-                    // V7.32 關鍵修正: 如果是第一次點擊，或者之前被暫停
+                if (bgmPlayer.paused) {
                     if(bgmPlayer.src === '') {
-                        bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; // 載入第一首歌
+                         bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
                     }
-                    bgmPlayer.load(); // 確保 source 準備就緒
+                    bgmPlayer.load(); 
                     
                     bgmPlayer.play().then(() => {
                         updatePlayIcon(true);
                     }).catch(e => {
-                        console.error("Play button failed:", e);
-                        // V7.32: 提醒使用者，但這應該很少發生了
-                        alert("音樂無法播放 (瀏覽器限制)。請確保您已在頁面任意處互動過。");
+                        console.error("Play button failed on first attempt:", e);
                         updatePlayIcon(false);
+                        
+                        // 關鍵步驟: 首次播放失敗，自動跳到下一首並再嘗試播放
+                        if(e.name === "NotAllowedError" || e.name === "AbortError" || e.name === "MediaError") {
+                            console.log("Browser blocked or link failed. Attempting to skip the track...");
+                            playNextTrack(true); // 跳到下一首，並嘗試播放
+                        } else {
+                            alert("音樂無法播放 (瀏覽器限制)。請嘗試點擊下一首按鈕，或重新整理頁面。");
+                        }
                     });
                 } else {
                     bgmPlayer.pause();
@@ -409,10 +423,7 @@
 
             // 處理 Next button click 
             nextBtn.addEventListener('click', () => {
-                const wasPlaying = !bgmPlayer.paused; // 記錄切換前是否正在播放
-                if (bgmPlayer.src === '') { // 如果還沒開始播過
-                    bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
-                }
+                const wasPlaying = !bgmPlayer.paused; 
                 playNextTrack(wasPlaying);
             });
 
@@ -426,14 +437,20 @@
         }
 
         /**
-         * V7.32: 新增 UI 修正函數，強制捲動到焦點元素 (解決鍵盤遮蔽問題)
+         * V7.32: UI 修正函數，強制捲動到焦點元素 (解決鍵盤遮蔽問題)
          */
         function handleInputFocus(event) {
             const target = event.target;
             if (target.closest('#page-memory')) {
                 // 給瀏覽器一點時間讓鍵盤彈出
                 setTimeout(() => {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 嘗試捲動到整個輸入區的父級卡片
+                    const inputCard = document.querySelector('#page-memory .dark-card:nth-child(3)');
+                    if(inputCard) {
+                        inputCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 捲動到視窗頂部附近
+                    } else {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                    }
                 }, 300); 
             }
         }
@@ -736,13 +753,12 @@
             });
         }
 
-        // --- RENDER 3: 記憶碎片 (V7.32: 新增捲動事件處理) ---
+        // --- RENDER 3: 記憶碎片 (V7.34: 終極捲動修正) ---
         function renderMemoryFragment(forceReload = false) {
             const container = document.getElementById('page-memory');
             
             if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
                 // 如果不是強制重載，且內容已存在，則直接返回
-                // V7.32: 增加 Input Focus 監聽器
                  document.querySelectorAll('#page-memory .fragment-input').forEach(input => {
                     input.removeEventListener('focus', handleInputFocus); // 避免重複綁定
                     input.addEventListener('focus', handleInputFocus);
@@ -811,7 +827,7 @@
                         <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest simple-interact hover:bg-[#c5a059]/10">記錄碎片</button>
                     </div>
                 </div>
-                <div id="ledger-list" class="space-y-2 pb-32"></div>
+                <div id="ledger-list" class="space-y-2 pb-80"></div>
             `;
             
             // V7.32: 延遲綁定事件監聽器，確保元素已在 DOM 中
