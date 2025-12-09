@@ -295,20 +295,12 @@
             'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        // V7.31 音樂連結：使用較穩定的連結組，並確保播放邏輯為 V7.24 穩定版
+        // V7.32: 簡化音樂列表，僅保留幾個測試後較穩定的
         const BGM_PLAYLIST = [
-            // 嘗試使用較短的連結，減少解析問題
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby_full.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BCBGM%20-%20%E9%81%B8%E8%A7%92%E7%95%AB%E9%9D%A2.mp3', 
             'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Final.mp3',
-             // 其他
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%B9%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E3%80%8C%E3%83%AC%E3%83%87%E3%82%A3%E3%83%BB%E3%83%95%E3%82%A1%E3%82%A6%E3%83%AD%E3%80%8D-%20%E3%82%A8%E3%83%96%E3%83%AA%E3%83%B3%E3%81%AE%E5%8D%88%E5%BE%8C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3'
         ];
 
 
@@ -362,11 +354,11 @@
 
 
         /**
-         * V7.31 音樂播放器初始化函數 (使用 V7.24 穩定邏輯 + 增加載入防護)
+         * V7.32 音樂播放器初始化函數 (移除首曲自動載入)
          */
         function initMusicPlayer() { 
             currentTrackIndex = 0; 
-            bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
+            // V7.32: 首次載入時不設定 src，等待使用者點擊播放按鈕
             
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? 
@@ -378,7 +370,7 @@
             const playNextTrack = (wasPlaying) => {
                 currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length; 
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                bgmPlayer.load(); 
+                bgmPlayer.load(); // 強制載入新曲目
                 
                 if (wasPlaying) {
                     bgmPlayer.play().then(() => {
@@ -391,18 +383,22 @@
                     updatePlayIcon(false);
                 }
             };
-
+            
             // 處理 explicit Play/Pause click
             playBtn.addEventListener('click', () => {
-                if (bgmPlayer.paused) {
-                    // V7.31: 播放前強制載入，確保 source 準備就緒
-                    bgmPlayer.load(); 
+                if (bgmPlayer.paused || bgmPlayer.src === '') {
+                    // V7.32 關鍵修正: 如果是第一次點擊，或者之前被暫停
+                    if(bgmPlayer.src === '') {
+                        bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; // 載入第一首歌
+                    }
+                    bgmPlayer.load(); // 確保 source 準備就緒
+                    
                     bgmPlayer.play().then(() => {
                         updatePlayIcon(true);
                     }).catch(e => {
                         console.error("Play button failed:", e);
-                        // V7.31: 更明確的提示，指導使用者解除 Autoplay 限制
-                        alert("音樂無法播放 (瀏覽器限制)。請先在頁面任意處點擊一下，再按播放鍵。");
+                        // V7.32: 提醒使用者，但這應該很少發生了
+                        alert("音樂無法播放 (瀏覽器限制)。請確保您已在頁面任意處互動過。");
                         updatePlayIcon(false);
                     });
                 } else {
@@ -414,6 +410,9 @@
             // 處理 Next button click 
             nextBtn.addEventListener('click', () => {
                 const wasPlaying = !bgmPlayer.paused; // 記錄切換前是否正在播放
+                if (bgmPlayer.src === '') { // 如果還沒開始播過
+                    bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
+                }
                 playNextTrack(wasPlaying);
             });
 
@@ -426,7 +425,19 @@
             updatePlayIcon(false);
         }
 
-
+        /**
+         * V7.32: 新增 UI 修正函數，強制捲動到焦點元素 (解決鍵盤遮蔽問題)
+         */
+        function handleInputFocus(event) {
+            const target = event.target;
+            if (target.closest('#page-memory')) {
+                // 給瀏覽器一點時間讓鍵盤彈出
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300); 
+            }
+        }
+        
         /**
          * 頁面切換函數
          */
@@ -608,7 +619,7 @@
                                     ` : ''}
 
                                     ${phone ? `
-                                        <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold simple-interact hover:bg-[#3d2a3a] transition-colors mt-2">
+                                        <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold tracking-widest simple-interact hover:bg-[#3d2a3a] transition-colors mt-2">
                                             <i class="fas fa-phone-alt mr-2"></i>撥打電話：${phone}
                                         </a>
                                     ` : ''}
@@ -725,11 +736,17 @@
             });
         }
 
-        // --- RENDER 3: 記憶碎片 (V7.31: 手機鍵盤遮蔽修正) ---
+        // --- RENDER 3: 記憶碎片 (V7.32: 新增捲動事件處理) ---
         function renderMemoryFragment(forceReload = false) {
             const container = document.getElementById('page-memory');
             
             if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
+                // 如果不是強制重載，且內容已存在，則直接返回
+                // V7.32: 增加 Input Focus 監聽器
+                 document.querySelectorAll('#page-memory .fragment-input').forEach(input => {
+                    input.removeEventListener('focus', handleInputFocus); // 避免重複綁定
+                    input.addEventListener('focus', handleInputFocus);
+                });
                 return;
             }
 
@@ -796,9 +813,20 @@
                 </div>
                 <div id="ledger-list" class="space-y-2 pb-32"></div>
             `;
+            
+            // V7.32: 延遲綁定事件監聽器，確保元素已在 DOM 中
             setTimeout(() => {
                 renderLedgerList(ledger);
                 renderChart(expenseChartData); // 傳入只包含支出的資料
+                
+                // V7.32 關鍵修正：綁定焦點事件處理
+                document.querySelectorAll('#page-memory .fragment-input').forEach(input => {
+                    // 移除舊的監聽器，避免重複
+                    input.removeEventListener('focus', handleInputFocus); 
+                    // 綁定新的監聽器
+                    input.addEventListener('focus', handleInputFocus);
+                });
+
             }, 0);
         }
 
@@ -927,6 +955,11 @@
             initMusicPlayer();
             // 首次載入時強制渲染推演任務頁
             renderSchedule(true); 
+            
+            // V7.32: 預先檢查並綁定記憶碎片頁面的事件監聽器，確保如果直接進入該頁面也能立即生效
+            document.querySelectorAll('#page-memory .fragment-input').forEach(input => {
+                input.addEventListener('focus', handleInputFocus);
+            });
         };
 
     </script>
