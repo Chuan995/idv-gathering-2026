@@ -9,7 +9,7 @@
     <link rel="icon" href="https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main/bird.jpg">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+TC:wght=300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,7 +18,7 @@
         :root {
             --bg-color: #0f1014;
             --text-gold: #c5a059;
-            --text-brown: #4a3b2a; 
+            --text-brown: #4a3b2a; /* 羊皮紙上的深褐色字 */
             --border-gold: #856d3a;
             --card-dark-bg: rgba(20, 20, 20, 0.95);
             /* 羊皮紙紋理 */
@@ -46,10 +46,10 @@
             backdrop-filter: blur(5px);
             z-index: 100;
             border-bottom: 1px solid #333;
-            height: 65px; 
+            height: 65px; /* 稍微增高以容納日期 */
             display: flex;
-            justify-content: center; 
-            align-items: center;     
+            justify-content: center; /* 水平置中 */
+            align-items: center;     /* 垂直置中 */
             flex-direction: column;
         }
         
@@ -63,14 +63,14 @@
             align-items: center;
             gap: 8px;
         }
+        /* V7.17/V7.19: 確保文字隱藏 */
         #now-playing-info { display: none !important; } 
         
         #main-container {
             padding-top: 75px;
-            /* V7.24 固定底部導航的 padding */
-            padding-bottom: 70px; 
+            padding-bottom: 80px;
             min-height: 100vh;
-            max-width: 600px; 
+            max-width: 600px; /* 限制寬度以保持手機版面外觀 */
             margin: 0 auto;
         }
 
@@ -79,531 +79,791 @@
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* V7.24 底部導航列樣式 */
-        #nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            max-width: 600px; /* 限制寬度與主內容區一致 */
-            margin: 0 auto;
-            background: rgba(15, 16, 20, 0.98);
-            backdrop-filter: blur(8px);
-            border-top: 1px solid #333;
-            z-index: 100;
+        /* --- 通用深色卡片 (推演任務 & 記憶碎片) --- */
+        .dark-card {
+            background: var(--card-dark-bg);
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border-radius: 4px;
         }
-        .nav-item {
-            cursor: pointer;
-            transition: color 0.2s;
+        .dark-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--text-gold), transparent);
+            opacity: 0.5;
         }
-        .nav-item.active {
+
+        /* --- 羊皮紙風格 (莊園日誌專用) --- */
+        .parchment-style {
+            background-color: #e3d5b8; /* 羊皮紙底色 */
+            background-image: var(--paper-texture);
+            border: 2px solid #5c4033;
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(66, 49, 29, 0.2), 2px 2px 5px rgba(0,0,0,0.5);
+            color: var(--text-brown);
+            position: relative;
+            margin-bottom: 12px;
+            padding: 10px;
+        }
+        /* 破損/折角裝飾 */
+        .parchment-style::after {
+            content: '';
+            position: absolute;
+            top: -2px; right: -2px;
+            border-top: 10px solid #0f1014;
+            border-left: 10px solid transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* --- 資訊小卡 (風格統一) --- */
+        .info-card-style {
+            background: rgba(40, 30, 20, 0.6);
+            border: 1px solid var(--border-gold);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            color: #ccc;
+        }
+        .info-card-title {
             color: var(--text-gold);
-            border-top: 2px solid var(--text-gold);
+            font-size: 0.75rem;
+            border-bottom: 1px solid #444;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+        }
+
+        /* 記憶碎片輸入框 */
+        .fragment-input {
+            background-color: #1a1a1a;
+            border: 1px solid #555;
+            color: #d1d1d1;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .fragment-input:focus { border-color: var(--text-gold); outline: none; }
+        select.fragment-input option { background-color: #1a1a1a; color: #d1d1d1; }
+
+        /* Loader */
+        .loader {
+            border: 3px solid #333;
+            border-top: 3px solid var(--text-gold);
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* 邀按鈕 */
+        .invite-btn { 
+            background-color: #c5a059; 
+            color: #1a1a1a; 
+            border: 1px solid #7c6441; 
+            font-size: 10px; 
+            padding: 1px 6px; 
+            font-weight: bold; 
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
+            min-width: 20px; 
+            text-align: center;
+            margin-left: auto; /* 靠右對齊 */
+        }
+        .rank-icon-img { width: 18px; height: 18px; object-fit: contain; margin: 0 1px; filter: drop-shadow(0 0 1px black); }
+        .currency-icon { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 2px; display: inline-block; }
+        
+        /* 羅馬數字縮小 */
+        .rank-sub {
+            font-size: 0.65rem; /* 縮小字體 */
+            margin-left: 2px;
+        }
+
+        /* 底部導航 */
+        .nav-item.active { color: var(--text-gold); border-bottom: 2px solid var(--text-red); }
+        .nav-item { color: #666; transition: all 0.3s; }
+
+        /* --- 管家定位 --- */
+        .butler-container {
+            position: relative;
+            background: linear-gradient(to bottom, #2a0a0a, #0f0505); /* 深紅漸層背景 */
+            border: 1px solid #8a0a0a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .butler-img {
+            position: absolute;
+            bottom: 0;
+            right: -5px;
+            width: 100px; /* 調整大小 */
+            opacity: 0.9;
+            pointer-events: none;
+            z-index: 5;
+            filter: drop-shadow(-2px 0 5px rgba(0,0,0,0.5));
         }
     </style>
 </head>
-<body class="p-0 m-0">
+<body>
 
     <div id="header-bar">
-        <h1 class="text-xl text-white gothic-font tracking-wider font-bold">2026 莊園聚會</h1>
-        <p id="current-date" class="text-xs mt-0.5 text-gray-400"></p>
-
-        <div id="music-controls" class="flex items-center space-x-2">
-            <audio id="bgm-player" preload="auto"></audio>
-            
-            <span id="now-playing-info" class="text-xs text-gray-500 italic hidden"></span>
-
-            <button id="next-btn" class="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded-full w-6 h-6 flex items-center justify-center transition duration-150">
-                <i class="fas fa-forward text-xs"></i>
-            </button>
-            
-            <button id="play-btn" class="bg-red-700 hover:bg-red-600 text-white p-1.5 rounded-full w-8 h-8 flex items-center justify-center transition duration-150">
-                <i class="fas fa-play text-xs pl-0.5"></i>
-            </button>
-        </div>
-    </div>
-
-    <div id="main-container" class="p-4">
-
-        <div id="page-overview" class="page-section active">
-            <h2 class="text-2xl text-center text-red-500 mb-6">歡迎來到莊園</h2>
-            
-            <div class="bg-gray-800 p-4 rounded-lg shadow-xl border-t border-red-700 mb-6">
-                <h3 class="text-lg font-bold gothic-font text-red-400 mb-2 border-b border-gray-700 pb-1">重要通知</h3>
-                <p class="text-sm text-gray-300">目前為最終版本，功能已完善。若有任何問題，請即時反饋。</p>
-            </div>
-            
-            <div class="bg-gray-800 p-4 rounded-lg shadow-xl border-t border-yellow-500">
-                <h3 class="text-lg font-bold gothic-font text-yellow-400 mb-3 border-b border-gray-700 pb-1">記憶碎片：收支概覽</h3>
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-gray-400">總收入 (💰)：</span>
-                    <span id="overview-income" class="font-bold text-green-400">讀取中...</span>
-                </div>
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-gray-400">總支出 (💸)：</span>
-                    <span id="overview-expense" class="font-bold text-red-400">讀取中...</span>
-                </div>
-                <div class="flex justify-between text-base mt-3 border-t border-gray-700 pt-3">
-                    <span class="font-bold text-white">收支結餘 (✨)：</span>
-                    <span id="overview-balance" class="font-extrabold text-lg text-white">讀取中...</span>
-                </div>
-            </div>
-        </div>
-
-        <div id="page-expenses" class="page-section">
-            <h2 class="text-2xl text-center text-yellow-500 mb-6 gothic-font">記憶碎片：費用總覽</h2>
-
-            <div id="data-status" class="text-center text-sm mb-4">
-                <i class="fas fa-spinner fa-spin text-yellow-500"></i> <span class="text-gray-400">正在同步莊園記錄...</span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 mb-6 text-center">
-                <div class="bg-green-800/50 p-3 rounded-lg border border-green-700">
-                    <div class="text-xs text-green-300">總收入</div>
-                    <div id="total-income" class="text-xl font-bold text-green-400 mt-1">N/A</div>
-                </div>
-                <div class="bg-red-800/50 p-3 rounded-lg border border-red-700">
-                    <div class="text-xs text-red-300">總支出</div>
-                    <div id="total-expense" class="text-xl font-bold text-red-400 mt-1">N/A</div>
-                </div>
-            </div>
-
-            <div class="bg-gray-700/70 p-4 rounded-lg shadow-inner mb-6 border-l-4 border-yellow-500">
-                <div class="text-sm font-semibold text-gray-300 mb-1">當前結餘</div>
-                <div id="current-balance" class="text-2xl font-extrabold text-yellow-400">N/A</div>
-            </div>
-
-            <div class="bg-gray-800 p-4 rounded-lg shadow-xl mb-6">
-                <h3 class="text-lg font-bold text-yellow-500 mb-3 border-b border-gray-700 pb-2">支出類別分佈</h3>
-                <div class="relative h-64">
-                    <canvas id="expenseChart"></canvas>
-                </div>
-            </div>
-
-            <div id="expense-details-container" class="space-y-4">
-                <h3 class="text-lg font-bold text-yellow-500 mb-3 border-b border-gray-700 pb-2">詳細記錄</h3>
-                </div>
-        </div>
-
-        <div id="page-itinerary" class="page-section">
-            <h2 class="text-2xl text-center text-blue-500 mb-6 gothic-font">歸途之路：行程規劃</h2>
-            <div class="bg-gray-800 p-4 rounded-lg shadow-xl">
-                <h3 class="text-xl font-bold text-blue-400 mb-3 border-b border-gray-700 pb-1">行程項目</h3>
-                <ul class="space-y-4">
-                    <li class="p-3 bg-gray-700 rounded-md">
-                        <div class="font-bold text-white">啟程日期</div>
-                        <div class="text-sm text-gray-300">2026/01/29 (四)</div>
-                    </li>
-                    <li class="p-3 bg-gray-700 rounded-md">
-                        <div class="font-bold text-white">地點</div>
-                        <div class="text-sm text-gray-300">日本東京</div>
-                    </li>
-                    <li class="p-3 bg-gray-700 rounded-md">
-                        <div class="font-bold text-white">天數</div>
-                        <div class="text-sm text-gray-300">五天四夜</div>
-                    </li>
-                    <li class="p-3 bg-gray-700 rounded-md">
-                        <div class="font-bold text-white">機票</div>
-                        <div class="text-sm text-gray-300">待確認，將使用星宇航空</div>
-                    </li>
-                    <li class="p-3 bg-gray-700 rounded-md">
-                        <div class="font-bold text-white">住宿</div>
-                        <div class="text-sm text-gray-300">待確認，需靠近地鐵站</div>
-                    </li>
-                </ul>
-                <div class="mt-4 p-3 bg-blue-900/50 border border-blue-600 rounded-md">
-                    <div class="font-bold text-blue-300">重要備註</div>
-                    <div class="text-sm text-gray-200">請注意護照有效期限，並隨時更新行程資料。</div>
-                </div>
-            </div>
-        </div>
+        <h1 class="text-xl font-bold tracking-[0.2em] text-[#c5a059] text-shadow-md">IDENTITY V</h1>
+        <div class="text-[10px] text-gray-500 tracking-widest font-serif mt-0.5">2026.02.28</div>
         
+        <div id="music-controls">
+             <div id="now-playing-info"></div>
+             <button id="play-btn" class="w-8 h-8 rounded-full border border-[#c5a059] flex items-center justify-center text-[#c5a059] active:bg-[#c5a059] active:text-black transition-colors">
+                <i class="fas fa-play text-xs pl-0.5"></i>
+             </button>
+             <button id="next-btn" class="text-gray-400 active:text-[#c5a059] transition-colors ml-1" title="下一首">
+                <i class="fas fa-step-forward text-sm"></i>
+             </button>
+        </div>
+        <audio id="bgm-player" preload="auto"></audio> 
     </div>
 
-    <div id="nav-bar" class="flex justify-around items-center h-16 shadow-lg">
-        <div class="nav-item active flex flex-col items-center text-xs text-gray-400 pt-2" data-page="overview">
-            <i class="fas fa-home text-lg mb-1"></i>
-            <span>概覽</span>
+    <div id="main-container" class="p-4 relative">
+        
+        <div id="page-schedule" class="page-section active space-y-5">
+            <div class="loader"></div>
+            <p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>
         </div>
-        <div class="nav-item flex flex-col items-center text-xs text-gray-400 pt-2" data-page="expenses">
-            <i class="fas fa-coins text-lg mb-1"></i>
-            <span>費用</span>
+
+        <div id="page-journal" class="page-section space-y-5">
+            <div class="loader"></div>
         </div>
-        <div class="nav-item flex flex-col items-center text-xs text-gray-400 pt-2" data-page="itinerary">
-            <i class="fas fa-map-marked-alt text-lg mb-1"></i>
-            <span>行程</span>
-        </div>
+
+        <div id="page-memory" class="page-section space-y-5">
+             </div>
+
     </div>
 
+    <nav class="fixed bottom-0 w-full bg-[#141414] border-t border-[#333] flex justify-around py-3 z-50 pb-safe">
+        <button onclick="switchPage('schedule')" class="nav-item active flex flex-col items-center w-1/3">
+            <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+            <span class="text-[10px]">推演任務</span>
+        </button>
+        <button onclick="switchPage('journal')" class="nav-item flex flex-col items-center w-1/3">
+            <i class="fas fa-book-open text-xl mb-1"></i>
+            <span class="text-[10px]">莊園日誌</span>
+        </button>
+        <button onclick="switchPage('memory')" class="nav-item flex flex-col items-center w-1/3">
+            <i class="fas fa-calculator text-xl mb-1"></i>
+            <span class="text-[10px]">記憶碎片</span>
+        </button>
+    </nav>
 
     <script>
-        // ----------------------------------------------------
-        // 全局變量
-        // ----------------------------------------------------
-        const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTE2k-WvY_Q0j9QjR54tU_rK0jL8qG9wV_M-D-3K_V0Y8fK9T5uUj_C_O/pub?gid=0&single=true&output=csv';
-        const CATEGORIES = {
-            '機票費用': '✈️', '住宿費用': '🏨', '交通費': '🚆', '飲食費': '🍔',
-            '娛樂/活動費': '🎭', '購物/紀念品費': '🛍️', '保險/簽證費': '🛡️',
-            '雜項支出': '💡', '個人收入': '💰', '團費分攤': '🤝'
+        // ==========================================
+        //  CONFIG: 資源設定
+        // ==========================================
+        const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?single=true&output=csv";
+        const URL_SCHEDULE = BASE_CSV_URL + "&gid=1831823101";
+        const URL_JOURNAL = BASE_CSV_URL + "&gid=1624206298";
+
+        // GitHub Raw Links
+        const CDN_BASE = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main';
+
+        const IMG_TEAM_ICON = CDN_BASE + '/Identity_V_logo.png';
+        const IMG_BUTLER = CDN_BASE + '/%E5%8F%A4%E5%A0%A1%E7%AE%A1%E5%AE%B6.png'; // 古堡管家
+        const ICON_ECHO = CDN_BASE + '/%E5%9B%9E%E8%81%B2.png'; // 回聲
+        const ICON_FRAGMENT = CDN_BASE + '/%E7%A2%8E%E7%89%87.png'; // 碎片
+
+        const RANK_ICONS = {
+            'S1': CDN_BASE + '/%E6%B1%82%E7%94%9F%E4%B8%80%E9%9A%8E.png',
+            'S2': CDN_BASE + '/%E6%B1%82%E7%94%9F%E4%BA%8C%E9%9A%8E.png',
+            'S3': CDN_BASE + '/%E6%B1%82%E7%94%9F%E4%B8%89%E9%9A%8E.png',
+            'S4': CDN_BASE + '/%E6%B1%82%E7%94%9F%E5%9B%9B%E9%9A%8E.png',
+            'S5': CDN_BASE + '/%E6%B1%82%E7%94%9F%E4%BA%94%E9%9A%8E.png',
+            'H1': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E4%B8%80%E9%9A%8E.png',
+            'H2': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E4%BA%8C%E9%9A%8E.png',
+            'H3': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E4%B8%89%E9%9A%8E.png',
+            'H4': CDN_BASE + '/%E7%9B%A3%E7%AE%A1%E5%9B%9B%E9%9A%8E.png'
         };
         
-        let expenseChartInstance = null; // Chart.js 實例
-        
-        // ----------------------------------------------------
-        // 頁面切換邏輯 V7.24
-        // ----------------------------------------------------
-        function switchPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(`page-${pageId}`).classList.add('active');
-
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.querySelector(`.nav-item[data-page="${pageId}"]`).classList.add('active');
-            
-            if (pageId === 'expenses') {
-                // 當切換到費用頁面時，重新渲染圖表以確保正確顯示
-                renderExpenseChart(window.processedData.expenseSummary);
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            // 初始化頁面切換
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    switchPage(item.getAttribute('data-page'));
-                });
-            });
-
-            // 初始載入數據
-            fetchExpenseData();
-            updateCurrentDate();
-        });
-
-
-        // ----------------------------------------------------
-        // 資料處理與渲染 (記憶碎片)
-        // ----------------------------------------------------
-
-        function updateCurrentDate() {
-            const dateElement = document.getElementById('current-date');
-            const now = new Date();
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric', 
-                weekday: 'short' 
-            };
-            // 格式化為 "週三, 2025年 十二月 10日"
-            const dateString = now.toLocaleDateString('zh-TW', options).replace(/ /g, '');
-            dateElement.textContent = dateString;
-        }
-
-
-        /**
-         * 處理和計算費用數據
-         * @param {Array} data - 從 CSV 轉換來的數據陣列
-         * @returns {Object} 包含總結數據和分類摘要
-         */
-        function processData(data) {
-            let totalIncome = 0;
-            let totalExpense = 0;
-            const expenseSummary = {}; // 儲存非收入類別的支出總額
-
-            // 初始化所有分類，確保圖表上會顯示
-            Object.keys(CATEGORIES).forEach(category => {
-                if (category !== '個人收入' && category !== '團費分攤') {
-                    expenseSummary[category] = 0;
-                }
-            });
-
-            data.forEach(item => {
-                const amount = parseFloat(item['金額']);
-                const category = item['類別'].trim();
-                
-                if (isNaN(amount) || !category) return;
-
-                if (category === '個人收入' || category === '團費分攤') {
-                    totalIncome += amount;
-                } else if (category in expenseSummary) {
-                    // 屬於支出類別
-                    totalExpense += amount;
-                    expenseSummary[category] += amount;
-                } else {
-                    // 處理數據中可能出現的未知支出類別 (作為雜項處理或忽略，這裡選擇作為支出計入)
-                    if (amount > 0) {
-                        totalExpense += amount;
-                        // 暫時不計入 expenseSummary，除非你想新增到 CATEGORIES
-                    }
-                }
-            });
-            
-            // 過濾掉金額為 0 的支出類別，讓圖表更簡潔
-            const filteredExpenseSummary = Object.fromEntries(
-                Object.entries(expenseSummary).filter(([key, value]) => value > 0)
-            );
-
-            return {
-                totalIncome: totalIncome,
-                totalExpense: totalExpense,
-                currentBalance: totalIncome - totalExpense,
-                expenseSummary: filteredExpenseSummary,
-                detailedRecords: data 
-            };
-        }
-
-        /**
-         * 渲染費用總覽頁面上的數據
-         */
-        function renderExpensePage(data) {
-            const balance = data.currentBalance;
-            const balanceClass = balance >= 0 ? 'text-green-400' : 'text-red-400';
-
-            // 總覽頁面
-            document.getElementById('overview-income').textContent = `$${data.totalIncome.toLocaleString()}`;
-            document.getElementById('overview-expense').textContent = `$${data.totalExpense.toLocaleString()}`;
-            document.getElementById('overview-balance').textContent = `$${balance.toLocaleString()}`;
-            document.getElementById('overview-balance').className = `font-extrabold text-lg ${balanceClass}`;
-
-
-            // 費用頁面
-            document.getElementById('data-status').innerHTML = '<i class="fas fa-check-circle text-green-500"></i> <span class="text-gray-400">莊園記錄同步完成。</span>';
-            document.getElementById('total-income').textContent = `$${data.totalIncome.toLocaleString()}`;
-            document.getElementById('total-expense').textContent = `$${data.totalExpense.toLocaleString()}`;
-            document.getElementById('current-balance').textContent = `$${balance.toLocaleString()}`;
-            document.getElementById('current-balance').className = `text-2xl font-extrabold ${balanceClass}`;
-
-            // 渲染詳細記錄
-            renderDetailedRecords(data.detailedRecords);
-            
-            // 渲染圖表
-            renderExpenseChart(data.expenseSummary);
-        }
-
-        /**
-         * 渲染詳細記錄列表
-         */
-        function renderDetailedRecords(records) {
-            const container = document.getElementById('expense-details-container');
-            // 清空舊內容，只保留標題
-            container.querySelectorAll('.expense-item').forEach(e => e.remove()); 
-
-            // 反轉陣列，讓最新的記錄顯示在最前面
-            const reversedRecords = [...records].reverse(); 
-
-            reversedRecords.forEach(item => {
-                const category = item['類別'].trim();
-                const amount = parseFloat(item['金額']);
-                const icon = CATEGORIES[category] || '❓';
-                
-                if (isNaN(amount) || !category) return;
-                
-                const isIncome = category === '個人收入' || category === '團費分攤';
-                const sign = isIncome ? '+' : '-';
-                const amountColor = isIncome ? 'text-green-400' : 'text-red-400';
-                const bgColor = isIncome ? 'bg-green-900/40' : 'bg-red-900/40';
-
-                const html = `
-                    <div class="expense-item p-3 ${bgColor} rounded-lg flex justify-between items-center transition duration-150 ease-in-out hover:shadow-lg hover:border-l-4 hover:border-yellow-500">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-2xl">${icon}</span>
-                            <div>
-                                <div class="font-bold text-gray-200">${item['備註'] || '無備註'}</div>
-                                <div class="text-xs text-gray-400">${item['日期']} | ${category}</div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="font-bold text-sm ${amountColor}">${sign} $${Math.abs(amount).toLocaleString()}</div>
-                            <div class="text-xs text-gray-500">${item['狀態'] || ''}</div>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
-            });
-        }
-        
-        /**
-         * 渲染費用分佈圓餅圖
-         */
-        function renderExpenseChart(summary) {
-            const ctx = document.getElementById('expenseChart').getContext('2d');
-
-            if (expenseChartInstance) {
-                expenseChartInstance.destroy();
-            }
-
-            const labels = Object.keys(summary);
-            const data = Object.values(summary);
-
-            // 顏色生成器 (提供固定的、與第五人格風格相符的暗色調顏色)
-            const backgroundColors = [
-                '#a0522d', '#b03a2e', '#943126', '#1a5276', '#1f618d', 
-                '#2874a6', '#6c3483', '#8e44ad', '#27ae60', '#2ecc71'
-            ];
-            
-            expenseChartInstance = new Chart(ctx, {
-                type: 'doughnut', // 使用環狀圖
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: backgroundColors.slice(0, labels.length),
-                        borderColor: '#222',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#d1d1d1',
-                                font: {
-                                    family: 'Noto Sans TC',
-                                    size: 10 
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1) + '%';
-                                    return `${label}: $${value.toLocaleString()} (${percentage})`;
-                                }
-                            }
-                        }
-                    },
-                    cutout: '60%', // 設置環狀圖的中心孔徑
-                }
-            });
-        }
-
-        /**
-         * 獲取 CSV 數據
-         */
-        function fetchExpenseData() {
-            Papa.parse(DATA_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data.length > 0) {
-                        window.processedData = processData(results.data);
-                        renderExpensePage(window.processedData);
-                    } else {
-                        document.getElementById('data-status').innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i> <span class="text-gray-400">數據為空，請檢查來源。</span>';
-                    }
-                },
-                error: function(error) {
-                    console.error("CSV 解析錯誤:", error);
-                    document.getElementById('data-status').innerHTML = '<i class="fas fa-times-circle text-red-500"></i> <span class="text-gray-400">數據同步失敗。</span>';
-                }
-            });
-        }
-
-        // ----------------------------------------------------
-        // 音樂播放器邏輯 (已修復：直接從第 1 首開始)
-        // ----------------------------------------------------
-
-        // 音樂列表：已移除 'Lobby_full.mp3'，現在的第一首是 'Lobby.mp3'
+        // V7.24 更新: 已替換第 1, 6, 8, 9 首音樂連結
         const BGM_PLAYLIST = [
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/main/Lobby.mp3', // 現在的第一首
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', 
-            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Identity%20V%20OST%20Shadow.mp3',
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E5%BE%90%E6%A2%A6%E5%9C%93%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC.mp3', // [0] (新: 徐夢圓 - 第五人格)
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/Lobby.mp3', // [1]
+            CDN_BASE + '/Identity%20V%20OST%20Time%20of%20Reunion%20%5B%20About%20Me%20%5D%20(Week%201)%20-%20Zaykel%20(youtube).mp3', // [2]
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%85%AC%E5%BC%8F%E3%82%B5%E3%82%A4%E3%83%88%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90Official%20website%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', // [3]
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E7%9B%9B%E5%A4%8F%E3%81%AE%E8%A8%98%E6%86%B6%E3%81%AE%E6%97%85%E3%80%91%E3%80%90IdentityV%E3%80%91BGM%E3%80%90Midsummer%20Reminiscing%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', // [4]
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BCBGM%20-%20%E9%81%B8%E8%A7%92%E7%95%AB%E9%9D%A2.mp3', // [5] (新: 選角畫面)
+            CDN_BASE + '/%E3%80%90%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91BGM%E3%80%90%E5%AF%BE%E6%88%A6%E7%B5%82%E4%BA%86%E3%80%91_%E3%80%90IdentityV%E3%80%91%20BGM%E3%80%90End%20of%20the%20match%E3%80%91%20-%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%EF%BC%8FIdentityV%20%E4%BD%9C%E6%A5%AD%E7%94%A8BGM%20(youtube).mp3', // [6]
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E3%80%8C%E3%83%AC%E3%83%87%E3%82%A3%E3%83%BB%E3%83%95%E3%82%A1%E3%82%A6%E3%83%AD%E3%80%8D-%20%E3%82%A8%E3%83%96%E3%83%AA%E3%83%B3%E3%81%AE%E5%8D%88%E5%BE%8C%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3', // [7] (新: 紅蝶-午后)
+            'https://github.com/Chuan995/idv-gathering-2026/raw/refs/heads/main/9%E5%82%AC%E5%85%B5-%E6%87%B7%E9%84%89%E7%9A%84%E5%A4%9C.mp3', // [8] (新: 催兵-懷鄉的夜)
+            CDN_BASE + '/%E3%80%90%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E6%9B%B2%E3%80%91%E9%87%8E%E4%BA%BA%20-%20%E3%83%A2%E3%82%A6%E3%83%AD%E3%81%AE%E8%8D%92%E9%87%8E%E3%80%90IdentityV%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%91%20-%20%E3%80%8EIdentityV%20%E7%AC%AC%E4%BA%94%E4%BA%BA%E6%A0%BC%E3%80%8F%E5%85%AC%E5%BC%8F%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB%20(youtube).mp3' // [9]
         ];
 
-        let bgmPlayer;
-        let playBtn;
-        let nextBtn;
+
+        const TEAM_MEMBERS_DATA = { 
+            '女神': { s: 'S4', h: 'H1', s_sub: 'III', h_sub: 'II' },
+            '大神': { s: 'S4', h: 'H2', s_sub: 'III', h_sub: 'I' },
+            'ㄎㄎ': { s: 'S1', h: 'H1', s_sub: 'III', h_sub: 'III' },
+            '紅茶': { s: 'S5', h: 'H3', s_sub: 'I', h_sub: 'III' },
+            '鳥鳥': { s: 'S2', h: 'H2', s_sub: 'I', h_sub: 'I' },
+            '寧寧': { s: 'S3', h: 'H2', s_sub: 'III', h_sub: 'I' },
+            '阿洛': { s: 'S5', h: 'H2', s_sub: 'II', h_sub: 'I' },
+            '小姐姐': { s: 'S2', h: 'H1', s_sub: 'I', h_sub: 'III' },
+            '青雨': { s: 'S2', h: 'H2', s_sub: 'I', h_sub: 'I' },
+            '辣醬': { s: 'S3', h: 'H2', s_sub: 'V', h_sub: 'I' }
+        };
+        const TEAM_ANNOUNCEMENTS = [ 
+            '🐦 攜帶現金',
+            '🐦 雨具、保暖衣物、穿襪子',
+            '🐦 別穿裙子',
+            '🐦 有任何變動需盡早提出',
+            '🐦 攜帶殿堂小黃卡'
+        ];
+        
+        const TAIPEI_WEATHER = { 
+            location: '台北市大同區',
+            temp: '22°C',
+            feels: '24°C',
+            humidity: '75%',
+            condition: '多雲時晴',
+            icon: 'fa-cloud-sun'
+        };
+
+        // ==========================================
+        //  APP LOGIC
+        // ==========================================
+
         let currentTrackIndex = 0;
+        const bgmPlayer = document.getElementById('bgm-player');
+        const playBtn = document.getElementById('play-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const nowPlayingInfo = document.getElementById('now-playing-info');
 
+
+        /**
+         * V7.21 音樂播放器初始化函數
+         * 1. 確保 Next 後無縫播放。
+         * 2. 新增 Error 監聽器，自動跳過無效的音樂檔案。
+         * 3. 移除 HTML 中的 loop 屬性，確保列表播放循環。
+         */
         function initMusicPlayer() { 
-            bgmPlayer = document.getElementById('bgm-player');
-            playBtn = document.getElementById('play-btn');
-            nextBtn = document.getElementById('next-btn');
             currentTrackIndex = 0; 
-
+            bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex]; 
+            
             const updatePlayIcon = (isPlaying) => {
                 playBtn.innerHTML = isPlaying ? 
                     '<i class="fas fa-pause text-xs"></i>' : 
                     '<i class="fas fa-play text-xs pl-0.5"></i>';
             };
 
-            const setTrackAndPlay = (index, attemptPlay) => {
-                // 確保索引在範圍內循環
-                currentTrackIndex = index % BGM_PLAYLIST.length;
-                // 處理負數索引 (例如從 0 按上一首)
-                if (currentTrackIndex < 0) {
-                    currentTrackIndex = BGM_PLAYLIST.length - 1;
-                }
-                
+            // 核心功能：切換到下一首曲目
+            const playNextTrack = (wasPlaying) => {
+                currentTrackIndex = (currentTrackIndex + 1) % BGM_PLAYLIST.length;
                 bgmPlayer.src = BGM_PLAYLIST[currentTrackIndex];
-                bgmPlayer.load();
+                bgmPlayer.load(); 
                 
-                if (attemptPlay) {
+                if (wasPlaying) {
                     bgmPlayer.play().then(() => {
-                        updatePlayIcon(true);
+                        updatePlayIcon(true); 
                     }).catch(e => {
-                        console.warn(`[Track ${currentTrackIndex + 1}] Autoplay/Play failed:`, e);
-                        // 如果播放失敗，可能是瀏覽器限制或音源問題，保持暫停圖標
+                        console.error("Autoplay failed:", e);
+                        // 如果自動播放失敗 (通常是瀏覽器限制)，不自動跳轉，但更新為暫停圖標
                         updatePlayIcon(false); 
                     });
                 } else {
                     updatePlayIcon(false);
                 }
             };
-            
-            // 播放按鈕: 修正為單純的播放/暫停開關 (直接從目前的曲目開始)
+
+            // 處理 explicit Play/Pause click
             playBtn.addEventListener('click', () => {
                 if (bgmPlayer.paused) {
-                    // 如果是初始狀態，先設置第一首再播放
-                    if (bgmPlayer.src === '' || bgmPlayer.src !== BGM_PLAYLIST[currentTrackIndex]) {
-                         setTrackAndPlay(currentTrackIndex, true); 
-                    } else {
-                         // 嘗試播放當前曲目
-                         bgmPlayer.play().then(() => updatePlayIcon(true)).catch(() => updatePlayIcon(false));
-                    }
+                    bgmPlayer.play().then(() => {
+                        updatePlayIcon(true);
+                    }).catch(e => {
+                        console.error("Play button failed:", e);
+                        alert("無法播放音樂。請確認您的裝置沒有靜音，或瀏覽器允許媒體播放。");
+                        updatePlayIcon(false);
+                    });
                 } else {
-                    // 暫停
                     bgmPlayer.pause();
                     updatePlayIcon(false);
                 }
             });
 
-            // 下一首按鈕
+            // 處理 Next button click (會檢查播放狀態並嘗試無縫播放)
             nextBtn.addEventListener('click', () => {
-                const wasPlaying = !bgmPlayer.paused;
-                setTrackAndPlay(currentTrackIndex + 1, wasPlaying); 
+                const wasPlaying = !bgmPlayer.paused; // 記錄切換前是否正在播放
+                playNextTrack(wasPlaying);
             });
 
-            // 處理曲目正常結束事件 (自動播放下一首)
+            // 處理曲目結束事件 (自動播放下一首)
             bgmPlayer.addEventListener('ended', () => {
-                setTrackAndPlay(currentTrackIndex + 1, true);
+                // ended 時，視為 'wasPlaying' 為 true
+                playNextTrack(true);
             });
-            
-            // *** 強韌錯誤處理機制 ***
-            // 當瀏覽器在載入或播放時報告錯誤 (例如：音源無效或格式不支援)，強制跳到下一首
+
+            // V7.20 新增：處理音樂載入或播放錯誤 (自動跳過無效曲目)
             bgmPlayer.addEventListener('error', (e) => {
-                 console.error(`[Track ${currentTrackIndex + 1} Error] Code: ${bgmPlayer.error.code}. Skipping to next track.`, e);
-                 // 立即跳到下一首並嘗試播放
-                 setTrackAndPlay(currentTrackIndex + 1, !bgmPlayer.paused); 
+                // 檢查是否為媒體錯誤
+                if (bgmPlayer.error && bgmPlayer.error.code !== 0) {
+                    const errorMsg = `音樂播放錯誤 (代碼: ${bgmPlayer.error.code})，跳過當前曲目 ${currentTrackIndex}。`;
+                    console.error(errorMsg, e);
+
+                    // 只有在嘗試播放或載入時發生錯誤，且播放器不是暫停狀態，才嘗試跳到下一首
+                    if (!bgmPlayer.paused) {
+                        // 移除 alert 以減少干擾，只在 console 報告
+                        // alert(`部分音樂連結失效，已自動跳至下一首。`);
+                    }
+                    // 無論狀態如何，都嘗試切換下一首，以擺脫這個錯誤檔案
+                    const wasPlaying = !bgmPlayer.paused;
+                    playNextTrack(wasPlaying); 
+                }
             });
 
-
-            // 初始 UI 設置：載入當前列表的第一首 (Lobby.mp3)，保持 index = 0
+            // 初始 UI 設置
             updatePlayIcon(false);
-            setTrackAndPlay(0, false);
         }
 
-        // 確保 DOM 載入後初始化音樂播放器
-        document.addEventListener('DOMContentLoaded', initMusicPlayer);
+
+        /**
+         * 修正: switchPage 恢復強制載入，解決刷新後內容不穩定的問題
+         */
+        function switchPage(pageId) { 
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`button[onclick="switchPage('${pageId}')"]`).classList.add('active');
+            
+            window.scrollTo(0, 0);
+            
+            // 每次切換到指定頁面時，強制重新渲染
+            if(pageId === 'schedule') renderSchedule(true);
+            if(pageId === 'journal') renderJournal(true);
+            if(pageId === 'memory') renderMemoryFragment();
+        }
+
+        /**
+         * 讀取 CSV 資料，並強制繞過快取
+         * @param {string} url - 原始 CSV 網址
+         * @param {function} callback - 資料處理回調函數
+         */
+        function fetchCSV(url, callback) { 
+             // 關鍵步驟：在網址後面加上一個隨機的時間戳記 (Cache Buster)
+            const cacheBusterUrl = url + '&t=' + Date.now();
+            
+            Papa.parse(cacheBusterUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    // 保留沒有空值的行
+                    const filteredData = results.data.filter(row => Object.values(row).some(val => val !== ''));
+                    callback(filteredData);
+                },
+                error: function(err) {
+                    console.error("CSV Error:", err);
+                    // 錯誤時彈出提示，防止卡住
+                    alert("資料讀取失敗，請檢查網路連線或稍後再試。");
+                }
+            });
+        }
+
+        // --- RENDER 1: 推演任務 ---
+        function renderSchedule(forceReload = false) {
+            const container = document.getElementById('page-schedule');
+            
+            // 避免重複渲染，除非是強制刷新
+            if (!forceReload && container.children.length > 2 && !container.innerHTML.includes('loader')) {
+                return;
+            }
+            
+            container.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>`; 
+
+            fetchCSV(URL_SCHEDULE, (data) => {
+                try {
+                    container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>`;
+
+                    // 戰隊區塊
+                    const teamHtml = `
+                        <div class="dark-card p-4 mb-5 border-l-4 border-[#c5a059]">
+                            <div class="flex items-start mb-3 border-b border-gray-700 pb-2">
+                                <img src="${IMG_TEAM_ICON}" class="w-12 h-12 rounded object-cover border border-[#c5a059] mr-3 opacity-90 shadow-lg" alt="Team">
+                                <div>
+                                    <h3 class="text-xs text-[#c5a059] gothic-font">戰隊名稱</h3>
+                                    <h2 class="text-xl font-bold text-white leading-tight">學術殿堂戰隊</h2>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-gray-700 pb-1">戰隊公告</h4>
+                                    <ul class="text-xs text-gray-400 space-y-1 pl-2 font-bold">
+                                        ${TEAM_ANNOUNCEMENTS.map(ann => `<li class="flex items-start text-gray-300">${ann}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-[#c5a059] mb-2 border-b border-gray-700 pb-1">戰隊成員</h4>
+                                    <div class="grid grid-cols-2 gap-x-2 gap-y-2"> 
+                                        ${Object.entries(TEAM_MEMBERS_DATA).map(([name, ranks]) => `
+                                            <div class="flex items-center text-[10px] bg-[#1a1a1a] border border-[#333] p-1 rounded">
+                                                <div class="flex items-center w-auto flex-shrink-0">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1 shadow-sm"></span>
+                                                    <span class="text-white font-bold font-serif mr-2 whitespace-nowrap">${name}</span>
+                                                </div>
+                                                <div class="flex items-center text-[11px] mr-2">
+                                                    <img src="${RANK_ICONS[ranks.s]}" class="rank-icon-img"><span class="text-[#c5a059] rank-sub">${ranks.s_sub}</span>
+                                                    <img src="${RANK_ICONS[ranks.h]}" class="rank-icon-img ml-2"><span class="text-[#c5a059] rank-sub">${ranks.h_sub}</span>
+                                                </div>
+                                                <span class="invite-btn cursor-pointer hover:opacity-80">邀</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += teamHtml;
+
+                    // 天氣區塊
+                    container.innerHTML += `
+                        <div class="dark-card p-3 mb-5 flex justify-between items-center bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t-2 border-l-2 border-[#5d4d2b]">
+                            <div class="flex items-center">
+                                <i class="fas ${TAIPEI_WEATHER.icon} text-3xl mr-3 text-gray-400"></i>
+                                <div>
+                                    <div class="text-sm text-gray-400">${TAIPEI_WEATHER.location}</div>
+                                    <div class="text-xl font-bold text-[#c5a059]">${TAIPEI_WEATHER.temp} <span class="text-xs text-gray-500">${TAIPEI_WEATHER.condition}</span></div>
+                                </div>
+                            </div>
+                            <div class="text-right text-xs text-gray-500">濕度: ${TAIPEI_WEATHER.humidity}</div>
+                        </div>
+                    `;
+
+                    // 行程列表
+                    if (!data || data.length === 0) {
+                        container.innerHTML += `<div class="text-center text-gray-500">無行程資料</div>`;
+                        return;
+                    }
+
+                    data.forEach(row => {
+                        const date = row['日期'] || '';
+                        const weekday = row['星期'] || '';
+                        const time = row['時間'] || '??:??';
+                        const location = row['地點'] || '未知地點';
+                        const type = row['類別'] || '行程';
+                        const navLink = row['Google Maps 導航連結'] || row['GOOGLE MAP連結'] || ''; 
+                        const desc = row['描述地點介紹'] || row['備註'] || ''; 
+                        const bookingInfo = row['預約資訊'] || '';
+                        const phone = row['連絡電話'] || '';
+                        const trafficInfo = row['交通資訊'] || '';
+                        const orderId = row['訂單代號'] || '';
+                        
+                        const weekdayDisplay = weekday ? `(${weekday})` : '';
+
+                        let iconClass = 'fa-map-marker-alt';
+                        if(type.includes('餐廳') || type.includes('食')) iconClass = 'fa-utensils';
+                        if(type.includes('集合')) iconClass = 'fa-flag-checkered';
+                        if(type.includes('交通')) iconClass = 'fa-subway';
+
+                        // 備註欄位的格式化邏輯 (V7.16 修正已保留)
+                        let formattedDesc = desc;
+                        if (formattedDesc) {
+                            formattedDesc = formattedDesc.replace(/【/g, '\n【'); 
+                            formattedDesc = formattedDesc.trim();
+                            formattedDesc = formattedDesc
+                                .replace(/【([^】]+)】/g, '<strong class="text-white">【$1】</strong>')
+                                .replace(/\n/g, '<br>');
+                        }
+
+
+                        container.innerHTML += `
+                            <div class="dark-card p-4 rounded-md mb-4 relative group">
+                                <div class="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
+                                    <i class="fas ${iconClass} text-8xl text-white"></i>
+                                </div>
+
+                                <div class="flex justify-between items-start relative z-10 mb-2">
+                                    <div class="w-3/4">
+                                        <span class="text-[#c5a059] font-bold text-lg font-mono flex items-center">
+                                            <i class="far fa-clock mr-2 text-xs"></i>${date} ${weekdayDisplay} ${time}
+                                        </span>
+                                        <h3 class="text-xl font-bold mt-1 text-white leading-tight">${location}</h3>
+                                        <div class="text-xs text-gray-400 mt-2 uppercase tracking-widest border-b border-gray-700 inline-block pb-1">${type}</div>
+                                    </div>
+                                    ${navLink ? `<a href="${navLink}" target="_blank" class="w-10 h-10 bg-[#333] border border-[#c5a059] text-[#c5a059] flex items-center justify-center rounded-full shadow-lg active:scale-95"><i class="fas fa-location-arrow"></i></a>` : ''}
+                                </div>
+                                
+                                <div class="space-y-2 mt-3 relative z-10">
+                                    ${bookingInfo ? `
+                                        <div class="info-card-style text-xs">
+                                            <div class="info-card-title">預約資訊</div>
+                                            ${bookingInfo}
+                                            ${orderId ? `<div class="mt-1 font-mono text-[#c5a059]">NO. ${orderId}</div>` : ''}
+                                        </div>
+                                    ` : ''}
+
+                                    ${trafficInfo ? `
+                                        <div class="info-card-style text-xs">
+                                            <div class="info-card-title">交通資訊</div>
+                                            <i class="fas fa-bus mr-1 text-[#c5a059]"></i> ${trafficInfo}
+                                        </div>
+                                    ` : ''}
+
+                                    ${phone ? `
+                                        <a href="tel:${phone}" class="block bg-[#2a1a1a] border border-[#5d4d2b] text-[#c5a059] text-center py-2 rounded text-sm font-bold active:bg-[#3d2a2a] transition-colors mt-2">
+                                            <i class="fas fa-phone-alt mr-2"></i>撥打電話：${phone}
+                                        </a>
+                                    ` : ''}
+
+                                    ${formattedDesc ? `
+                                        <div class="mt-2 pt-2 border-t border-[#333] text-sm text-gray-300 leading-relaxed font-serif">
+                                            ${formattedDesc}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                } catch (e) {
+                    console.error("Rendering Error:", e);
+                    // 如果資料載入成功但渲染失敗，顯示錯誤訊息
+                    container.innerHTML = `
+                        <h2 class="text-xl gothic-font mb-4 border-l-4 border-[#c5a059] pl-3">推演任務：行程指南</h2>
+                        <div class="dark-card p-4 text-center text-red-500">
+                            <i class="fas fa-bug mr-2"></i>資料破譯異常。請檢查 Google Sheet 欄位是否有誤，或重新整理。
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // --- RENDER 2: 莊園日誌 ---
+        function renderJournal(forceReload = false) {
+            const container = document.getElementById('page-journal');
+
+             // 避免重複渲染，除非是強制刷新
+            if (!forceReload && container.children.length > 1 && !container.innerHTML.includes('loader')) {
+                return;
+            }
+            
+            container.innerHTML = `<div class="loader"></div><p class="text-center text-xs text-gray-500">正在破譯密碼機...</p>`;
+
+            fetchCSV(URL_JOURNAL, (data) => {
+                try {
+                    container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：代墊回聲</h2>`;
+                    
+                    let totalDebt = 0;
+                    let dataHtml = '';
+
+                    if (!data || data.length === 0) {
+                        dataHtml = `<div class="text-center text-gray-500 mt-8">日誌空白</div>`;
+                    } else {
+                        data.forEach(row => {
+                            const name = row['姓名'];
+                            const item = row['代墊項目'];
+                            
+                            // 確保有基本資訊才顯示
+                            if(!name || !item || name === '' || item === '') return;
+
+                            const rawDebt = (row['待收金額'] || '0').toString().replace(/[^0-9]/g, '');
+                            let debt = parseInt(rawDebt) || 0;
+                            
+                            // 修正結清邏輯：如果欄位明確寫「是」，或是「有姓名項目但金額為 0」，都視為已結清
+                            const isClearText = (row['是否已結清'] || '').toLowerCase();
+                            const isClear = isClearText.includes('是') || (debt === 0);
+
+                            // 只有未結清且金額大於 0 的才加到總數
+                            if (isClear) {
+                                debt = 0; // 結清的項目，確保顯示為 0
+                            } else {
+                                totalDebt += debt;
+                            }
+                            
+                            const statusText = isClear ? '已結清' : '未結清';
+                            const statusColor = isClear ? 'text-green-700 border-green-700' : 'text-[#8a0a0a] border-[#8a0a0a]';
+                            const cardOpacity = isClear ? 'opacity-60 grayscale' : '';
+                            
+
+                            // 羊皮紙風格渲染列表
+                            dataHtml += `
+                                <div class="parchment-style ${cardOpacity}">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="text-lg font-bold text-[#5c4033] font-serif">${name}</div>
+                                        <div class="text-[10px] border px-1 rounded font-bold ${statusColor}">${statusText}</div>
+                                    </div>
+                                    <div class="text-xs text-[#6b5646] mb-2 border-b border-[#a89f91] pb-1">${item}</div>
+                                    <div class="flex justify-end items-center">
+                                        <span class="text-xs text-[#5c4033] mr-2 font-bold">待支付:</span>
+                                        <img src="${ICON_ECHO}" class="currency-icon">
+                                        <span class="text-xl font-bold text-[#8a0a0a]">${debt.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    // 加上管家圖片 (Header)
+                    const headerHtml = `
+                        <div class="butler-container">
+                            <div class="relative z-10 text-center">
+                                <p class="text-[#c5a059] text-xs tracking-widest mb-1">CURRENT DEBT</p>
+                                <div class="flex justify-center items-center">
+                                    <img src="${ICON_ECHO}" class="w-8 h-8 mr-2 drop-shadow-md">
+                                    <p class="text-4xl text-white font-bold tracking-tighter" style="text-shadow: 0 0 10px #ff0000;">${totalDebt.toLocaleString()}</p>
+                                </div>
+                                <p class="text-[10px] text-gray-500 mt-2">總待收回聲</p>
+                            </div>
+                            <img src="${IMG_BUTLER}" class="butler-img" alt="Butler">
+                        </div>
+                    `;
+
+                    container.innerHTML += headerHtml + `<div class="relative z-10 pb-20">` + dataHtml + `</div>`;
+                } catch (e) {
+                    console.error("Journal Rendering Error:", e);
+                    // 如果資料載入成功但渲染失敗，顯示錯誤訊息
+                    container.innerHTML = `
+                        <h2 class="text-xl gothic-font mb-4 border-l-4 border-[#8a0a0a] pl-3">莊園日誌：代墊回聲</h2>
+                        <div class="dark-card p-4 text-center text-red-500">
+                            <i class="fas fa-bug mr-2"></i>日誌資料解析異常。請檢查 Google Sheet 欄位是否有誤，或重新整理。
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // --- RENDER 3: 記憶碎片 ---
+        function renderMemoryFragment() {
+            const container = document.getElementById('page-memory');
+            container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人記帳</h2>`;
+            container.innerHTML += `<p class="text-[10px] text-gray-500 mb-4 pl-3">※ 此處紀錄僅儲存於您的裝置，清除快取將會消失</p>`;
+            
+            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
+            
+            let total = 0;
+            const chartData = {};
+            ledger.forEach(item => {
+                total += item.amount;
+                chartData[item.category] = (chartData[item.category] || 0) + item.amount;
+            });
+
+            const categories = ['餐飲費用', '交通費用', '娛樂費用', '住宿費用', '伴手禮', '治裝/保養費用', '電信費用', '醫療費用', '日用品採買費用', '其他費用'];
+            
+            // 圖表區 (深色風格)
+            container.innerHTML += `
+                <div class="dark-card p-4 mb-6">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                        <h3 class="text-lg font-bold text-white gothic-font">花費分析</h3>
+                        <div class="flex items-center">
+                            <img src="${ICON_FRAGMENT}" class="currency-icon w-6 h-6">
+                            <span class="text-2xl font-bold text-[#c5a059] ml-1">${total.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="w-48 h-48 mx-auto relative mt-4">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="dark-card p-4 mb-6" style="border: 1px solid #555;">
+                    <div class="space-y-3">
+                        <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">${categories.map(c=>`<option>${c}</option>`).join('')}</select>
+                        <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱">
+                        <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量">
+                        <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest hover:bg-[#c5a059]/10">記錄碎片</button>
+                    </div>
+                </div>
+                <div id="ledger-list" class="space-y-2 pb-20"></div>
+            `;
+            setTimeout(() => {
+                renderLedgerList(ledger);
+                renderChart(chartData);
+            }, 0);
+        }
+
+        function renderLedgerList(ledger) {
+            const listDiv = document.getElementById('ledger-list');
+            if(ledger.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; return;
+            }
+            
+            listDiv.innerHTML = ledger.map((item, idx) => `
+                <div class="dark-card p-2 flex justify-between items-center text-sm" style="margin-bottom: 8px;">
+                    <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div>
+                    <div class="flex items-center">
+                        <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3">
+                        <span class="mx-1 font-bold text-white">${item.amount}</span>
+                        <button onclick="delExpense(${idx})" class="text-red-500 ml-2 hover:text-red-400"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function addExpense() { 
+            const cat = document.getElementById('expense-cat').value;
+            const item = document.getElementById('expense-item').value;
+            const amt = parseInt(document.getElementById('expense-amt').value);
+            if(isNaN(amt) || !item || amt <= 0) return alert("請輸入有效的項目名稱和碎片數量");
+            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
+            ledger.unshift({ category: cat, item: item, amount: amt, time: Date.now() });
+            localStorage.setItem('personalLedger', JSON.stringify(ledger));
+            renderMemoryFragment();
+        }
+
+        window.delExpense = function(idx) { 
+            if(!confirm("確定要刪除此筆紀錄嗎？")) return;
+            const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
+            ledger.splice(idx, 1);
+            localStorage.setItem('personalLedger', JSON.stringify(ledger));
+            renderMemoryFragment();
+        }
+
+        function renderChart(dataObj) { 
+            const ctx = document.getElementById('expenseChart');
+            if(!ctx) return;
+            if(window.myPieChart) window.myPieChart.destroy();
+            
+            const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a'];
+            const hasData = Object.values(dataObj).some(val => val > 0);
+            
+            if (!hasData) { 
+                ctx.style.display = 'none'; 
+                // 顯示一個預設的訊息
+                if(ctx.parentElement) {
+                    let msg = ctx.parentElement.querySelector('.no-data-msg');
+                    if (!msg) {
+                        msg = document.createElement('div');
+                        msg.className = 'no-data-msg text-center text-gray-500 text-sm mt-8';
+                        msg.innerText = '無花費紀錄，請新增碎片。';
+                        ctx.parentElement.appendChild(msg);
+                    }
+                }
+                return;
+            } else { 
+                ctx.style.display = 'block'; 
+                // 移除無數據訊息
+                let msg = ctx.parentElement.querySelector('.no-data-msg');
+                if (msg) msg.remove();
+            }
+
+            window.myPieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(dataObj),
+                    datasets: [{
+                        data: Object.values(dataObj),
+                        backgroundColor: chartColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        window.onload = function() {
+            initMusicPlayer();
+            // 首次載入時強制渲染推演任務頁
+            renderSchedule(true); 
+        };
 
     </script>
 </body>
