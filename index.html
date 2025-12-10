@@ -733,6 +733,11 @@
             });
         }
 
+// 記帳類別常數定義 (新增收入類別)
+const INCOME_CATEGORY = "收入";
+const EXPENSE_CATEGORIES = ['餐飲費用', '交通費用', '娛樂費用', '住宿費用', '治裝/保養費用', '電信費用', '日用品採買費用', '其他費用'];
+const ALL_CATEGORIES = [INCOME_CATEGORY, ...EXPENSE_CATEGORIES];
+
 // --- RENDER 3: 記憶碎片 (個人記帳) ---
 function renderMemoryFragment() {
     const container = document.getElementById('page-memory');
@@ -760,9 +765,6 @@ function renderMemoryFragment() {
             }
         }
     });
-
-const INCOME_CATEGORY = "收入";
-const EXPENSE_CATEGORIES = ['餐飲費用', '交通費用', '娛樂費用', '住宿費用', '治裝/保養費用', '電信費用', '日用品採買費用', '其他費用'];
 
     const netTotal = totalIncome - totalExpense; // 淨餘額 (收入 - 支出)
 
