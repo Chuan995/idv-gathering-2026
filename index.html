@@ -287,11 +287,12 @@
 
     <script>
         // ==========================================
-        //  CONFIG: 資源設定
+        //  CONFIG: 資源設定 (已使用您提供的有效連結修正)
         // ==========================================
-        const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?single=true&output=csv";
-        const URL_SCHEDULE = BASE_CSV_URL + "&gid=1831823101";
-        const URL_JOURNAL = BASE_CSV_URL + "&gid=1624206298";
+        // V8.1 修正: 直接使用完整 GID 連結，避免 URL 組合問題
+        const URL_SCHEDULE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?gid=1831823101&single=true&output=csv";
+        const URL_JOURNAL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNIW1QI0_whsOHzNfZFcg5r4LRg5RZwYkIQ_i0HtVDm74tuNtNJmoPu-1916yziA/pub?gid=1624206298&single=true&output=csv";
+
         // GitHub Raw Links
         const CDN_BASE = 'https://raw.githubusercontent.com/Chuan995/idv-gathering-2026/main';
         const IMG_TEAM_ICON = CDN_BASE + '/Identity_V_logo.png';
@@ -755,12 +756,12 @@
             });
         }
 
-        // --- RENDER 3: 記憶碎片 ---
+        // --- RENDER 3: 記憶碎片 (已包含 V8.0 所有修改) ---
         function renderMemoryFragment() {
             const container = document.getElementById('page-memory');
             const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
 
-            // V8.0 START: 更新 HTML 結構
+            // V8.0 START: 更新 HTML 結構 (收支總覽區塊)
             container.innerHTML = `
                 <h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人記帳</h2>
                 <p class="text-[10px] text-gray-500 mb-4 pl-3">※ 此處紀錄僅儲存於您的裝置，清除快取將會消失</p>
@@ -834,7 +835,7 @@
                     <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div> 
                     <div class="flex items-center"> 
                         <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3"> 
-                        <span class="mx-1 font-bold ${amountClass}">${sign}${item.amount}</span> 
+                        <span class="mx-1 font-bold ${amountClass}">${sign}${item.amount.toLocaleString()}</span> 
                         <button onclick="delExpense(${idx})" class="text-red-500 ml-2 hover:text-red-400"><i class="fas fa-times"></i></button> 
                     </div> 
                 </div>
