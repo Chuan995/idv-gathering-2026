@@ -733,259 +733,167 @@
             });
         }
 
-// --- RENDER 3: 記憶碎片 ---
-const LEDGER_CATEGORIES = {
-    expense: ['餐飲費用', '交通費用', '娛樂費用', '住宿費用', '治裝/保養費用', '電信費用', '日用品採買費用', '其他費用'],
-    // 修正：收入類別精簡為單一選項
-    income: ['收入'] 
-};
-
-/**
- * 計算總收入、總支出和淨餘額。
- * @param {Array} ledger - 記帳紀錄陣列
- * @returns {Object} 包含 totalIncome, totalExpense, netTotal
- */
-function calculateTotals(ledger) {
-    let totalIncome = 0;
-    let totalExpense = 0; // 支出以絕對值計算
-
-    ledger.forEach(item => {
-        if (item.amount > 0) {
-            totalIncome += item.amount;
-        } else {
-            // 由於 addExpense 將支出存為負數，這裡取絕對值
-            totalExpense += Math.abs(item.amount); 
-        }
-    });
-
-    return {
-        totalIncome: totalIncome,
-        totalExpense: totalExpense,
-        netTotal: totalIncome - totalExpense
-    };
-}
-
-
+// --- RENDER 3: 記憶碎片 (個人記帳) ---
 function renderMemoryFragment() {
     const container = document.getElementById('page-memory');
-    
-    // 1. 取得數據並計算總額
-    const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
-    const totals = calculateTotals(ledger);
-
-    // 計算用於圖表的支出數據 (只包含負數金額的紀錄)
-    const expenseData = {};
-    ledger.forEach(item => {
-        if (item.amount < 0) {
-            // 儲存為正數，用於圖表渲染
-            expenseData[item.category] = (expenseData[item.category] || 0) + Math.abs(item.amount); 
-        }
-    });
-    
-    // 總收入的顏色: 綠色 | 總支出的顏色: 紅色
-    const incomeColor = 'text-green-500';
-    const expenseColor = 'text-red-500';
-
-    // 淨餘額的顏色: 金色或紅色
-    const netColor = totals.netTotal >= 0 ? 'text-[#c5a059]' : 'text-red-500';
-    
-    // 頁面開始
     container.innerHTML = `<h2 class="text-xl gothic-font mb-4 border-l-4 border-gray-500 pl-3">記憶碎片：個人記帳</h2>`;
     container.innerHTML += `<p class="text-[10px] text-gray-500 mb-4 pl-3">※ 此處紀錄僅儲存於您的裝置，清除快取將會消失</p>`;
-    
-    // 2. 收支總覽區塊
-    container.innerHTML += `
-        <div class="dark-card p-4 mb-6" style="border: 1px solid #c5a059;">
-            <h3 class="text-lg font-bold text-[#c5a059] gothic-font mb-3 border-b border-gray-700 pb-2">收支總覽 (Total Overview)</h3>
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-gray-400">總收入 (Income)</span>
-                    <span class="font-bold ${incomeColor}">+ ${totals.totalIncome.toLocaleString()}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">總支出 (Expense)</span>
-                    <span class="font-bold ${expenseColor}">- ${totals.totalExpense.toLocaleString()}</span>
-                </div>
-                <div class="flex justify-between border-t border-gray-700 pt-3 mt-3">
-                    <span class="text-white font-bold">淨餘額 (Net Total)</span>
-                    <span class="text-xl font-extrabold ${netColor}">${totals.netTotal.toLocaleString()}</span>
-                </div>
-            </div>
-        </div>
-    `;
 
-    // 3. 圖表區 (只顯示支出分析)
+    const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
+    
+    // 數據計算：區分收入與支出
+    let totalIncome = 0;
+    let totalExpense = 0;
+    const expenseChartData = {}; 
+
+    ledger.forEach(item => {
+        // 兼容舊數據，若無 type 則從 category 推斷
+        const type = item.type || (item.category === INCOME_CATEGORY ? 'income' : 'expense'); 
+        
+        if (type === 'income') {
+            totalIncome += item.amount;
+        } else {
+            totalExpense += item.amount;
+            // 只統計支出類別
+            if(item.category !== INCOME_CATEGORY) {
+                 expenseChartData[item.category] = (expenseChartData[item.category] || 0) + item.amount;
+            }
+        }
+    });
+
+const INCOME_CATEGORY = "收入";
+const EXPENSE_CATEGORIES = ['餐飲費用', '交通費用', '娛樂費用', '住宿費用', '治裝/保養費用', '電信費用', '日用品採買費用', '其他費用'];
+
+    const netTotal = totalIncome - totalExpense; // 淨餘額 (收入 - 支出)
+
+    // 圖表與收支總覽區 (採用新風格)
     container.innerHTML += `
         <div class="dark-card p-4 mb-6">
-            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
-                <h3 class="text-lg font-bold text-white gothic-font">花費分析 (支出)</h3>
-                <div class="flex items-center">
-                    <img src="${ICON_FRAGMENT}" class="currency-icon w-6 h-6">
-                    <span class="text-2xl font-bold ${expenseColor} ml-1">${totals.totalExpense.toLocaleString()}</span>
+            <h3 class="text-lg font-bold text-white gothic-font mb-3 border-b border-gray-700 pb-2">收支總覽</h3>
+            
+            <div class="grid grid-cols-3 gap-3 text-center mb-4">
+                <div class="border-r border-gray-700">
+                    <div class="text-[10px] text-gray-500">總收入</div>
+                    <div class="text-lg font-bold text-green-400">${totalIncome.toLocaleString()}</div>
+                </div>
+                <div class="border-r border-gray-700">
+                    <div class="text-[10px] text-gray-500">總支出</div>
+                    <div class="text-lg font-bold text-red-400">${totalExpense.toLocaleString()}</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-500">淨餘額</div>
+                    <div class="text-xl font-bold ${netTotal >= 0 ? 'text-[#c5a059]' : 'text-red-600'}">${netTotal.toLocaleString()}</div>
                 </div>
             </div>
+
+            <h3 class="text-sm font-bold text-white gothic-font mt-4 mb-3 border-t border-gray-700 pt-3">支出類別細分</h3>
             <div class="w-48 h-48 mx-auto relative mt-4">
                 <canvas id="expenseChart"></canvas>
             </div>
+            <div class="no-data-msg text-center text-gray-500 text-sm mt-8" style="display: none;">無花費紀錄，請新增碎片。</div>
         </div>
-    `;
 
-    // 4. 輸入表單 (根據類型切換類別選項)
-    const expenseOptions = LEDGER_CATEGORIES.expense.map(c => `<option value="${c}">${c}</option>`).join('');
-    // 修正：單一收入選項
-    const incomeOptions = LEDGER_CATEGORIES.income.map(c => `<option value="${c}">${c}</option>`).join('');
-
-    container.innerHTML += `
         <div class="dark-card p-4 mb-6" style="border: 1px solid #555;">
             <div class="space-y-3">
-                <select id="expense-type" onchange="updateCategoryOptions()" class="w-full p-2 fragment-input rounded text-sm">
-                    <option value="expense">類型：支出</option>
-                    <option value="income">類型：收入</option>
+                <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">
+                    ${ALL_CATEGORIES.map(c=>`<option>${c}</option>`).join('')}
                 </select>
-                <select id="expense-cat" class="w-full p-2 fragment-input rounded text-sm">${expenseOptions}</select>
-                <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱">
-                <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量">
-                <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest hover:bg-[#c5a059]/10">記錄碎片</button>
+                <input type="text" id="expense-item" class="w-full p-2 fragment-input rounded text-sm" placeholder="項目名稱 (例如：晚餐聚餐 / 收到轉帳)">
+                <input type="number" id="expense-amt" class="w-full p-2 fragment-input rounded text-sm" placeholder="碎片數量 (請輸入正數)">
+                <button onclick="addExpense()" class="w-full bg-[#1a1a1a] border border-[#c5a059] text-[#c5a059] py-2 rounded mt-2 text-sm font-bold tracking-widest simple-interact hover:bg-[#c5a059]/10">記錄碎片</button>
             </div>
         </div>
-        <div id="ledger-list" class="space-y-2 pb-20"></div>
+        <div id="ledger-list" class="space-y-2 pb-6"></div>
     `;
-    
-    // 5. 延遲渲染列表和圖表
+
     setTimeout(() => {
         renderLedgerList(ledger);
-        renderChart(expenseData); // 傳入的數據只包含支出
+        renderChart(expenseChartData); // 傳入支出數據給圖表
     }, 0);
 }
 
-// 修正後的輔助函數：根據類型切換類別選項
-window.updateCategoryOptions = function() {
-    const type = document.getElementById('expense-type').value;
-    const select = document.getElementById('expense-cat');
+/**
+ * 記帳邏輯：新增 type 欄位來區分收入和支出
+ */
+function addExpense() { 
+    const cat = document.getElementById('expense-cat').value;
+    const item = document.getElementById('expense-item').value;
+    let amt = parseInt(document.getElementById('expense-amt').value);
     
-    let optionsHtml = '';
-    if (type === 'expense') {
-        optionsHtml = LEDGER_CATEGORIES.expense.map(c => `<option value="${c}">${c}</option>`).join('');
-    } else {
-        // 修正：只使用單一的「收入」類別
-        optionsHtml = LEDGER_CATEGORIES.income.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-    select.innerHTML = optionsHtml;
+    if(isNaN(amt) || !item || amt <= 0) return alert("請輸入有效的項目名稱和碎片數量 (必須為正數)");
+    
+    // 判斷是收入還是支出
+    const isIncome = (cat === INCOME_CATEGORY);
+    const type = isIncome ? 'income' : 'expense';
+    
+    const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
+    // 儲存正數金額，並用 type 區分
+    ledger.unshift({ category: cat, item: item, amount: amt, type: type, time: Date.now() }); 
+    localStorage.setItem('personalLedger', JSON.stringify(ledger));
+    
+    // 清空輸入欄位 (新風格要求)
+    document.getElementById('expense-item').value = '';
+    document.getElementById('expense-amt').value = '';
+
+    renderMemoryFragment();
 }
 
-
+/**
+ * 記帳列表渲染邏輯：顯示收入/支出符號與顏色
+ */
 function renderLedgerList(ledger) {
     const listDiv = document.getElementById('ledger-list');
-    
-    // 反轉陣列，讓最新的紀錄顯示在最前面
-    const sortedLedger = [...ledger].sort((a, b) => b.time - a.time);
-
-    if(sortedLedger.length === 0) { 
-        listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; 
-        return;
+    if(ledger.length === 0) { listDiv.innerHTML = '<p class="text-center text-gray-600 text-xs">無紀錄</p>'; return;
     }
     
-    listDiv.innerHTML = sortedLedger.map((item, idx) => {
-        // 判斷是收入還是支出
-        const isIncome = item.amount > 0;
-        const amountDisplay = Math.abs(item.amount).toLocaleString();
-        const sign = isIncome ? '+' : '-';
-        const amountColorClass = isIncome ? 'text-green-400' : 'text-red-400';
-        const bgColor = isIncome ? 'bg-green-900/10' : 'bg-red-900/10';
-        
+    listDiv.innerHTML = ledger.map((item, idx) => {
+        // 判斷是收入還是支出，兼容舊數據
+        const isIncome = (item.type === 'income' || item.category === INCOME_CATEGORY);
+        const amountClass = isIncome ? 'text-green-400' : 'text-red-400'; // 收入綠色，支出紅色
+        const sign = isIncome ? '+' : '-'; // 顯示正負號
+
         return `
-            <div class="dark-card p-2 flex justify-between items-center text-sm ${bgColor}" style="margin-bottom: 8px;">
+            <div class="dark-card p-2 flex justify-between items-center text-sm" style="margin-bottom: 8px;">
                 <div><span class="text-[#c5a059] mr-2">[${item.category}]</span>${item.item}</div>
                 <div class="flex items-center">
                     <img src="${ICON_FRAGMENT}" class="currency-icon w-3 h-3">
-                    <span class="mx-1 font-bold ${amountColorClass}">${sign} ${amountDisplay}</span>
-                    <button onclick="delExpense(${idx})" class="text-red-500 ml-2 hover:text-red-400"><i class="fas fa-times"></i></button>
+                    <span class="mx-1 font-bold ${amountClass}">${sign}${item.amount.toLocaleString()}</span>
+                    <button onclick="delExpense(${idx})" class="text-gray-500 ml-2 simple-interact hover:text-red-400"><i class="fas fa-times"></i></button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// 修正後的 addExpense (根據類型存為正數或負數)
-function addExpense() { 
-    const type = document.getElementById('expense-type').value;
-    const cat = document.getElementById('expense-cat').value;
-    const item = document.getElementById('expense-item').value;
-    let amt = parseInt(document.getElementById('expense-amt').value);
-
-    if (isNaN(amt) || !item || amt <= 0) return alert("請輸入有效的項目名稱和碎片數量");
-
-    // 支出存為負數，收入存為正數
-    if (type === 'expense') {
-        amt = -amt; 
-    }
-    
+window.delExpense = function(idx) { 
+    if(!confirm("確定要刪除此筆紀錄嗎？")) return;
     const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
-    
-    // 儲存最新的紀錄
-    ledger.push({ 
-        category: cat, 
-        item: item, 
-        amount: amt, 
-        time: Date.now() // 新增時間戳
-    }); 
-    
+    ledger.splice(idx, 1);
     localStorage.setItem('personalLedger', JSON.stringify(ledger));
-    
-    // 清空輸入框
-    document.getElementById('expense-item').value = '';
-    document.getElementById('expense-amt').value = '';
-    
     renderMemoryFragment();
 }
 
-window.delExpense = function(sortedIdx) { 
-    if(!confirm("確定要刪除此筆紀錄嗎？")) return;
-    
-    const ledger = JSON.parse(localStorage.getItem('personalLedger') || '[]');
-    
-    // 1. 根據時間戳排序，找到要刪除的元素
-    const sortedLedger = [...ledger].sort((a, b) => b.time - a.time);
-    const itemToDelete = sortedLedger[sortedIdx];
-    
-    // 2. 在原始的 ledger 中找到第一個匹配的元素（使用時間戳作為唯一 ID）
-    const originalIdx = ledger.findIndex(item => item.time === itemToDelete.time);
-    
-    if (originalIdx > -1) {
-        ledger.splice(originalIdx, 1);
-        localStorage.setItem('personalLedger', JSON.stringify(ledger));
-        renderMemoryFragment();
-    } else {
-        alert("刪除失敗，找不到該紀錄。");
-    }
-}
-
-// 圖表渲染 (保持不變，已實現金額和百分比提示)
+/**
+ * 圖表渲染邏輯：只顯示支出類別細分
+ */
 function renderChart(dataObj) { 
     const ctx = document.getElementById('expenseChart');
-    if(!ctx) return;
+    const noDataMsg = document.querySelector('.no-data-msg');
+    if(!ctx || !noDataMsg) return;
     if(window.myPieChart) window.myPieChart.destroy();
     
-    const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a', '#3e2e2e', '#9b59b6'];
+    // 圖表顏色 (採用新風格的更多顏色)
+    const chartColors = ['#8a0a0a', '#c5a059', '#4a4a4a', '#5d4d2b', '#a89f91', '#2a2a2a', '#770000', '#3e3e3e', '#b8860b', '#3a2a1a'];
+    
     const hasData = Object.values(dataObj).some(val => val > 0);
     
-    // 處理無數據情況
     if (!hasData) { 
-        ctx.style.display = 'none'; 
-        if(ctx.parentElement) {
-            let msg = ctx.parentElement.querySelector('.no-data-msg');
-            if (!msg) {
-                msg = document.createElement('div');
-                msg.className = 'no-data-msg text-center text-gray-500 text-sm mt-8';
-                msg.innerText = '無花費紀錄，請新增碎片。';
-                ctx.parentElement.appendChild(msg);
-            }
-        }
+        ctx.style.display = 'none';
+        noDataMsg.style.display = 'block'; // 顯示無數據訊息
         return;
     } else { 
-        ctx.style.display = 'block'; 
-        let msg = ctx.parentElement.querySelector('.no-data-msg');
-        if (msg) msg.remove();
+        ctx.style.display = 'block';
+        noDataMsg.style.display = 'none'; // 隱藏無數據訊息
     }
 
     window.myPieChart = new Chart(ctx, {
@@ -994,37 +902,32 @@ function renderChart(dataObj) {
             labels: Object.keys(dataObj),
             datasets: [{
                 data: Object.values(dataObj),
-                backgroundColor: chartColors.slice(0, Object.keys(dataObj).length),
+                backgroundColor: chartColors,
                 borderWidth: 0
             }]
         },
         options: { 
             responsive: true, 
             plugins: { 
-                legend: { 
-                    display: true, // 顯示圖例
-                    position: 'bottom',
-                    labels: {
-                        color: '#d1d1d1',
-                        font: { size: 10 }
-                    }
-                },
-                tooltip: {
+                legend: { display: false },
+                tooltip: { // 新增 tooltip 顯示百分比
                     callbacks: {
                         label: function(context) {
-                            const label = context.label || '';
-                            const value = context.parsed;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = (value / total * 100).toFixed(1) + '%';
-                            // 顯示 加總金額 和 百分比
-                            return `${label}: ${value.toLocaleString()} (${percentage})`;
+                            let label = context.label || '';
+                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let value = context.parsed;
+                            let percentage = ((value / total) * 100).toFixed(1) + '%';
+                            
+                            if (label) { label += ': '; }
+                            if (value !== null) { 
+                                label += `${value.toLocaleString()} (${percentage})`; 
+                            }
+                            return label;
                         }
                     }
                 }
-            },
-            maintainAspectRatio: false,
-            cutout: '60%', // 甜甜圈效果
-        } 
+            } 
+        }
     });
 }
 
